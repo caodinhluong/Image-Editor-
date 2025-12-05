@@ -1,12 +1,15 @@
+
 import React from 'react';
 import { 
   Wand2, Users, ShoppingBag, Sun, Moon, ArrowRight, 
   Twitter, Github, Linkedin, Facebook, Globe, Shield, 
-  CheckCircle2, Play
+  CheckCircle2, Play, Layout, Image as ImageIcon,
+  MoreHorizontal, Sparkles, Zap, Command
 } from 'lucide-react';
 import { Button, Badge } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import Hyperspeed from './Hyperspeed';
 
 interface LandingPageProps {
   onLogin: () => void;
@@ -55,19 +58,45 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white selection:bg-repix-500/30 font-sans">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white selection:bg-repix-500/30 font-sans relative">
       
-      {/* BACKGROUND LAYER - Static & Simple */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-         {/* Subtle top glow */}
-         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80vw] h-[500px] bg-gradient-to-b from-repix-500/10 via-purple-500/5 to-transparent blur-[100px] rounded-full opacity-60"></div>
-         
-         {/* Corner blobs */}
-         <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-pink-500/10 blur-[120px] rounded-full"></div>
-         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-blue-500/10 blur-[120px] rounded-full"></div>
-
-         {/* Global Grain/Noise Texture */}
-         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+      {/* HYPERSPEED BACKGROUND LAYER */}
+      <div className="fixed inset-0 z-0 overflow-hidden">
+         <Hyperspeed 
+            effectOptions={{
+              colors: {
+                roadColor: 0x000000, // Pitch black road for contrast
+                islandColor: 0x0a0a0a,
+                background: 0x000000, // Deep black background
+                shoulderLines: 0xFFFFFF,
+                brokenLines: 0xFFFFFF,
+                // Left Cars: Pink & Purple (Matches from-pink-500 via-repix-500)
+                leftCars: [0xEC4899, 0xD946EF, 0xA855F7], 
+                // Right Cars: Blue & Cyan (Matches to-accent-blue)
+                rightCars: [0x3B82F6, 0x06B6D4, 0x6366F1], 
+                // Sticks: Glowing White/Purple for high visibility
+                sticks: 0xF3E8FF 
+              },
+              distortion: 'turbulentDistortion',
+              length: 400,
+              roadWidth: 9,
+              islandWidth: 2,
+              lanesPerRoad: 3,
+              fov: 90,
+              fovSpeedUp: 150,
+              speedUp: 2,
+              carLightsFade: 0.4,
+              totalSideLightSticks: 50,
+              lightPairsPerRoadWay: 40,
+              // Increase width for more "Glow"
+              lightStickWidth: [0.1, 0.5],
+              lightStickHeight: [1.3, 1.7],
+              carLightsRadius: [0.05, 0.15],
+              carWidthPercentage: [0.4, 0.6]
+            }}
+         />
+         {/* Gradient Overlay to ensure text readability */}
+         <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/40 to-white/90 dark:from-black/90 dark:via-black/40 dark:to-black/90 backdrop-blur-[1px]"></div>
       </div>
 
       {/* --- FLOATING NAVBAR --- */}
@@ -129,7 +158,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
            </span>
         </h1>
 
-        <p className="max-w-2xl text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+        <p className="max-w-2xl text-lg md:text-xl text-zinc-600 dark:text-zinc-300 mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 drop-shadow-md">
            The first AI-native photo editor designed for high-performance teams. 
            Real-time collaboration, generative assets, and global edge delivery.
         </p>
@@ -138,32 +167,111 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
            <Button size="lg" variant="primary" className="rounded-full h-14 px-8 text-lg shadow-2xl shadow-repix-500/40 hover:scale-105 transition-transform" onClick={onSignup}>
               Start Creating <ArrowRight className="ml-2" />
            </Button>
-           <Button size="lg" variant="secondary" className="rounded-full h-14 px-8 text-lg bg-white/80 dark:bg-white/10 backdrop-blur-md border border-zinc-200 dark:border-white/10 hover:bg-white dark:hover:bg-white/20">
+           <Button size="lg" variant="secondary" className="rounded-full h-14 px-8 text-lg bg-white/80 dark:bg-black/30 backdrop-blur-md border border-zinc-200 dark:border-white/10 hover:bg-white dark:hover:bg-white/20">
               <Play size={18} className="mr-2" /> Watch Demo
            </Button>
         </div>
 
-        {/* Floating App Preview */}
-        <div className="mt-20 w-full max-w-6xl relative animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500">
-           <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 via-repix-500 to-accent-blue rounded-xl blur opacity-30 animate-pulse"></div>
-           <div className="relative rounded-xl overflow-hidden border border-zinc-200 dark:border-white/10 shadow-2xl bg-zinc-900/50 backdrop-blur-sm aspect-[16/9] group">
-              <img src="https://picsum.photos/seed/interface/1920/1080" className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-[1.02]" alt="Interface" />
-              
-              {/* Floating UI Elements Mockup */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl flex items-center gap-4 shadow-2xl translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                  <div className="w-10 h-10 rounded-full bg-repix-500 flex items-center justify-center text-white"><Wand2 size={20}/></div>
-                  <div>
-                     <div className="h-2 w-24 bg-white/20 rounded-full mb-2"></div>
-                     <div className="h-2 w-16 bg-white/10 rounded-full"></div>
-                  </div>
-                  <div className="px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-lg border border-green-500/30">Processing</div>
+        {/* --- 3D TILTED INTERFACE MOCKUP (REPLACED STATIC IMAGE) --- */}
+        <div className="mt-24 w-full max-w-6xl relative animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500 px-4 perspective-[2000px]">
+           {/* Ambient Glow behind the mockup */}
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-gradient-to-r from-pink-500/30 via-repix-500/30 to-blue-500/30 blur-[100px] rounded-full pointer-events-none"></div>
+
+           {/* The 3D Container - Tilted */}
+           <div 
+             className="relative rounded-xl border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-xl shadow-2xl shadow-black/50 transform rotate-x-12 hover:rotate-x-0 transition-transform duration-1000 ease-out group"
+             style={{ transformStyle: 'preserve-3d', transform: 'rotateX(20deg) scale(0.95)' }}
+           >
+              {/* Fake Window Header */}
+              <div className="h-10 border-b border-zinc-200 dark:border-white/10 flex items-center px-4 gap-2 bg-zinc-50/50 dark:bg-white/5 rounded-t-xl">
+                 <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
+                 </div>
+                 <div className="mx-auto flex items-center gap-2 px-3 py-1 rounded-md bg-zinc-100 dark:bg-black/50 border border-zinc-200 dark:border-white/5 text-[10px] text-zinc-400 font-mono">
+                    <Shield size={10} /> repix.ai/editor/project-neon-v2
+                 </div>
+              </div>
+
+              {/* Fake Editor Body */}
+              <div className="flex h-[500px] md:h-[600px] overflow-hidden rounded-b-xl relative">
+                 
+                 {/* Sidebar */}
+                 <div className="w-14 border-r border-zinc-200 dark:border-white/10 flex flex-col items-center py-4 gap-4 bg-zinc-50/50 dark:bg-white/5 z-10">
+                    {[Layout, ImageIcon, Sparkles, Wand2, Users].map((Icon, i) => (
+                       <div key={i} className={`p-2 rounded-lg ${i === 2 ? 'bg-repix-500 text-white' : 'text-zinc-400 hover:bg-zinc-200 dark:hover:bg-white/10'}`}>
+                          <Icon size={18} />
+                       </div>
+                    ))}
+                 </div>
+
+                 {/* Main Canvas Area */}
+                 <div className="flex-1 bg-zinc-100 dark:bg-black relative overflow-hidden flex items-center justify-center p-8">
+                    {/* Grid Pattern */}
+                    <div className="absolute inset-0 bg-[radial-gradient(#27272a_1px,transparent_1px)] [background-size:20px_20px] opacity-20"></div>
+
+                    {/* The Image Canvas */}
+                    <div className="relative w-full max-w-2xl aspect-[4/3] bg-zinc-900 shadow-2xl rounded-lg overflow-hidden border border-white/10 group-hover:scale-[1.02] transition-transform duration-700">
+                       <img 
+                          src="https://picsum.photos/seed/neon/1200/900" 
+                          alt="Canvas" 
+                          className="w-full h-full object-cover opacity-80"
+                       />
+                       
+                       {/* AI Scanning Effect Overlay */}
+                       <div className="absolute inset-0 bg-gradient-to-b from-repix-500/0 via-repix-500/10 to-repix-500/0 animate-[scan_3s_ease-in-out_infinite] border-b-2 border-repix-500/50"></div>
+
+                       {/* Selection Box */}
+                       <div className="absolute top-[20%] left-[30%] w-[40%] h-[50%] border border-repix-500 rounded-lg shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-repix-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                             <Sparkles size={8} /> Generating...
+                          </div>
+                       </div>
+                    </div>
+
+                    {/* Floating Tool Palettes */}
+                    
+                    {/* Top Right: Properties */}
+                    <div className="absolute top-6 right-6 w-48 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-xl border border-zinc-200 dark:border-white/10 p-3 shadow-xl transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-700 delay-100">
+                       <div className="flex items-center justify-between mb-3 border-b border-zinc-200 dark:border-white/10 pb-2">
+                          <span className="text-xs font-bold text-zinc-900 dark:text-white">Adjustments</span>
+                          <MoreHorizontal size={12} className="text-zinc-400"/>
+                       </div>
+                       <div className="space-y-3">
+                          {[1, 2, 3].map(i => (
+                             <div key={i} className="h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-repix-500 rounded-full" style={{width: `${i * 30}%`}}></div>
+                             </div>
+                          ))}
+                       </div>
+                    </div>
+
+                    {/* Bottom Center: Prompt Bar */}
+                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-lg bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl rounded-full border border-repix-500/30 p-2 pl-4 flex items-center gap-3 shadow-2xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700">
+                       <Sparkles size={16} className="text-repix-500 animate-pulse" />
+                       <div className="flex-1 text-sm text-zinc-400 font-medium truncate">
+                          Add neon cybernetics to the portrait...
+                       </div>
+                       <div className="h-8 w-8 rounded-full bg-repix-500 flex items-center justify-center text-white">
+                          <ArrowRight size={14} />
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Right Sidebar (Collapsed) */}
+                 <div className="w-14 border-l border-zinc-200 dark:border-white/10 bg-zinc-50/50 dark:bg-white/5 z-10 hidden md:flex flex-col items-center py-4 gap-4">
+                     <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
+                     <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 opacity-50"></div>
+                     <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 opacity-50"></div>
+                 </div>
               </div>
            </div>
         </div>
       </section>
 
       {/* --- TRUSTED BY MARQUEE --- */}
-      <section className="py-12 border-y border-zinc-200 dark:border-white/5 bg-zinc-50/50 dark:bg-zinc-900/20 backdrop-blur-sm overflow-hidden relative z-10">
+      <section className="py-12 border-y border-zinc-200 dark:border-white/5 bg-zinc-50/50 dark:bg-zinc-900/80 backdrop-blur-md overflow-hidden relative z-10">
          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white dark:from-black to-transparent z-10"></div>
          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white dark:from-black to-transparent z-10"></div>
          
