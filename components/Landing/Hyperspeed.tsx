@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import * as THREE from 'three';
 
-// --- Types & Interfaces ---
-
+// --- Configuration Types ---
 interface Distortion {
   uniforms: Record<string, { value: any }>;
   getDistortion: string;
@@ -51,15 +50,13 @@ export interface HyperspeedOptions {
   carShiftX: [number, number];
   carFloorSeparation: [number, number];
   colors: Colors;
-  isHyper?: boolean;
 }
 
 interface HyperspeedProps {
   effectOptions?: Partial<HyperspeedOptions>;
 }
 
-// --- Defaults ---
-
+// --- Default Options ---
 const defaultOptions: HyperspeedOptions = {
   onSpeedUp: () => {},
   onSlowDown: () => {},
@@ -98,8 +95,7 @@ const defaultOptions: HyperspeedOptions = {
   }
 };
 
-// --- Shaders & Distortions ---
-
+// --- Shaders ---
 const turbulentUniforms = {
   uFreq: { value: new THREE.Vector4(4, 8, 8, 1) },
   uAmp: { value: new THREE.Vector4(25, 5, 10, 10) }
@@ -157,11 +153,11 @@ const distortions: Distortions = {
   }
 };
 
-// Safe access to ShaderChunks in case THREE isn't fully loaded yet (unlikely but safe)
-const fogParsFragment = THREE.ShaderChunk ? THREE.ShaderChunk['fog_pars_fragment'] : '';
-const fogFragment = THREE.ShaderChunk ? THREE.ShaderChunk['fog_fragment'] : '';
-const fogParsVertex = THREE.ShaderChunk ? THREE.ShaderChunk['fog_pars_vertex'] : '';
-const fogVertex = THREE.ShaderChunk ? THREE.ShaderChunk['fog_vertex'] : '';
+// Shader Chunks - Access safely
+const fogParsFragment = THREE.ShaderChunk ? THREE.ShaderChunk.fog_pars_fragment : '';
+const fogFragment = THREE.ShaderChunk ? THREE.ShaderChunk.fog_fragment : '';
+const fogParsVertex = THREE.ShaderChunk ? THREE.ShaderChunk.fog_pars_vertex : '';
+const fogVertex = THREE.ShaderChunk ? THREE.ShaderChunk.fog_vertex : '';
 
 const carLightsFragment = `
   #define USE_FOG;
@@ -209,58 +205,6 @@ const carLightsVertex = `
     vUv = uv;
     vColor = aColor;
     ${fogVertex}
-  }
-`;
-
-const sideSticksVertex = `
-  #define USE_FOG;
-  ${fogParsVertex}
-  attribute float aOffset;
-  attribute vec3 aColor;
-  attribute vec2 aMetrics;
-  uniform float uTravelLength;
-  uniform float uTime;
-  varying vec3 vColor;
-  mat4 rotationY( in float angle ) {
-    return mat4(
-      cos(angle),		0,		sin(angle),	0,
-      0,		        1.0,	0,			0,
-      -sin(angle),	    0,		cos(angle),	0,
-      0, 		        0,		0,			1
-    );
-  }
-  #include <getDistortion_vertex>
-  void main(){
-    vec3 transformed = position.xyz;
-    float width = aMetrics.x;
-    float height = aMetrics.y;
-
-    transformed.xy *= vec2(width, height);
-    float time = mod(uTime * 60. * 2. + aOffset, uTravelLength);
-
-    transformed = (rotationY(3.14/2.) * vec4(transformed,1.)).xyz;
-    transformed.z += - uTravelLength + time;
-
-    float progress = abs(transformed.z / uTravelLength);
-    transformed.xyz += getDistortion(progress);
-
-    transformed.y += height / 2.;
-    transformed.x += -width / 2.;
-    vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.);
-    gl_Position = projectionMatrix * mvPosition;
-    vColor = aColor;
-    ${fogVertex}
-  }
-`;
-
-const sideSticksFragment = `
-  #define USE_FOG;
-  ${fogParsFragment}
-  varying vec3 vColor;
-  void main(){
-    vec3 color = vec3(vColor);
-    gl_FragColor = vec4(color,1.);
-    ${fogFragment}
   }
 `;
 
@@ -338,6 +282,59 @@ const roadVertex = `
   }
 `;
 
+const sideSticksVertex = `
+  #define USE_FOG;
+  ${fogParsVertex}
+  attribute float aOffset;
+  attribute vec3 aColor;
+  attribute vec2 aMetrics;
+  uniform float uTravelLength;
+  uniform float uTime;
+  varying vec3 vColor;
+  mat4 rotationY( in float angle ) {
+    return mat4(
+      cos(angle),		0,		sin(angle),	0,
+      0,		        1.0,	0,			0,
+      -sin(angle),	    0,		cos(angle),	0,
+      0, 		        0,		0,			1
+    );
+  }
+  #include <getDistortion_vertex>
+  void main(){
+    vec3 transformed = position.xyz;
+    float width = aMetrics.x;
+    float height = aMetrics.y;
+
+    transformed.xy *= vec2(width, height);
+    float time = mod(uTime * 60. * 2. + aOffset, uTravelLength);
+
+    transformed = (rotationY(3.14/2.) * vec4(transformed,1.)).xyz;
+    transformed.z += - uTravelLength + time;
+
+    float progress = abs(transformed.z / uTravelLength);
+    transformed.xyz += getDistortion(progress);
+
+    transformed.y += height / 2.;
+    transformed.x += -width / 2.;
+    vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.);
+    gl_Position = projectionMatrix * mvPosition;
+    vColor = aColor;
+    ${fogVertex}
+  }
+`;
+
+const sideSticksFragment = `
+  #define USE_FOG;
+  ${fogParsFragment}
+  varying vec3 vColor;
+  void main(){
+    vec3 color = vec3(vColor);
+    gl_FragColor = vec4(color,1.);
+    ${fogFragment}
+  }
+`;
+
+// --- Helpers ---
 function random(base: number | [number, number]): number {
   if (Array.isArray(base)) {
     return Math.random() * (base[1] - base[0]) + base[0];
@@ -361,7 +358,6 @@ function lerp(current: number, target: number, speed = 0.1, limit = 0.001): numb
 }
 
 // --- App Class ---
-
 class App {
   container: HTMLElement;
   options: HyperspeedOptions;
@@ -371,7 +367,6 @@ class App {
   clock: THREE.Clock;
   disposed: boolean;
   
-  // Custom objects
   road: any;
   leftCarLights: any;
   rightCarLights: any;
@@ -388,12 +383,10 @@ class App {
     this.container = container;
     this.disposed = false;
 
-    // Default distortion if string
     if (typeof this.options.distortion === 'string') {
        this.options.distortion = distortions[this.options.distortion];
     }
 
-    // Setup Renderer
     this.renderer = new THREE.WebGLRenderer({
       antialias: false,
       alpha: true
@@ -402,11 +395,9 @@ class App {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(this.renderer.domElement);
 
-    // Setup Camera
     this.camera = new THREE.PerspectiveCamera(options.fov, container.offsetWidth / container.offsetHeight, 0.1, 10000);
     this.camera.position.set(0, 8, -5);
 
-    // Setup Scene
     this.scene = new THREE.Scene();
     const fog = new THREE.Fog(options.colors.background, options.length * 0.2, options.length * 500);
     this.scene.fog = fog;
@@ -417,8 +408,6 @@ class App {
     };
 
     this.clock = new THREE.Clock();
-
-    // Init Objects (simplified class structure for brevity/robustness in one file)
     this.initWorld();
 
     this.fovTarget = options.fov;
@@ -426,28 +415,24 @@ class App {
     this.speedUp = 0;
     this.timeOffset = 0;
 
-    // Bindings
     this.tick = this.tick.bind(this);
     this.onResize = this.onResize.bind(this);
+    
+    window.addEventListener('resize', this.onResize);
+    
+    // Add interactions
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
-    
-    // Listeners
-    window.addEventListener('resize', this.onResize);
     this.container.addEventListener('mousedown', this.onMouseDown);
     this.container.addEventListener('mouseup', this.onMouseUp);
     this.container.addEventListener('mouseout', this.onMouseUp);
-
+    
     this.tick();
   }
 
   initWorld() {
     const options = this.options;
-    
-    // Road
     this.road = this.createRoad();
-    
-    // Car Lights
     this.leftCarLights = this.createCarLights(
       options.colors.leftCars, 
       options.movingAwaySpeed, 
@@ -460,8 +445,6 @@ class App {
       new THREE.Vector2(1, 0 + options.carLightsFade),
       options.roadWidth/2 + options.islandWidth/2
     );
-
-    // Sticks
     this.leftSticks = this.createSticks(-(options.roadWidth + options.islandWidth/2));
   }
 
@@ -490,13 +473,11 @@ class App {
      const mesh = new THREE.Mesh(geometry, material);
      mesh.rotation.x = -Math.PI / 2;
      mesh.position.z = -options.length / 2;
-     mesh.position.x = -options.roadWidth / 2 - options.islandWidth / 2; // Left road
+     mesh.position.x = -options.roadWidth / 2 - options.islandWidth / 2;
      
-     // Clone for right road
      const meshRight = mesh.clone();
      meshRight.position.x = options.roadWidth / 2 + options.islandWidth / 2;
      
-     // Island
      const islandGeo = new THREE.PlaneGeometry(options.islandWidth, options.length, 20, 100);
      const islandMat = new THREE.ShaderMaterial({
        fragmentShader: islandFragment,
@@ -514,7 +495,7 @@ class App {
      island.position.z = -options.length / 2;
 
      this.scene.add(mesh, meshRight, island);
-     return { left: mesh, right: meshRight, island, update: (t:number) => {
+     return { update: (t:number) => {
         mesh.material.uniforms.uTime.value = t;
         meshRight.material.uniforms.uTime.value = t;
         island.material.uniforms.uTime.value = t;
@@ -533,7 +514,6 @@ class App {
      const aColor: number[] = [];
      
      let colorArray = Array.isArray(colors) ? colors.map(c => new THREE.Color(c)) : [new THREE.Color(colors)];
-
      const laneWidth = options.roadWidth / options.lanesPerRoad;
 
      for (let i = 0; i < options.lightPairsPerRoadWay; i++) {
@@ -547,11 +527,9 @@ class App {
         const carWidth = random(options.carWidthPercentage) * laneWidth;
         const c = pickRandom(colorArray);
         
-        // Left Light
         aOffset.push(laneX - carWidth/2, offY, offZ);
         aMetrics.push(radius, len, spd);
         aColor.push(c.r, c.g, c.b);
-        // Right Light
         aOffset.push(laneX + carWidth/2, offY, offZ);
         aMetrics.push(radius, len, spd);
         aColor.push(c.r, c.g, c.b);
@@ -565,6 +543,7 @@ class App {
         fragmentShader: carLightsFragment,
         vertexShader: carLightsVertex,
         transparent: true,
+        blending: THREE.AdditiveBlending, // Key for Glow effect
         uniforms: Object.assign({
           uTime: { value: 0 },
           uTravelLength: { value: options.length },
@@ -576,7 +555,7 @@ class App {
      const mesh = new THREE.Mesh(instanced, mat);
      mesh.position.x = xOffset;
      this.scene.add(mesh);
-     return { mesh, update: (t:number) => mat.uniforms.uTime.value = t };
+     return { update: (t:number) => mat.uniforms.uTime.value = t };
   }
 
   createSticks(xOffset: number) {
@@ -608,6 +587,7 @@ class App {
         fragmentShader: sideSticksFragment,
         vertexShader: sideSticksVertex,
         side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
         uniforms: Object.assign({
           uTime: { value: 0 },
           uTravelLength: { value: options.length }
@@ -618,7 +598,7 @@ class App {
      const mesh = new THREE.Mesh(instanced, mat);
      mesh.position.x = xOffset;
      this.scene.add(mesh);
-     return { mesh, update: (t:number) => mat.uniforms.uTime.value = t };
+     return { update: (t:number) => mat.uniforms.uTime.value = t };
   }
 
   injectDistortion(material: THREE.ShaderMaterial) {
@@ -651,20 +631,16 @@ class App {
   tick() {
      if (this.disposed) return;
      const delta = this.clock.getDelta();
-     
-     // Update Speed
      const lerpPercentage = Math.exp(-(-60 * Math.log2(1 - 0.1)) * delta);
      this.speedUp += lerp(this.speedUp, this.speedUpTarget, lerpPercentage, 0.00001);
      this.timeOffset += this.speedUp * delta;
      const time = this.clock.elapsedTime + this.timeOffset;
 
-     // Update Objects
      this.road.update(time);
      this.leftCarLights.update(time);
      this.rightCarLights.update(time);
-     this.leftSticks.update(time);
+     if (this.leftSticks) this.leftSticks.update(time);
 
-     // Update Camera FOV & Distortion
      const fovChange = lerp(this.camera.fov, this.fovTarget, lerpPercentage);
      if (Math.abs(fovChange) > 0.01) {
         this.camera.fov += fovChange * delta * 6;
@@ -697,12 +673,16 @@ class App {
 const Hyperspeed: React.FC<HyperspeedProps> = ({ effectOptions = {} }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<App | null>(null);
-
   const mergedOptions = useMemo(() => ({ ...defaultOptions, ...effectOptions }), [effectOptions]);
 
   useEffect(() => {
      if (containerRef.current) {
+        // Cleanup old app if exists to prevent duplicates on hot reload
         if (appRef.current) appRef.current.dispose();
+        // Clear container content
+        while (containerRef.current.firstChild) {
+           containerRef.current.removeChild(containerRef.current.firstChild);
+        }
         appRef.current = new App(containerRef.current, mergedOptions);
      }
      return () => {

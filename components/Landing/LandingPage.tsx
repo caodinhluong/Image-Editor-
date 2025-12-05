@@ -10,6 +10,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import Hyperspeed, { HyperspeedOptions } from './Hyperspeed';
 
 // Configuration for the Hyperspeed background
+// Updated to match the Pink -> Purple -> Blue Gradient Brand Identity
 const hyperspeedColors: Partial<HyperspeedOptions> = {
   colors: {
     roadColor: 0x080808,
@@ -17,9 +18,12 @@ const hyperspeedColors: Partial<HyperspeedOptions> = {
     background: 0x000000,
     shoulderLines: 0xffffff,
     brokenLines: 0xffffff,
-    leftCars: [0xFF00C7, 0xFF00FF, 0xFF55FF], 
-    rightCars: [0x00FFFF, 0x55FFFF, 0x00AAFF],
-    sticks: 0x00FFFF 
+    // Left Side: Pink & Fuchsia Range (Matches the "from-pink-500" of the button)
+    leftCars: [0xEC4899, 0xD946EF, 0xC026D3], 
+    // Right Side: Blue & Cyan Range (Matches the "to-accent-blue" of the button)
+    rightCars: [0x3B82F6, 0x06B6D4, 0x6366F1],
+    // Sticks: Purple (Matches the "via-repix-500")
+    sticks: 0xA855F7 
   },
   distortion: 'turbulentDistortion',
   length: 400,
@@ -109,7 +113,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
       <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
         <div className="w-full max-w-5xl h-14 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200 dark:border-white/10 rounded-full flex items-center justify-between px-2 pl-6 shadow-xl shadow-black/5">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-pink-500 to-repix-600 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center">
                <Sun size={14} className="text-white fill-white" />
             </div>
             <span className="font-bold text-lg tracking-tight">Repix</span>
@@ -127,7 +131,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
              </button>
              <div className="h-4 w-px bg-zinc-300 dark:bg-white/10"></div>
              <Button variant="ghost" onClick={onLogin} size="sm" className="hidden sm:inline-flex hover:bg-transparent hover:text-repix-500 font-semibold">{trans.nav.login}</Button>
-             <Button onClick={onSignup} size="sm" className="rounded-full px-5 h-9 text-xs font-bold shadow-lg shadow-repix-500/20 bg-white text-zinc-900 hover:bg-zinc-100 dark:bg-white dark:text-black">{trans.nav.getStarted}</Button>
+             <Button 
+                onClick={onSignup} 
+                variant="primary"
+                size="sm" 
+                className="rounded-full px-5 h-9 text-xs font-bold shadow-lg shadow-repix-500/20"
+             >
+               {trans.nav.getStarted}
+             </Button>
           </div>
         </div>
       </nav>
@@ -163,7 +174,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-400">
-           <Button size="lg" className="rounded-full h-14 px-8 text-lg shadow-2xl shadow-repix-500/40 hover:scale-105 transition-transform" onClick={onSignup}>
+           <Button size="lg" variant="primary" className="rounded-full h-14 px-8 text-lg shadow-2xl shadow-repix-500/40 hover:scale-105 transition-transform" onClick={onSignup}>
               Start Creating <ArrowRight className="ml-2" />
            </Button>
            <Button size="lg" variant="secondary" className="rounded-full h-14 px-8 text-lg bg-white/80 dark:bg-white/10 backdrop-blur-md border border-zinc-200 dark:border-white/10 hover:bg-white dark:hover:bg-white/20">
