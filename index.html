@@ -4,91 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
     <title>Repix AI Editor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-            colors: {
-              // New Purple/Violet Base for Repix
-              repix: {
-                50: '#faf5ff',
-                100: '#f3e8ff',
-                200: '#e9d5ff',
-                300: '#d8b4fe',
-                400: '#c084fc',
-                500: '#a855f7', // Purple
-                600: '#9333ea',
-                700: '#7e22ce',
-                800: '#6b21a8',
-                900: '#581c87',
-                950: '#3b0764',
-              },
-              // Accent Colors for the Gradient Theme
-              accent: {
-                pink: '#ec4899',
-                blue: '#3b82f6'
-              },
-              dark: {
-                bg: '#09090b',
-                surface: '#18181b',
-                border: '#27272a'
-              },
-              light: {
-                bg: '#ffffff',
-                surface: '#f4f4f5',
-                border: '#e4e4e7'
-              }
-            },
-            animation: {
-              'scroll': 'scroll 30s linear infinite',
-              'gradient-x': 'gradient-x 15s ease infinite',
-            },
-            keyframes: {
-              scroll: {
-                '0%': { transform: 'translateX(0)' },
-                '100%': { transform: 'translateX(-50%)' },
-              },
-              'gradient-x': {
-                '0%, 100%': {
-                  'background-size': '200% 200%',
-                  'background-position': 'left center',
-                },
-                '50%': {
-                  'background-size': '200% 200%',
-                  'background-position': 'right center',
-                },
-              },
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      body {
-        @apply bg-light-bg text-zinc-900 dark:bg-dark-bg dark:text-white transition-colors duration-300;
-      }
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        @apply bg-light-surface dark:bg-[#18181b]; 
-      }
-      ::-webkit-scrollbar-thumb {
-        @apply bg-zinc-300 dark:bg-[#3f3f46]; 
-        border-radius: 3px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        @apply bg-zinc-400 dark:bg-[#52525b]; 
-      }
-    </style>
   <script type="importmap">
 {
   "imports": {
@@ -104,5 +20,6 @@
 </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>

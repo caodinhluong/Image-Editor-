@@ -399,6 +399,7 @@ class App {
     this.camera.position.set(0, 8, -5);
 
     this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(options.colors.background);
     const fog = new THREE.Fog(options.colors.background, options.length * 0.2, options.length * 500);
     this.scene.fog = fog;
     this.fogUniforms = {
@@ -432,6 +433,11 @@ class App {
 
   initWorld() {
     const options = this.options;
+    
+    // Add ambient light for visibility
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    this.scene.add(ambientLight);
+    
     this.road = this.createRoad();
     this.leftCarLights = this.createCarLights(
       options.colors.leftCars, 
@@ -476,6 +482,8 @@ class App {
      mesh.position.x = -options.roadWidth / 2 - options.islandWidth / 2;
      
      const meshRight = mesh.clone();
+     meshRight.material = material.clone();
+     this.injectDistortion(meshRight.material as THREE.ShaderMaterial);
      meshRight.position.x = options.roadWidth / 2 + options.islandWidth / 2;
      
      const islandGeo = new THREE.PlaneGeometry(options.islandWidth, options.length, 20, 100);
@@ -495,11 +503,13 @@ class App {
      island.position.z = -options.length / 2;
 
      this.scene.add(mesh, meshRight, island);
-     return { update: (t:number) => {
-        mesh.material.uniforms.uTime.value = t;
-        meshRight.material.uniforms.uTime.value = t;
-        island.material.uniforms.uTime.value = t;
-     }};
+     return { 
+        update: (t:number) => {
+           mesh.material.uniforms.uTime.value = t;
+           (meshRight.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
+           island.material.uniforms.uTime.value = t;
+        }
+     };
   }
 
   createCarLights(colors: number[] | number, speed: [number, number], fade: THREE.Vector2, xOffset: number) {
