@@ -1,0 +1,8 @@
+{
+  "name": "Repix AI - Next Gen Photo Editor",
+  "description": "A professional AI-first photo editor with team collaboration, template marketplace, and generative capabilities.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
