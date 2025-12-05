@@ -7,48 +7,6 @@ import {
 import { Button, Badge } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import Hyperspeed, { HyperspeedOptions } from './Hyperspeed';
-
-// Configuration for the Hyperspeed background
-// Updated to match the Pink -> Purple -> Blue Gradient Brand Identity
-const hyperspeedColors: Partial<HyperspeedOptions> = {
-  colors: {
-    roadColor: 0x080808,
-    islandColor: 0x0a0a0a,
-    background: 0x000000,
-    shoulderLines: 0xffffff,
-    brokenLines: 0xffffff,
-    // Left Side: Pink & Fuchsia Range (Matches the "from-pink-500" of the button)
-    leftCars: [0xEC4899, 0xD946EF, 0xC026D3], 
-    // Right Side: Blue & Cyan Range (Matches the "to-accent-blue" of the button)
-    rightCars: [0x3B82F6, 0x06B6D4, 0x6366F1],
-    // Sticks: Purple (Matches the "via-repix-500")
-    sticks: 0xA855F7 
-  },
-  distortion: 'turbulentDistortion',
-  length: 400,
-  roadWidth: 14,
-  islandWidth: 2,
-  lanesPerRoad: 3,
-  fov: 90,
-  fovSpeedUp: 150,
-  speedUp: 1.3,
-  carLightsFade: 0.4,
-  totalSideLightSticks: 50,
-  lightPairsPerRoadWay: 30,
-  shoulderLinesWidthPercentage: 0.08,
-  brokenLinesWidthPercentage: 0.15,
-  brokenLinesLengthPercentage: 0.5,
-  lightStickWidth: [0.12, 0.3],
-  lightStickHeight: [1.3, 1.7],
-  movingAwaySpeed: [20, 50],
-  movingCloserSpeed: [-150, -230],
-  carLightsLength: [400 * 0.05, 400 * 0.15],
-  carLightsRadius: [0.08, 0.18],
-  carWidthPercentage: [0.2, 0.4],
-  carShiftX: [-0.5, 0.5],
-  carFloorSeparation: [0.05, 1],
-};
 
 interface LandingPageProps {
   onLogin: () => void;
@@ -99,12 +57,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
   return (
     <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white selection:bg-repix-500/30 font-sans">
       
-      {/* BACKGROUND LAYER */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-         {/* Hyperspeed only visible in Hero, fades out as you scroll */}
-         <div className="absolute inset-0 h-[100vh] opacity-30 dark:opacity-80 [mask-image:linear-gradient(to_bottom,black_50%,transparent_100%)]">
-             <Hyperspeed effectOptions={hyperspeedColors} />
-         </div>
+      {/* BACKGROUND LAYER - Static & Simple */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+         {/* Subtle top glow */}
+         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80vw] h-[500px] bg-gradient-to-b from-repix-500/10 via-purple-500/5 to-transparent blur-[100px] rounded-full opacity-60"></div>
+         
+         {/* Corner blobs */}
+         <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-pink-500/10 blur-[120px] rounded-full"></div>
+         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-blue-500/10 blur-[120px] rounded-full"></div>
+
          {/* Global Grain/Noise Texture */}
          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
       </div>
