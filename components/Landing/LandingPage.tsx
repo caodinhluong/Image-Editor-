@@ -120,7 +120,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
                 {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
              </button>
              <div className="h-4 w-px bg-zinc-300 dark:bg-white/10"></div>
-             <Button variant="ghost" onClick={onLogin} size="sm" className="hidden sm:inline-flex hover:bg-transparent hover:text-repix-500 font-semibold">{trans.nav.login}</Button>
+             {/* Login Button with Animated Border */}
+             <Button 
+                variant="ghost" 
+                onClick={onLogin} 
+                size="sm" 
+                className="hidden sm:inline-flex hover:bg-white dark:hover:bg-zinc-900 hover:text-repix-500 font-semibold animated-border bg-white dark:bg-zinc-900"
+             >
+                {trans.nav.login}
+             </Button>
              <Button 
                 onClick={onSignup} 
                 variant="primary"
@@ -163,17 +171,27 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
            Real-time collaboration, generative assets, and global edge delivery.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-400">
-           <Button size="lg" variant="primary" className="rounded-full h-14 px-8 text-lg shadow-2xl shadow-repix-500/40 hover:scale-105 transition-transform" onClick={onSignup}>
-              Start Creating <ArrowRight className="ml-2" />
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-400 mb-12">
+           <Button 
+              size="lg" 
+              className="rounded-full h-14 px-8 text-lg shadow-xl shadow-repix-500/20"
+              onClick={onSignup}
+           >
+              {trans.landing.cta} <ArrowRight size={18} className="ml-2" />
            </Button>
-           <Button size="lg" variant="secondary" className="rounded-full h-14 px-8 text-lg bg-white/80 dark:bg-black/30 backdrop-blur-md border border-zinc-200 dark:border-white/10 hover:bg-white dark:hover:bg-white/20">
+           {/* Watch Demo Button with Animated Border */}
+           <Button 
+              size="lg" 
+              variant="secondary" 
+              className="rounded-full h-14 px-8 text-lg bg-white/80 dark:bg-zinc-900 backdrop-blur-md border-0 animated-border hover:bg-white dark:hover:bg-zinc-800"
+           >
               <Play size={18} className="mr-2" /> Watch Demo
            </Button>
         </div>
 
         {/* --- 3D TILTED INTERFACE MOCKUP (REPLACED STATIC IMAGE) --- */}
-        <div className="mt-24 w-full max-w-6xl relative animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500 px-4 perspective-[2000px]">
+        <div className="mt-12 w-full max-w-6xl relative animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500 px-4 perspective-[2000px]">
            {/* Ambient Glow behind the mockup */}
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-gradient-to-r from-pink-500/30 via-repix-500/30 to-blue-500/30 blur-[100px] rounded-full pointer-events-none"></div>
 

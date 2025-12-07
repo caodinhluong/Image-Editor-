@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Wand2, Eraser, Move, Crop, Layers, Download, 
@@ -84,12 +85,6 @@ export const EditorView: React.FC = () => {
             </button>
           ))}
         </div>
-        
-        {/* Undo/Redo - Hidden on tiny mobile screens or moved */}
-        <div className="hidden md:flex flex-col items-center gap-2 w-full pt-2 border-t border-zinc-200 dark:border-zinc-800">
-          <button className="p-3 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"><Undo size={20} /></button>
-          <button className="p-3 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"><Redo size={20} /></button>
-        </div>
       </div>
 
       {/* Main Canvas Area */}
@@ -108,6 +103,17 @@ export const EditorView: React.FC = () => {
             <span className="text-sm text-zinc-500 dark:text-zinc-400 truncate max-w-[120px] sm:max-w-none">Untitled Project_01</span>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
+             
+             {/* Undo/Redo Buttons - Moved here */}
+             <div className="hidden md:flex items-center gap-1 border-r border-zinc-200 dark:border-zinc-800 pr-3 mr-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                   <Undo size={18} />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                   <Redo size={18} />
+                </Button>
+             </div>
+
              <Button 
                size="sm" 
                variant="secondary" 

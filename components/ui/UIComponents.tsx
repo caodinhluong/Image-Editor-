@@ -11,15 +11,16 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button: React.FC<ButtonProps> = ({ 
   children, variant = 'primary', size = 'md', isLoading, className = '', ...props 
 }) => {
-  const base = "inline-flex items-center justify-center rounded-md font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
+  const base = "inline-flex items-center justify-center rounded-md font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 relative z-10";
   
   const variants = {
     // Gradient Pink -> Purple -> Blue
-    primary: "bg-gradient-to-r from-pink-500 via-repix-500 to-accent-blue text-white hover:opacity-90 shadow-lg shadow-repix-500/25 border-0",
+    primary: "bg-gradient-to-r from-pink-500 via-repix-500 to-accent-blue text-white hover:opacity-90 shadow-lg shadow-repix-500/25 border-0 animated-border",
+    // Secondary needs specific BG to hide the animated border center if applied
     secondary: "bg-zinc-200 text-zinc-900 hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700",
     ghost: "hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-300 dark:hover:text-white",
     destructive: "bg-red-100 text-red-900 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-200 dark:hover:bg-red-900/70 border dark:border-red-900",
-    outline: "border border-zinc-300 bg-transparent hover:bg-zinc-100 text-zinc-900 dark:border-zinc-700 dark:hover:bg-zinc-800 dark:text-zinc-100"
+    outline: "border border-zinc-300 bg-transparent hover:bg-zinc-100 text-zinc-900 dark:border-zinc-700 dark:hover:bg-zinc-800 dark:text-zinc-100 animated-border"
   };
 
   const sizes = {
@@ -42,12 +43,32 @@ export const Button: React.FC<ButtonProps> = ({
 };
 
 // Input
-export const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({ className = '', ...props }) => (
-  <input 
-    className={`flex h-10 w-full rounded-md border border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-repix-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500 disabled:cursor-not-allowed disabled:opacity-50 text-sm px-3 py-2 ${className}`}
-    {...props}
-  />
-);
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  animated?: boolean;
+}
+
+export const Input: React.FC<InputProps> = ({ className = '', animated = false, ...props }) => {
+  const baseStyles = "flex h-10 w-full rounded-md border border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-repix-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500 disabled:cursor-not-allowed disabled:opacity-50 text-sm px-3 py-2 transition-all";
+
+  if (animated) {
+    return (
+      <div className="relative group animated-border rounded-md">
+        {/* The input must have a background color to act as a mask for the border */}
+        <input 
+          className={`${baseStyles} border-transparent dark:border-transparent focus-visible:ring-0 relative z-10 ${className}`}
+          {...props}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <input 
+      className={`${baseStyles} ${className}`}
+      {...props}
+    />
+  );
+};
 
 // Slider
 interface SliderProps {

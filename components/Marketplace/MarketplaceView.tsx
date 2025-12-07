@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Search, Filter, Heart, TrendingUp, Crown, User, 
   Download, Star, SlidersHorizontal, Check, ArrowUpRight, X,
   Image as ImageIcon, UploadCloud, DollarSign, Tag, Sparkles, AlertCircle,
   Beaker, Play, Save, Settings2, Plus, RefreshCw, Wand2, Layers,
-  Share2, Copy, Scan, SplitSquareHorizontal, ArrowRight
+  Share2, Copy, Scan, SplitSquareHorizontal, ArrowRight, HardDrive, Link as LinkIcon, CheckCircle2
 } from 'lucide-react';
 import { Button, Input, Badge, Card, Slider } from '../ui/UIComponents';
 import { Template } from '../../types';
@@ -19,16 +20,16 @@ interface ExtendedTemplate extends Template {
 }
 
 const templates: ExtendedTemplate[] = [
-  { id: '1', title: 'Neon Cyberpunk Portrait', author: 'Akira Studio', price: 'Free', tags: ['Portrait', 'Cyberpunk'], thumbnail: 'https://picsum.photos/seed/cyber/600/800', trending: true, downloads: '12k', likes: '3.4k', category: 'Portrait', style: 'Cyberpunk', description: "Transforms ordinary portraits into futuristic cyberpunk characters with neon lighting and chromatic aberration effects." },
-  { id: '2', title: 'Minimalist Product', author: 'Ecommerce Pro', price: 5, tags: ['Product', 'Clean'], thumbnail: 'https://picsum.photos/seed/product/600/600', trending: false, downloads: '5k', likes: '1.2k', category: 'Product', style: 'Minimalist', description: "Clean, studio-quality lighting for product photography. Removes distractions and enhances texture details." },
-  { id: '3', title: 'Cinematic Color Grade', author: 'FilmLook', price: 12, tags: ['Color', 'Filter'], thumbnail: 'https://picsum.photos/seed/film/600/900', trending: true, downloads: '8.5k', likes: '2.1k', category: 'Photography', style: 'Cinematic', description: "Apply the teal and orange Hollywood look to your street photography. Enhances contrast and mood." },
-  { id: '4', title: 'Vintage 90s Vibe', author: 'RetroKing', price: 'Free', tags: ['Retro', 'Texture'], thumbnail: 'https://picsum.photos/seed/vintage/600/700', trending: false, downloads: '22k', likes: '5k', category: 'Photography', style: 'Vintage', description: "Authentic 90s film aesthetic with grain, light leaks, and slightly washed-out blacks." },
-  { id: '5', title: 'Professional Headshot', author: 'CorpStyle', price: 2, tags: ['Business', 'Retouch'], thumbnail: 'https://picsum.photos/seed/corp/600/600', trending: true, downloads: '4k', likes: '900', category: 'Portrait', style: 'Professional', description: "AI retouching for business profiles. Smooths skin texture while keeping it natural, brightens eyes." },
-  { id: '6', title: 'Food Photography Pop', author: 'TastyLens', price: 'Free', tags: ['Food', 'Color'], thumbnail: 'https://picsum.photos/seed/food/600/800', trending: false, downloads: '3.2k', likes: '850', category: 'Product', style: 'Commercial', description: "Make food look delicious with enhanced saturation, sharpness, and a warm appetizing tone." },
-  { id: '7', title: 'Real Estate HDR', author: 'HomeView', price: 8, tags: ['Architecture'], thumbnail: 'https://picsum.photos/seed/house/600/500', trending: false, downloads: '1.5k', likes: '300', category: 'Architecture', style: 'HDR', description: "High Dynamic Range effect for interior and exterior real estate shots. Balances windows and shadows." },
-  { id: '8', title: 'Dreamy Wedding', author: 'LoveCapture', price: 15, tags: ['Wedding', 'Soft'], thumbnail: 'https://picsum.photos/seed/wedding/600/800', trending: true, downloads: '6k', likes: '1.8k', category: 'Portrait', style: 'Soft', description: "Soft, romantic glow with pastel tones perfect for wedding and engagement photography." },
-  { id: '9', title: 'Abstract 3D Shape', author: 'RenderGod', price: 20, tags: ['3D', 'Abstract'], thumbnail: 'https://picsum.photos/seed/3dshape/600/600', trending: true, downloads: '9k', likes: '2.5k', category: '3D Asset', style: 'Abstract', description: "Generates abstract 3D shapes suitable for background elements and modern UI design." },
-  { id: '10', title: 'Fashion Editorial', author: 'VogueAI', price: 'Free', tags: ['Fashion', 'High-end'], thumbnail: 'https://picsum.photos/seed/fashion2/600/1000', trending: true, downloads: '15k', likes: '4.2k', category: 'Fashion', style: 'Editorial', description: "High-contrast, edgy fashion magazine look. Emphasizes clothing textures and model pose." },
+  { id: '1', title: 'Neon Cyberpunk Portrait', author: 'Akira Studio', price: 'Free', tags: ['Portrait', 'Cyberpunk'], thumbnail: 'https://images.unsplash.com/photo-1616763355548-1b606f439f86?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '12k', likes: '3.4k', category: 'Portrait', style: 'Cyberpunk', description: "Transforms ordinary portraits into futuristic cyberpunk characters with neon lighting and chromatic aberration effects." },
+  { id: '2', title: 'Minimalist Product', author: 'Ecommerce Pro', price: 5, tags: ['Product', 'Clean'], thumbnail: 'https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '5k', likes: '1.2k', category: 'Product', style: 'Minimalist', description: "Clean, studio-quality lighting for product photography. Removes distractions and enhances texture details." },
+  { id: '3', title: 'Cinematic Color Grade', author: 'FilmLook', price: 12, tags: ['Color', 'Filter'], thumbnail: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '8.5k', likes: '2.1k', category: 'Photography', style: 'Cinematic', description: "Apply the teal and orange Hollywood look to your street photography. Enhances contrast and mood." },
+  { id: '4', title: 'Vintage 90s Vibe', author: 'RetroKing', price: 'Free', tags: ['Retro', 'Texture'], thumbnail: 'https://images.unsplash.com/photo-1512413914633-b5043f4041ea?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '5k', category: 'Photography', style: 'Vintage', description: "Authentic 90s film aesthetic with grain, light leaks, and slightly washed-out blacks." },
+  { id: '5', title: 'Professional Headshot', author: 'CorpStyle', price: 2, tags: ['Business', 'Retouch'], thumbnail: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '4k', likes: '900', category: 'Portrait', style: 'Professional', description: "AI retouching for business profiles. Smooths skin texture while keeping it natural, brightens eyes." },
+  { id: '6', title: 'Food Photography Pop', author: 'TastyLens', price: 'Free', tags: ['Food', 'Color'], thumbnail: 'https://images.unsplash.com/photo-1563507347-1521cc52e697?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '3.2k', likes: '850', category: 'Product', style: 'Commercial', description: "Make food look delicious with enhanced saturation, sharpness, and a warm appetizing tone." },
+  { id: '7', title: 'Real Estate HDR', author: 'HomeView', price: 8, tags: ['Architecture'], thumbnail: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '1.5k', likes: '300', category: 'Architecture', style: 'HDR', description: "High Dynamic Range effect for interior and exterior real estate shots. Balances windows and shadows." },
+  { id: '8', title: 'Dreamy Wedding', author: 'LoveCapture', price: 15, tags: ['Wedding', 'Soft'], thumbnail: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '6k', likes: '1.8k', category: 'Portrait', style: 'Soft', description: "Soft, romantic glow with pastel tones perfect for wedding and engagement photography." },
+  { id: '9', title: 'Abstract 3D Shape', author: 'RenderGod', price: 20, tags: ['3D', 'Abstract'], thumbnail: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '9k', likes: '2.5k', category: '3D Asset', style: 'Abstract', description: "Generates abstract 3D shapes suitable for background elements and modern UI design." },
+  { id: '10', title: 'Fashion Editorial', author: 'VogueAI', price: 'Free', tags: ['Fashion', 'High-end'], thumbnail: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '15k', likes: '4.2k', category: 'Fashion', style: 'Editorial', description: "High-contrast, edgy fashion magazine look. Emphasizes clothing textures and model pose." },
 ];
 
 // --- TEMPLATE DETAIL MODAL ---
@@ -36,6 +37,12 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
    const [viewMode, setViewMode] = useState<'after' | 'before' | 'split'>('after');
    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
    const [isProcessing, setIsProcessing] = useState(false);
+   
+   // Import Mode State
+   const [importTab, setImportTab] = useState<'upload' | 'drive'>('upload');
+   const [driveLink, setDriveLink] = useState('');
+   const [driveImages, setDriveImages] = useState<string[]>([]);
+   const [isFetchingDrive, setIsFetchingDrive] = useState(false);
 
    const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
@@ -51,6 +58,28 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
       }
    }
 
+   const handleDriveFetch = () => {
+      if (!driveLink) return;
+      setIsFetchingDrive(true);
+      // Simulate fetching images from Drive
+      setTimeout(() => {
+         // Mock data returned from "Drive" - Images of people/products/sales context
+         setDriveImages([
+            'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=400&q=80', // Payment/Sales
+            'https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&w=400&q=80', // Selling/POS
+            'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=400&q=80', // Meeting/Product
+            'https://images.unsplash.com/photo-1570222094114-2819cd9ec2e2?auto=format&fit=crop&w=400&q=80', // Holding Appliance
+            'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=400&q=80', // Shopping Fashion
+            'https://images.unsplash.com/photo-1507914372368-b2b003618950?auto=format&fit=crop&w=400&q=80', // Coffee/Product
+         ]);
+         setIsFetchingDrive(false);
+      }, 1500);
+   };
+
+   const selectDriveImage = (img: string) => {
+      setUploadedImage(img);
+   }
+
    const handleUseTemplate = () => {
       alert(`Opening Editor with template: ${template.title}`);
       onClose();
@@ -58,16 +87,16 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
 
    return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
-         <div className="bg-white dark:bg-dark-surface w-full max-w-6xl h-full md:h-auto md:max-h-[90vh] rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in-95 duration-200 ring-1 ring-zinc-800 relative">
+         <div className="bg-white dark:bg-dark-surface w-full max-w-6xl h-full md:h-[85vh] rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in-95 duration-200 ring-1 ring-zinc-800 relative">
             
             <button onClick={onClose} className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-zinc-800 text-white rounded-full transition-colors">
                <X size={20} />
             </button>
 
             {/* LEFT: PREVIEW AREA */}
-            <div className="w-full md:w-7/12 bg-zinc-900 relative flex items-center justify-center overflow-hidden group">
+            <div className="w-full md:w-7/12 bg-zinc-900 relative flex items-center justify-center overflow-hidden group h-64 md:h-full shrink-0">
                {/* Image Container */}
-               <div className="relative w-full h-full md:h-[600px] bg-black">
+               <div className="relative w-full h-full bg-black">
                   <img 
                      src={uploadedImage || template.thumbnail} 
                      className={`w-full h-full object-contain transition-all duration-500 ${viewMode === 'before' ? 'grayscale brightness-75 blur-[1px]' : ''}`}
@@ -102,10 +131,10 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
 
             {/* RIGHT: INFO & ACTIONS */}
             <div className="w-full md:w-5/12 bg-white dark:bg-dark-surface flex flex-col h-full overflow-hidden">
-               <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
+               <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar min-h-0">
                   
                   {/* Header */}
-                  <div>
+                  <div className="mb-8">
                      <div className="flex items-start justify-between mb-4">
                         <div>
                            <div className="flex items-center gap-2 mb-2">
@@ -139,7 +168,7 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
                   </div>
 
                   {/* Description & DNA */}
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                      <div>
                         <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-2">Description</h3>
                         <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
@@ -147,7 +176,7 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
                         </p>
                      </div>
 
-                     <div>
+                     <div className="pb-6 border-b border-zinc-200 dark:border-zinc-800">
                         <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-2 flex items-center gap-2">
                            <Scan size={16} className="text-repix-500"/> Template DNA
                         </h3>
@@ -172,39 +201,135 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
                            </div>
                         </div>
                      </div>
+
+                     {/* IMPORT SECTION MOVED HERE (SCROLLABLE AREA) */}
+                     <div className="space-y-4">
+                        <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                           <ImageIcon size={16} className="text-repix-500"/> 1. Choose Source
+                        </h3>
+
+                        {/* IMPORT METHOD TABS */}
+                        <div className="flex p-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg">
+                           <button 
+                              onClick={() => setImportTab('upload')}
+                              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-md transition-all ${importTab === 'upload' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+                           >
+                              <UploadCloud size={14} /> Upload File
+                           </button>
+                           <button 
+                              onClick={() => setImportTab('drive')}
+                              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-md transition-all ${importTab === 'drive' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+                           >
+                              <HardDrive size={14} /> Google Drive
+                           </button>
+                        </div>
+
+                        {/* TAB CONTENT: UPLOAD */}
+                        {importTab === 'upload' && !uploadedImage && (
+                           <div className="relative group animate-in fade-in duration-300">
+                              <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-repix-500 rounded-xl opacity-20 group-hover:opacity-100 transition duration-300 blur-sm"></div>
+                              <label className="relative flex items-center justify-center gap-3 w-full p-6 bg-white dark:bg-zinc-900 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl cursor-pointer hover:border-transparent transition-all">
+                                 <UploadCloud size={24} className="text-zinc-400 group-hover:text-white" />
+                                 <div className="text-center">
+                                    <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white block">
+                                       Click or Drag to Upload
+                                    </span>
+                                    <span className="text-xs text-zinc-400 mt-1">JPG, PNG up to 10MB</span>
+                                 </div>
+                                 <input type="file" className="hidden" accept="image/*" onChange={handleUpload} />
+                              </label>
+                           </div>
+                        )}
+
+                        {/* TAB CONTENT: DRIVE */}
+                        {importTab === 'drive' && (
+                           <div className="space-y-3 animate-in fade-in duration-300">
+                              <div className="flex gap-2">
+                                 <div className="relative flex-1">
+                                    <LinkIcon size={16} className="absolute left-3 top-3 text-zinc-400" />
+                                    <Input 
+                                       placeholder="Paste Google Drive Link..." 
+                                       className="pl-9 h-10 text-sm"
+                                       value={driveLink}
+                                       onChange={(e) => setDriveLink(e.target.value)}
+                                    />
+                                 </div>
+                                 <Button 
+                                    onClick={handleDriveFetch} 
+                                    isLoading={isFetchingDrive}
+                                    variant="secondary"
+                                    className="h-10"
+                                    disabled={!driveLink}
+                                 >
+                                    Import
+                                 </Button>
+                              </div>
+                              
+                              {/* Drive Gallery Grid */}
+                              {driveImages.length > 0 && (
+                                 <div className="bg-zinc-100 dark:bg-zinc-800/50 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700">
+                                    <div className="flex justify-between items-center mb-2 px-1">
+                                       <span className="text-xs font-bold text-zinc-500">Found {driveImages.length} images</span>
+                                       <span className="text-xs text-repix-500 cursor-pointer hover:underline">Select All</span>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto custom-scrollbar">
+                                       {driveImages.map((img, idx) => (
+                                          <div 
+                                             key={idx} 
+                                             onClick={() => selectDriveImage(img)}
+                                             className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all group ${uploadedImage === img ? 'border-repix-500 ring-2 ring-repix-500/30' : 'border-transparent hover:border-zinc-300 dark:hover:border-zinc-600'}`}
+                                          >
+                                             <img src={img} className="w-full h-full object-cover" />
+                                             {uploadedImage === img && (
+                                                <div className="absolute inset-0 bg-repix-500/20 flex items-center justify-center">
+                                                   <div className="bg-repix-500 text-white rounded-full p-1">
+                                                      <Check size={12} strokeWidth={3} />
+                                                   </div>
+                                                </div>
+                                             )}
+                                          </div>
+                                       ))}
+                                    </div>
+                                 </div>
+                              )}
+                           </div>
+                        )}
+
+                        {/* Selected Image Preview (Small) */}
+                        {uploadedImage && importTab === 'upload' && (
+                           <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                              <img src={uploadedImage} className="w-12 h-12 rounded-lg object-cover bg-zinc-200" />
+                              <div className="flex-1 overflow-hidden">
+                                 <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">Image Selected</p>
+                                 <p className="text-xs text-green-500 flex items-center gap-1"><CheckCircle2 size={10}/> Ready to process</p>
+                              </div>
+                              <Button size="sm" variant="ghost" onClick={() => setUploadedImage(null)}>Change</Button>
+                           </div>
+                        )}
+
+                     </div>
                   </div>
 
                </div>
 
-               {/* Sticky Bottom Actions */}
-               <div className="p-6 md:p-8 bg-zinc-50 dark:bg-zinc-900/80 border-t border-zinc-200 dark:border-zinc-800 backdrop-blur-md">
-                  <div className="space-y-4">
-                     
-                     {/* Quick Try Upload */}
-                     {!uploadedImage && (
-                        <div className="relative group">
-                           <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-repix-500 rounded-xl opacity-20 group-hover:opacity-100 transition duration-300 blur-sm"></div>
-                           <label className="relative flex items-center justify-center gap-3 w-full p-3 bg-white dark:bg-zinc-900 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl cursor-pointer hover:border-transparent transition-all">
-                              <UploadCloud size={20} className="text-zinc-400 group-hover:text-white" />
-                              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white">
-                                 Try with your own photo
-                              </span>
-                              <input type="file" className="hidden" accept="image/*" onChange={handleUpload} />
-                           </label>
-                        </div>
-                     )}
-
+               {/* Sticky Bottom Actions - NOW CLEANER */}
+               <div className="p-6 md:p-8 bg-zinc-50 dark:bg-zinc-900/80 border-t border-zinc-200 dark:border-zinc-800 backdrop-blur-md shrink-0 z-10">
+                  <div className="space-y-3">
+                     <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                        <Wand2 size={16} className="text-repix-500"/> 2. Apply & Generate
+                     </h3>
                      <div className="flex gap-4">
                         <div className="flex-1">
                            <Button 
                               size="lg" 
-                              className="w-full h-14 text-lg rounded-xl shadow-xl shadow-repix-500/20"
+                              className="w-full h-12 text-base rounded-xl shadow-xl shadow-repix-500/20"
                               onClick={handleUseTemplate}
+                              disabled={!uploadedImage}
                            >
-                              <Wand2 className="mr-2" size={20} /> Use Template
+                              {uploadedImage ? 'Generate Result' : 'Select Image First'}
                            </Button>
                         </div>
-                        <Button size="lg" variant="secondary" className="h-14 w-14 rounded-xl px-0 shrink-0">
+                        <Button size="lg" variant="secondary" className="h-12 w-12 rounded-xl px-0 shrink-0">
                            <Share2 size={20} />
                         </Button>
                      </div>

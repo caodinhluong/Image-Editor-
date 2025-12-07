@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Sun, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { Button, Input, Card } from '../ui/UIComponents';
@@ -57,8 +58,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLoginSuccess }) =>
                 <div className="space-y-1">
                    <label className="text-xs font-medium text-zinc-500 ml-1">{trans.auth.fullName}</label>
                    <div className="relative">
-                      <User className="absolute left-3 top-2.5 text-zinc-400" size={18} />
-                      <Input className="pl-10 h-11" placeholder="Alex Creative" required />
+                      <User className="absolute z-20 left-3 top-2.5 text-zinc-400" size={18} />
+                      <Input className="pl-10 h-11" placeholder="Alex Creative" required animated />
                    </div>
                 </div>
               )}
@@ -66,16 +67,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLoginSuccess }) =>
               <div className="space-y-1">
                  <label className="text-xs font-medium text-zinc-500 ml-1">{trans.auth.email}</label>
                  <div className="relative">
-                    <Mail className="absolute left-3 top-2.5 text-zinc-400" size={18} />
-                    <Input className="pl-10 h-11" type="email" placeholder="alex@example.com" required />
+                    <Mail className="absolute z-20 left-3 top-2.5 text-zinc-400" size={18} />
+                    <Input className="pl-10 h-11" type="email" placeholder="alex@example.com" required animated />
                  </div>
               </div>
 
               <div className="space-y-1">
                  <label className="text-xs font-medium text-zinc-500 ml-1">{trans.auth.password}</label>
                  <div className="relative">
-                    <Lock className="absolute left-3 top-2.5 text-zinc-400" size={18} />
-                    <Input className="pl-10 h-11" type="password" placeholder="••••••••" required />
+                    <Lock className="absolute z-20 left-3 top-2.5 text-zinc-400" size={18} />
+                    <Input className="pl-10 h-11" type="password" placeholder="••••••••" required animated />
                  </div>
               </div>
 

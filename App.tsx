@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Layout } from './components/Layout';
 import { EditorView } from './components/Editor/EditorView';
@@ -123,15 +124,8 @@ const HomeView: React.FC<{ onStartEditing: () => void }> = ({ onStartEditing }) 
                 {trans.home.heroTitle}
               </h1>
               
-              <div className="relative group">
-                 {/* Moving Glow Effect */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 via-repix-500 to-accent-blue rounded-2xl blur opacity-20 group-hover:opacity-50 transition duration-500"></div>
-                <div className="absolute -inset-[3px] rounded-2xl overflow-hidden opacity-0 group-focus-within:opacity-100 transition duration-500 blur-sm">
-                   <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[conic-gradient(from_0deg,transparent_0_340deg,#a855f7_360deg)] animate-[spin_3s_linear_infinite]"></div>
-                   <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[conic-gradient(from_180deg,transparent_0_340deg,#3b82f6_360deg)] animate-[spin_3s_linear_infinite]"></div>
-                </div>
-
-                <div className="relative bg-white dark:bg-zinc-900 rounded-2xl p-2 flex items-center shadow-2xl border border-transparent group-focus-within:border-white/20 dark:group-focus-within:border-white/10 transition-colors">
+              <div className="relative group animated-border rounded-2xl">
+                <div className="relative z-10 bg-white dark:bg-zinc-900 rounded-2xl p-2 flex items-center shadow-2xl transition-colors">
                    <div className="pl-4 text-repix-500 animate-pulse">
                       <Sparkles size={24} />
                    </div>

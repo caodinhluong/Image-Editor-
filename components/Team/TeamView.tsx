@@ -85,12 +85,7 @@ const CreateProjectWizard: React.FC<WizardProps> = ({ onClose, onCreate }) => {
     }
   };
 
-  const t = trans.wizard || {
-    title: "Create Project",
-    step1: "Project Type", step2: "Details", step3: "Team", step4: "AI Settings",
-    typeSocial: "Social Media", typeProduct: "Product", typeMarketing: "Marketing", typeBlank: "Blank",
-    next: "Next", back: "Back", create: "Create"
-  };
+  const t = trans.wizard;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
