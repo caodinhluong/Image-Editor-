@@ -101,39 +101,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
 
       {/* --- FLOATING NAVBAR --- */}
       <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
-        <div className="w-full max-w-5xl h-14 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200 dark:border-white/10 rounded-full flex items-center justify-between px-2 pl-6 shadow-xl shadow-black/5">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center">
-               <Sun size={14} className="text-white fill-white" />
+        <div className="w-full max-w-6xl h-20 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200 dark:border-white/10 rounded-full flex items-center justify-between px-4 pl-8 shadow-xl shadow-black/5">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center shadow-lg shadow-repix-500/20">
+               <Sun size={20} className="text-white fill-white" />
             </div>
-            <span className="font-bold text-lg tracking-tight">Repix</span>
+            <span className="font-bold text-2xl tracking-tight">Repix</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+          <div className="hidden md:flex items-center gap-10 text-base font-medium text-zinc-600 dark:text-zinc-400">
              <a href="#features" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Features</a>
              <a href="#templates" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Marketplace</a>
              <a href="#pricing" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Pricing</a>
           </div>
 
-          <div className="flex items-center gap-2">
-             <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 transition-colors">
-                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          <div className="flex items-center gap-3">
+             <button onClick={toggleTheme} className="p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 transition-colors">
+                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
              </button>
-             <div className="h-4 w-px bg-zinc-300 dark:bg-white/10"></div>
-             {/* Login Button with Animated Border */}
+             <div className="h-6 w-px bg-zinc-300 dark:bg-white/10"></div>
+             {/* Try Repix CTA Button - Goes to Login */}
              <Button 
-                variant="ghost" 
                 onClick={onLogin} 
-                size="sm" 
-                className="hidden sm:inline-flex hover:bg-white dark:hover:bg-zinc-900 hover:text-repix-500 font-semibold animated-border bg-white dark:bg-zinc-900"
-             >
-                {trans.nav.login}
-             </Button>
-             <Button 
-                onClick={onSignup} 
                 variant="primary"
-                size="sm" 
-                className="rounded-full px-5 h-9 text-xs font-bold shadow-lg shadow-repix-500/20"
+                size="lg" 
+                className="animated-border rounded-full px-10 h-12 text-lg font-extrabold shadow-xl shadow-repix-500/30 hover:shadow-repix-500/50 transition-all"
              >
                {trans.nav.getStarted}
              </Button>
@@ -175,7 +167,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
         <div className="flex flex-col sm:flex-row items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-400 mb-12">
            <Button 
               size="lg" 
-              className="rounded-full h-14 px-8 text-lg shadow-xl shadow-repix-500/20"
+              className="animated-border rounded-full h-14 px-8 text-lg shadow-xl shadow-repix-500/20"
               onClick={onSignup}
            >
               {trans.landing.cta} <ArrowRight size={18} className="ml-2" />

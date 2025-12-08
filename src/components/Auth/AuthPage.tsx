@@ -94,7 +94,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLoginSuccess }) =>
               </div>
            </div>
 
-           <Button variant="outline" className="w-full h-11 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 border-zinc-200 dark:border-zinc-700">
+           <Button variant="outline" className="animated-border w-full h-11 !bg-zinc-900 dark:!bg-zinc-900 hover:!bg-black dark:hover:!bg-black !text-white !border-0">
               <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5 mr-2" alt="Google" />
               {trans.auth.google}
            </Button>

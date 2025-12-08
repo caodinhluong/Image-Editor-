@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Home, Edit3, ShoppingBag, Users, Settings, 
-  LogOut, Sun, Moon 
+  LogOut, Sun, Moon, BarChart3, Award
 } from 'lucide-react';
 import { ViewState } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -23,6 +23,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
     { id: 'editor', icon: Edit3, label: trans.nav.editor },
     { id: 'marketplace', icon: ShoppingBag, label: trans.nav.marketplace },
     { id: 'team', icon: Users, label: trans.nav.team },
+    { id: 'analytics', icon: BarChart3, label: trans.nav.analytics },
+    { id: 'creator', icon: Award, label: 'Creator', isPro: true },
   ];
 
   // In Editor mode, we might want to hide the main navigation on mobile for immersion
@@ -76,13 +78,16 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
                onClick={() => onChangeView(item.id as ViewState)}
                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                  currentView === item.id 
-                   ? 'bg-zinc-100 dark:bg-zinc-800 text-repix-600 dark:text-white' 
+                   ? 'animated-border bg-zinc-100 dark:bg-zinc-800 text-repix-600 dark:text-white' 
                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-200'
                }`}
              >
                <div className="flex items-center gap-3">
                  <item.icon size={18} className={currentView === item.id ? 'text-repix-500' : ''} />
                  {item.label}
+                 {(item as any).isPro && (
+                   <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded">PRO</span>
+                 )}
                </div>
                {currentView === item.id && <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-repix-500"></div>}
              </button>
@@ -102,7 +107,15 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
                  <h4 className="text-sm font-semibold truncate text-zinc-900 dark:text-white group-hover:text-repix-500 transition-colors">Alex Creative</h4>
                  <p className="text-xs text-zinc-500 truncate">Pro Member</p>
               </div>
-              <Settings size={16} className="text-zinc-400 group-hover:text-repix-500" />
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChangeView('settings');
+                }}
+                className="p-1.5 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+              >
+                <Settings size={16} className="text-zinc-400 hover:text-repix-500" />
+              </button>
            </div>
            <div 
              onClick={onSignOut}
@@ -126,8 +139,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
             <button
               key={item.id}
               onClick={() => onChangeView(item.id as ViewState)}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform ${
-                currentView === item.id ? 'text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform rounded-lg ${
+                currentView === item.id ? 'animated-border text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
               }`}
             >
               <item.icon size={22} className={currentView === item.id ? 'fill-current opacity-20' : ''} strokeWidth={currentView === item.id ? 2.5 : 2} />
@@ -136,8 +149,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
           ))}
           <button 
              onClick={() => onChangeView('profile')}
-             className={`flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform ${
-                currentView === 'profile' ? 'text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
+             className={`flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform rounded-lg ${
+                currentView === 'profile' ? 'animated-border text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
               }`}
           >
              <div className="w-6 h-6 rounded-full overflow-hidden border border-current">

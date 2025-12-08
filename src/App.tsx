@@ -1,12 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { EditorView } from './components/Editor/EditorView';
 import { MarketplaceView } from './components/Marketplace/MarketplaceView';
 import { TeamView } from './components/Team/TeamView';
 import { ProfileView } from './components/Profile/ProfileView';
+import { AnalyticsView } from './components/Analytics/AnalyticsView';
+import { CreatorDashboard } from './components/Creator/CreatorDashboard';
+import { SettingsPanel } from './components/Settings/SettingsPanel';
 import { LandingPage } from './components/Landing/LandingPage';
 import { AuthPage } from './components/Auth/AuthPage';
+import { OnboardingFlow } from './components/Onboarding/OnboardingFlow';
 import { ViewState } from './types';
 import { 
   Sparkles, ArrowRight, Image as ImageIcon, Scissors, Layers, Maximize2, Wand2, Search, Play,
@@ -311,6 +315,35 @@ const HomeView: React.FC<{ onStartEditing: () => void }> = ({ onStartEditing }) 
 const AppContent: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [view, setView] = useState<ViewState>('landing');
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if user has completed onboarding (using localStorage)
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem('repix_onboarding_completed');
+    if (isAuthenticated && !hasCompletedOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, [isAuthenticated]);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('repix_onboarding_completed', 'true');
+    setShowOnboarding(false);
+  };
+
+  const handleOnboardingSkip = () => {
+    localStorage.setItem('repix_onboarding_completed', 'true');
+    setShowOnboarding(false);
+  };
+
+  // Show Onboarding for new users
+  if (isAuthenticated && showOnboarding) {
+    return (
+      <OnboardingFlow 
+        onComplete={handleOnboardingComplete}
+        onSkip={handleOnboardingSkip}
+      />
+    );
+  }
 
   // Handle Authentication Flow
   if (!isAuthenticated) {
@@ -346,6 +379,9 @@ const AppContent: React.FC = () => {
       {view === 'editor' && <EditorView />}
       {view === 'marketplace' && <MarketplaceView />}
       {view === 'team' && <TeamView />}
+      {view === 'analytics' && <AnalyticsView />}
+      {view === 'creator' && <CreatorDashboard />}
+      {view === 'settings' && <SettingsPanel />}
       {view === 'profile' && <ProfileView />}
     </Layout>
   );

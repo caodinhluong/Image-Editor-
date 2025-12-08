@@ -4,20 +4,30 @@ import {
   Wand2, Eraser, Move, Crop, Layers, Download, 
   Undo, Redo, Sparkles, Share2, Aperture, 
   ScanFace, Palette, BrainCircuit, Upload, Command, Zap,
-  X, SlidersHorizontal, ChevronLeft, ArrowRight
+  X, SlidersHorizontal, ChevronLeft, ArrowRight, History,
+  MessageSquare, Bell, Activity
 } from 'lucide-react';
 import { Button, Slider, Badge, Card } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { HistoryPanel } from './HistoryPanel';
+import { AdvancedLayerPanel } from './AdvancedLayerPanel';
+import { CommentsPanel } from '../Collaboration/CommentsPanel';
+import { NotificationCenter } from '../Collaboration/NotificationCenter';
+import { PresenceIndicators } from '../Collaboration/PresenceIndicators';
 
 export const EditorView: React.FC = () => {
   const { trans } = useLanguage();
   const [activeTool, setActiveTool] = useState('move');
   const [activePanel, setActivePanel] = useState<'adjustments' | 'layers' | 'style'>('adjustments');
   const [isPropertiesOpen, setIsPropertiesOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [zoom, setZoom] = useState(100);
   const [showObjectOverlay, setShowObjectOverlay] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(2);
   
   const tools = [
     { id: 'move', icon: Move, label: trans.editor.move },
@@ -104,14 +114,54 @@ export const EditorView: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 md:gap-3">
              
-             {/* Undo/Redo Buttons - Moved here */}
+             {/* Undo/Redo/History Buttons */}
              <div className="hidden md:flex items-center gap-1 border-r border-zinc-200 dark:border-zinc-800 pr-3 mr-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white" title="Undo">
                    <Undo size={18} />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white" title="Redo">
                    <Redo size={18} />
                 </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`h-8 w-8 ${isHistoryOpen ? 'text-repix-500 bg-repix-500/10' : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
+                  onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                  title={trans.editor.history}
+                >
+                   <History size={18} />
+                </Button>
+             </div>
+
+             {/* Collaboration Tools */}
+             <div className="hidden md:flex items-center gap-1 border-r border-zinc-200 dark:border-zinc-800 pr-3 mr-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`h-8 w-8 relative ${isCommentsOpen ? 'text-blue-500 bg-blue-500/10' : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
+                  onClick={() => setIsCommentsOpen(!isCommentsOpen)}
+                  title="Comments"
+                >
+                   <MessageSquare size={18} />
+                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center">3</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`h-8 w-8 relative ${isNotificationsOpen ? 'text-amber-500 bg-amber-500/10' : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
+                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  title="Notifications"
+                >
+                   <Bell size={18} />
+                   {unreadNotifications > 0 && (
+                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">{unreadNotifications}</span>
+                   )}
+                </Button>
+             </div>
+
+             {/* Presence Indicators */}
+             <div className="hidden md:flex items-center border-r border-zinc-200 dark:border-zinc-800 pr-3 mr-1">
+                <PresenceIndicators />
              </div>
 
              <Button 
@@ -206,7 +256,7 @@ export const EditorView: React.FC = () => {
                 onClick={handleGenerate} 
                 disabled={!prompt || isGenerating}
                 isLoading={isGenerating}
-                className="rounded-xl px-3 sm:px-4 md:px-6 shrink-0 h-10"
+                className="animated-border rounded-xl px-3 sm:px-4 md:px-6 shrink-0 h-10"
              >
                 {/* On Mobile: Just Arrow/Icon, On Desktop: Text */}
                 <span className="sm:hidden"><ArrowRight size={20} /></span>
@@ -259,55 +309,31 @@ export const EditorView: React.FC = () => {
         </div>
 
         {/* Panel Content */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          
-          {/* ADJUSTMENTS PANEL */}
-          {activePanel === 'adjustments' && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{trans.editor.adjustments}</h3>
-                <Zap size={14} className="text-repix-500" />
-              </div>
-              <Card className="p-4 space-y-4">
-                <Slider label={trans.editor.exposure} value={10} onChange={()=>{}} min={-100} max={100} />
-                <Slider label={trans.editor.contrast} value={45} onChange={()=>{}} min={0} max={100} />
-                <Slider label={trans.editor.saturation} value={-5} onChange={()=>{}} min={-100} max={100} />
-                <div className="flex gap-2 pt-2">
-                  <Button size="sm" variant="outline" className="flex-1 text-xs">{trans.editor.autoTone}</Button>
-                  <Button size="sm" variant="outline" className="flex-1 text-xs">{trans.editor.autoColor}</Button>
+        {activePanel !== 'layers' && (
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            
+            {/* ADJUSTMENTS PANEL */}
+            {activePanel === 'adjustments' && (
+              <div className="space-y-4">
+                 <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{trans.editor.adjustments}</h3>
+                  <Zap size={14} className="text-repix-500" />
                 </div>
-              </Card>
-            </div>
-          )}
-
-          {/* LAYERS PANEL */}
-          {activePanel === 'layers' && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-               <div className="flex items-center justify-between mb-3">
-                 <h3 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{trans.editor.layers}</h3>
-                 <Layers size={14} className="text-zinc-400" />
-              </div>
-              <div className="space-y-2">
-                {layers.map(layer => (
-                  <div key={layer.id} className={`flex items-center justify-between p-3 rounded-lg border ${layer.id === 1 ? 'border-repix-500/50 bg-repix-50 dark:bg-repix-500/5' : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 hover:border-zinc-300 dark:hover:border-zinc-700'}`}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
-                        <img src={`https://picsum.photos/seed/${layer.id}/100/100`} className="w-full h-full object-cover opacity-80" />
-                      </div>
-                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{layer.name}</span>
-                    </div>
-                    <div className="flex gap-2 text-zinc-400 dark:text-zinc-500">
-                       {!layer.locked ? <Command size={14} /> : <div className="w-3" />}
-                    </div>
+                <Card className="p-4 space-y-4">
+                  <Slider label={trans.editor.exposure} value={10} onChange={()=>{}} min={-100} max={100} />
+                  <Slider label={trans.editor.contrast} value={45} onChange={()=>{}} min={0} max={100} />
+                  <Slider label={trans.editor.saturation} value={-5} onChange={()=>{}} min={-100} max={100} />
+                  <div className="flex gap-2 pt-2">
+                    <Button size="sm" variant="outline" className="flex-1 text-xs">{trans.editor.autoTone}</Button>
+                    <Button size="sm" variant="outline" className="flex-1 text-xs">{trans.editor.autoColor}</Button>
                   </div>
-                ))}
+                </Card>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* AI STYLE MATCH PANEL */}
-          {activePanel === 'style' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
+            {/* AI STYLE MATCH PANEL */}
+            {activePanel === 'style' && (
+              <div className="space-y-6">
                {/* Moodboard Upload */}
                <div>
                   <h3 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">{trans.editor.moodboard}</h3>
@@ -335,10 +361,17 @@ export const EditorView: React.FC = () => {
                      ))}
                   </div>
                </Card>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
+        )}
 
-        </div>
+        {/* LAYERS PANEL - Advanced (Full Height) */}
+        {activePanel === 'layers' && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <AdvancedLayerPanel />
+          </div>
+        )}
         
         {/* Pro Upsell */}
         {activePanel !== 'style' && (
@@ -360,6 +393,24 @@ export const EditorView: React.FC = () => {
            onClick={() => setIsPropertiesOpen(false)}
         />
       )}
+
+      {/* History Panel */}
+      <HistoryPanel 
+        isOpen={isHistoryOpen} 
+        onClose={() => setIsHistoryOpen(false)} 
+      />
+
+      {/* Comments Panel */}
+      <CommentsPanel 
+        isOpen={isCommentsOpen} 
+        onClose={() => setIsCommentsOpen(false)} 
+      />
+
+      {/* Notification Center */}
+      <NotificationCenter 
+        isOpen={isNotificationsOpen} 
+        onClose={() => setIsNotificationsOpen(false)} 
+      />
     </div>
   );
 };
