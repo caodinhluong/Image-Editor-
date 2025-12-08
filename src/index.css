@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-light-bg text-zinc-900 dark:bg-dark-bg dark:text-white transition-colors duration-300;
+  }
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-light-surface dark:bg-[#18181b]; 
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-300 dark:bg-[#3f3f46]; 
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-zinc-400 dark:bg-[#52525b]; 
+  }
+}
+
+@layer utilities {
+  /* --- ANGLE ANIMATION CSS --- */
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  
+  .animated-border {
+    position: relative;
+    isolation: isolate; /* Creates a new stacking context */
+  }
+  
+  /* The glowing rotating border */
+  .animated-border::after {
+    content: '';
+    position: absolute;
+    inset: -2px; /* Thickness of the border */
+    background: conic-gradient(from var(--angle), 
+      #ec4899, /* pink */
+      #a855f7, /* purple */
+      #3b82f6, /* blue */
+      #ec4899  /* pink loop */
+    );
+    z-index: -1;
+    border-radius: inherit; /* Follows parent border-radius */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: spin-angle 3s linear infinite;
+  }
+
+  /* Only show on hover or when focusing inside (for inputs) */
+  .animated-border:hover::after,
+  .animated-border:focus-within::after {
+    opacity: 1;
+  }
+
+  /* Slight blur for glow effect */
+  .animated-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: conic-gradient(from var(--angle), #ec4899, #a855f7, #3b82f6, #ec4899);
+    z-index: -2;
+    border-radius: inherit;
+    opacity: 0;
+    filter: blur(10px);
+    transition: opacity 0.3s ease;
+    animation: spin-angle 3s linear infinite;
+  }
+
+  .animated-border:hover::before,
+  .animated-border:focus-within::before {
+    opacity: 0.5; /* Softer glow */
+  }
+  
+  @keyframes spin-angle {
+    to {
+      --angle: 360deg;
+    }
+  }
+}
