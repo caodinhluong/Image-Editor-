@@ -15,7 +15,7 @@ import { ViewState } from './types';
 import { 
   Sparkles, ArrowRight, Image as ImageIcon, Scissors, Layers, Maximize2, Wand2, Search, Play,
   ShoppingBag, Camera, Briefcase, Zap, Crown, Check, ShieldCheck, Building2, Star,
-  Paperclip, X, ImagePlus
+  Paperclip, X, ImagePlus, Download
 } from 'lucide-react';
 import { Button, Card, Badge } from './components/ui/UIComponents';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -36,6 +36,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [generateProgress, setGenerateProgress] = useState(0);
+  const [showEditConfirm, setShowEditConfirm] = useState(false);
   
   // Image Upload States
   const [uploadedImages, setUploadedImages] = useState<{ id: string; file: File; preview: string }[]>([]);
@@ -115,10 +116,31 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
 
   const handleApplyAndEdit = () => {
     if (selectedImage === null) return;
+    setShowEditConfirm(true);
+  };
+
+  const handleConfirmEdit = () => {
+    if (selectedImage === null) return;
     onStartEditing(generatedImages[selectedImage]);
     setShowGenerateModal(false);
+    setShowEditConfirm(false);
     setGeneratedImages([]);
     setPrompt('');
+  };
+
+  const handleDownloadImage = (imageUrl: string, index: number) => {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `repix-generated-v${index + 1}.jpg`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadSelected = () => {
+    if (selectedImage === null) return;
+    handleDownloadImage(generatedImages[selectedImage], selectedImage);
   };
 
   const handleCloseModal = () => {
@@ -394,26 +416,41 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                         <p className="text-center text-zinc-500 text-sm">Select your favorite variation to edit</p>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           {generatedImages.map((img, index) => (
-                            <button
+                            <div
                               key={index}
-                              onClick={() => setSelectedImage(index)}
                               className={`relative aspect-[4/5] rounded-xl overflow-hidden group transition-all duration-300 ${
                                 selectedImage === index 
                                   ? 'ring-4 ring-repix-500 scale-[1.02]' 
                                   : 'ring-2 ring-zinc-200 dark:ring-zinc-700 hover:ring-zinc-400'
                               }`}
                             >
-                              <img src={img} alt={`Variation ${index + 1}`} className="w-full h-full object-cover" />
-                              <div className={`absolute inset-0 transition-opacity ${selectedImage === index ? 'bg-repix-500/20' : 'bg-black/0 group-hover:bg-black/20'}`}></div>
+                              <button
+                                onClick={() => setSelectedImage(index)}
+                                className="w-full h-full"
+                              >
+                                <img src={img} alt={`Variation ${index + 1}`} className="w-full h-full object-cover" />
+                                <div className={`absolute inset-0 transition-opacity ${selectedImage === index ? 'bg-repix-500/20' : 'bg-black/0 group-hover:bg-black/20'}`}></div>
+                              </button>
                               <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-bold ${
                                 selectedImage === index ? 'bg-repix-500 text-white' : 'bg-black/50 text-white'
                               }`}>
                                 {selectedImage === index ? '✓ Selected' : `V${index + 1}`}
                               </div>
-                              <div className="absolute bottom-2 right-2 px-2 py-1 rounded-full bg-black/50 text-white text-xs">
+                              <div className="absolute bottom-2 left-2 px-2 py-1 rounded-full bg-black/50 text-white text-xs">
                                 {['Best Match', 'Creative', 'Vibrant', 'Minimal'][index]}
                               </div>
-                            </button>
+                              {/* Download Button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDownloadImage(img, index);
+                                }}
+                                className="absolute bottom-2 right-2 p-2 rounded-full bg-white/90 hover:bg-white text-zinc-700 hover:text-repix-600 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
+                                title="Download"
+                              >
+                                <Download size={14} />
+                              </button>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -425,6 +462,13 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                     <div className="flex items-center justify-between p-6 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
                       <Button variant="outline" onClick={handleCloseModal}>Cancel</Button>
                       <div className="flex gap-3">
+                        <Button 
+                          variant="outline" 
+                          onClick={handleDownloadSelected}
+                          disabled={selectedImage === null}
+                        >
+                          <Download size={16} className="mr-2" /> Download
+                        </Button>
                         <Button variant="outline" onClick={handleGenerate}>
                           <Sparkles size={16} className="mr-2" /> Regenerate
                         </Button>
@@ -439,6 +483,43 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                     </div>
                   )}
                 </div>
+
+                {/* Edit Confirm Dialog */}
+                {showEditConfirm && (
+                  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                      <div className="text-center mb-6">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-500/20 to-repix-600/20 flex items-center justify-center">
+                          <Wand2 size={28} className="text-repix-500" />
+                        </div>
+                        <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+                          {language === 'vi' ? 'Chỉnh sửa nâng cao?' : 'Advanced Editing?'}
+                        </h3>
+                        <p className="text-zinc-500 dark:text-zinc-400 text-sm">
+                          {language === 'vi' 
+                            ? 'Bạn có muốn mở ảnh này trong Studio để chỉnh sửa nâng cao với đầy đủ công cụ AI?' 
+                            : 'Do you want to open this image in Studio for advanced editing with full AI tools?'}
+                        </p>
+                      </div>
+                      <div className="flex gap-3">
+                        <Button 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={() => setShowEditConfirm(false)}
+                        >
+                          {language === 'vi' ? 'Hủy' : 'Cancel'}
+                        </Button>
+                        <Button 
+                          className="flex-1 bg-gradient-to-r from-pink-500 to-repix-600"
+                          onClick={handleConfirmEdit}
+                        >
+                          <Wand2 size={16} className="mr-2" />
+                          {language === 'vi' ? 'Vào Studio' : 'Open Studio'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

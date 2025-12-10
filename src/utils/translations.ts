@@ -232,11 +232,11 @@ export const translations = {
       layerProperties: "Layer Properties"
     },
     marketplace: {
-      title: "Discover Unlimited Assets",
-      desc: "High-quality AI templates, presets, and models created by the community.",
+      title: "Multi-Platform Sales Templates",
+      desc: "Professional templates for Shopee, Lazada, TikTok Shop, Facebook, Instagram...",
       credits: "Credits",
       upload: "Upload",
-      search: "Search prompts, styles, or creators...",
+      search: "Search by name, platform, product type...",
       filters: "Filters",
       useTemplate: "Use Template",
       trending: "Trending",
@@ -250,7 +250,57 @@ export const translations = {
       downloads: "downloads",
       likes: "likes",
       trendTracker: "AI Trend Tracker",
-      risingKeywords: "Rising Keywords"
+      risingKeywords: "Rising Keywords",
+      clearFilters: "Clear Filters",
+      // Template Types
+      typeEcommerce: "E-Commerce",
+      typeSocial: "Social Media",
+      typeMarketing: "Marketing",
+      typeBranding: "Branding",
+      typePrint: "Print",
+      // Platforms
+      all: "All",
+      // E-commerce platforms
+      shopee: "Shopee",
+      lazada: "Lazada",
+      tiktokShop: "TikTok Shop",
+      facebook: "Facebook",
+      instagram: "Instagram",
+      zaloShop: "Zalo Shop",
+      sendo: "Sendo",
+      // Social platforms
+      tiktok: "TikTok",
+      youtube: "YouTube",
+      twitter: "Twitter/X",
+      linkedin: "LinkedIn",
+      threads: "Threads",
+      // Marketing platforms
+      ads: "Advertising",
+      emailMarketing: "Email Marketing",
+      landingPage: "Landing Page",
+      banner: "Banner",
+      popup: "Popup",
+      // Branding platforms
+      logo: "Logo",
+      nameCard: "Name Card",
+      letterhead: "Letterhead",
+      presentation: "Presentation",
+      brandKit: "Brand Kit",
+      // Print platforms
+      poster: "Poster",
+      flyer: "Flyer",
+      brochure: "Brochure",
+      menu: "Menu",
+      packaging: "Packaging",
+      labelSticker: "Label/Sticker",
+      // Product categories
+      productCategory: "Product Category",
+      fashion: "Fashion",
+      cosmetics: "Cosmetics",
+      electronics: "Electronics",
+      food: "Food & Beverage",
+      home: "Home & Living",
+      accessories: "Accessories"
     },
     team: {
       workspace: "Acme Corp Workspace",
@@ -836,11 +886,11 @@ export const translations = {
       layerProperties: "Thuộc tính lớp"
     },
     marketplace: {
-      title: "Khám phá tài nguyên vô hạn",
-      desc: "Mẫu AI chất lượng cao, preset và mô hình được tạo bởi cộng đồng.",
+      title: "Template Bán Hàng Đa Nền Tảng",
+      desc: "Template chuyên nghiệp cho Shopee, Lazada, TikTok Shop, Facebook, Instagram...",
       credits: "Credit",
       upload: "Đăng mẫu",
-      search: "Tìm prompt, phong cách hoặc người tạo...",
+      search: "Tìm theo tên, nền tảng, loại sản phẩm...",
       filters: "Bộ lọc",
       useTemplate: "Dùng mẫu",
       trending: "Thịnh hành",
@@ -854,7 +904,57 @@ export const translations = {
       downloads: "lượt tải",
       likes: "lượt thích",
       trendTracker: "Theo dõi xu hướng AI",
-      risingKeywords: "Từ khóa đang lên"
+      risingKeywords: "Từ khóa đang lên",
+      clearFilters: "Xóa bộ lọc",
+      // Template Types
+      typeEcommerce: "E-Commerce",
+      typeSocial: "Mạng xã hội",
+      typeMarketing: "Marketing",
+      typeBranding: "Thương hiệu",
+      typePrint: "In ấn",
+      // Platforms
+      all: "Tất cả",
+      // E-commerce platforms
+      shopee: "Shopee",
+      lazada: "Lazada",
+      tiktokShop: "TikTok Shop",
+      facebook: "Facebook",
+      instagram: "Instagram",
+      zaloShop: "Zalo Shop",
+      sendo: "Sendo",
+      // Social platforms
+      tiktok: "TikTok",
+      youtube: "YouTube",
+      twitter: "Twitter/X",
+      linkedin: "LinkedIn",
+      threads: "Threads",
+      // Marketing platforms
+      ads: "Quảng cáo",
+      emailMarketing: "Email Marketing",
+      landingPage: "Landing Page",
+      banner: "Banner",
+      popup: "Popup",
+      // Branding platforms
+      logo: "Logo",
+      nameCard: "Name Card",
+      letterhead: "Letterhead",
+      presentation: "Presentation",
+      brandKit: "Brand Kit",
+      // Print platforms
+      poster: "Poster",
+      flyer: "Flyer",
+      brochure: "Brochure",
+      menu: "Menu",
+      packaging: "Bao bì",
+      labelSticker: "Nhãn/Sticker",
+      // Product categories
+      productCategory: "Loại sản phẩm",
+      fashion: "Thời trang",
+      cosmetics: "Mỹ phẩm",
+      electronics: "Điện tử",
+      food: "Thực phẩm",
+      home: "Gia dụng",
+      accessories: "Phụ kiện"
     },
     team: {
       workspace: "Không gian làm việc Acme",

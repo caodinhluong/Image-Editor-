@@ -388,17 +388,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
                    tag: '8K Ultra HD'
                  },
                  { 
-                   img: 'https://images.unsplash.com/photo-1686191128892-3b37add4a4d4?w=600&h=750&fit=crop&q=90', 
+                   img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&h=750&fit=crop&q=90', 
                    label: language === 'vi' ? 'Chân dung nghệ thuật' : 'Art Portrait',
                    tag: 'Style Transfer'
                  },
                  { 
-                   img: 'https://images.unsplash.com/photo-1684779847639-fbcc5a57dfe9?w=600&h=750&fit=crop&q=90', 
+                   img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=750&fit=crop&q=90', 
                    label: language === 'vi' ? 'Sản phẩm 3D' : '3D Product',
                    tag: 'Gen Fill'
                  },
                  { 
-                   img: 'https://images.unsplash.com/photo-1683009427666-340595e57e43?w=600&h=750&fit=crop&q=90', 
+                   img: 'https://images.unsplash.com/photo-1633186710895-309db2eca9e4?w=600&h=750&fit=crop&q=90', 
                    label: language === 'vi' ? 'Nghệ thuật số' : 'Digital Art',
                    tag: 'AI Enhanced'
                  },
@@ -602,7 +602,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
                  />
                </ScrollReveal>
 
-               {/* Card 3: Standard */}
+               {/* Card 3: Standard - Global Edge Network */}
                <ScrollReveal delay={200}>
                  <BentoCard 
                     title={trans.landing.edgeNetworkTitle}
@@ -612,7 +612,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
                  />
                </ScrollReveal>
 
-               {/* Card 4: Standard */}
+               {/* Card 4: Standard - Asset Marketplace */}
                <ScrollReveal delay={300}>
                  <BentoCard 
                     title={trans.landing.marketplaceTitle}
@@ -622,20 +622,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
                  />
                </ScrollReveal>
 
-               {/* Card 5: Wide */}
+               {/* Card 5: Wide - Enterprise Security */}
                <ScrollReveal delay={400} className="md:col-span-3">
                  <BentoCard 
                     title={trans.landing.securityTitle}
                     desc={trans.landing.securityDesc}
                     icon={Shield}
-                    className="bg-zinc-900 text-white dark:bg-white dark:text-black"
+                    className="bg-zinc-900 text-white"
                     graphic={
-                       <div className="flex gap-8 mt-4 opacity-50">
-                        <div className="flex items-center gap-2"><CheckCircle2 size={16}/> {trans.landing.soc2}</div>
-                        <div className="flex items-center gap-2"><CheckCircle2 size={16}/> {trans.landing.gdpr}</div>
-                        <div className="flex items-center gap-2"><CheckCircle2 size={16}/> {trans.landing.uptime}</div>
-                     </div>
-                  }
+                       <div className="flex gap-6 mt-4 text-white flex-wrap">
+                         <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-400"/> {trans.landing.soc2}</div>
+                         <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-400"/> {trans.landing.gdpr}</div>
+                         <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-400"/> {trans.landing.uptime}</div>
+                       </div>
+                    }
                  />
                </ScrollReveal>
             </div>

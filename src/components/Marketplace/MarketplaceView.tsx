@@ -20,17 +20,138 @@ interface ExtendedTemplate extends Template {
   description?: string;
 }
 
+// Main template types - will be translated via trans object
+const getTemplateTypes = (trans: any) => [
+  { id: 'ecommerce', name: trans.marketplace.typeEcommerce },
+  { id: 'social', name: trans.marketplace.typeSocial },
+  { id: 'marketing', name: trans.marketplace.typeMarketing },
+  { id: 'branding', name: trans.marketplace.typeBranding },
+  { id: 'print', name: trans.marketplace.typePrint },
+];
+
+// Platform categories - will be translated via trans object
+const getEcommercePlatforms = (trans: any) => [
+  { id: 'all', name: trans.marketplace.all },
+  { id: 'shopee', name: trans.marketplace.shopee },
+  { id: 'lazada', name: trans.marketplace.lazada },
+  { id: 'tiktok', name: trans.marketplace.tiktokShop },
+  { id: 'facebook', name: trans.marketplace.facebook },
+  { id: 'instagram', name: trans.marketplace.instagram },
+  { id: 'zalo', name: trans.marketplace.zaloShop },
+  { id: 'sendo', name: trans.marketplace.sendo },
+];
+
+const getSocialPlatforms = (trans: any) => [
+  { id: 'all', name: trans.marketplace.all },
+  { id: 'facebook', name: trans.marketplace.facebook },
+  { id: 'instagram', name: trans.marketplace.instagram },
+  { id: 'tiktok', name: trans.marketplace.tiktok },
+  { id: 'youtube', name: trans.marketplace.youtube },
+  { id: 'twitter', name: trans.marketplace.twitter },
+  { id: 'linkedin', name: trans.marketplace.linkedin },
+  { id: 'threads', name: trans.marketplace.threads },
+];
+
+const getMarketingPlatforms = (trans: any) => [
+  { id: 'all', name: trans.marketplace.all },
+  { id: 'ads', name: trans.marketplace.ads },
+  { id: 'email', name: trans.marketplace.emailMarketing },
+  { id: 'landing', name: trans.marketplace.landingPage },
+  { id: 'banner', name: trans.marketplace.banner },
+  { id: 'popup', name: trans.marketplace.popup },
+];
+
+const getBrandingPlatforms = (trans: any) => [
+  { id: 'all', name: trans.marketplace.all },
+  { id: 'logo', name: trans.marketplace.logo },
+  { id: 'namecard', name: trans.marketplace.nameCard },
+  { id: 'letterhead', name: trans.marketplace.letterhead },
+  { id: 'presentation', name: trans.marketplace.presentation },
+  { id: 'brand-kit', name: trans.marketplace.brandKit },
+];
+
+const getPrintPlatforms = (trans: any) => [
+  { id: 'all', name: trans.marketplace.all },
+  { id: 'poster', name: trans.marketplace.poster },
+  { id: 'flyer', name: trans.marketplace.flyer },
+  { id: 'brochure', name: trans.marketplace.brochure },
+  { id: 'menu', name: trans.marketplace.menu },
+  { id: 'packaging', name: trans.marketplace.packaging },
+  { id: 'label', name: trans.marketplace.labelSticker },
+];
+
+const getProductCategories = (trans: any) => [
+  { id: 'all', name: trans.marketplace.all },
+  { id: 'fashion', name: trans.marketplace.fashion },
+  { id: 'cosmetics', name: trans.marketplace.cosmetics },
+  { id: 'electronics', name: trans.marketplace.electronics },
+  { id: 'food', name: trans.marketplace.food },
+  { id: 'home', name: trans.marketplace.home },
+  { id: 'accessories', name: trans.marketplace.accessories },
+];
+
+// Helper function to get platforms based on template type
+const getPlatformsByType = (type: string, trans: any) => {
+  switch (type) {
+    case 'ecommerce': return getEcommercePlatforms(trans);
+    case 'social': return getSocialPlatforms(trans);
+    case 'marketing': return getMarketingPlatforms(trans);
+    case 'branding': return getBrandingPlatforms(trans);
+    case 'print': return getPrintPlatforms(trans);
+    default: return getEcommercePlatforms(trans);
+  }
+};
+
 const templates: ExtendedTemplate[] = [
-  { id: '1', title: 'Nike Air Max Studio', author: 'Sneaker Pro', price: 'Free', tags: ['Sneakers', 'Product'], thumbnail: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '12k', likes: '3.4k', category: 'Product', style: 'Studio', description: "Professional sneaker photography with dramatic lighting and floating effect." },
-  { id: '2', title: 'Luxury Handbag Shot', author: 'Fashion Studio', price: 5, tags: ['Bags', 'Luxury'], thumbnail: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '5k', likes: '1.2k', category: 'Product', style: 'Minimalist', description: "Clean, elegant lighting for luxury handbags and leather goods photography." },
-  { id: '3', title: 'Watch Macro Pro', author: 'TimeShot', price: 12, tags: ['Watch', 'Macro'], thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '8.5k', likes: '2.1k', category: 'Product', style: 'Macro', description: "Stunning macro photography for luxury watches and timepieces." },
-  { id: '4', title: 'Perfume Elegance', author: 'ScentArt', price: 'Free', tags: ['Perfume', 'Beauty'], thumbnail: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '5k', category: 'Product', style: 'Elegant', description: "Sophisticated perfume bottle photography with soft reflections and bokeh." },
-  { id: '5', title: 'Sneaker Floating', author: 'KicksDaily', price: 2, tags: ['Sneakers', 'Dynamic'], thumbnail: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '4k', likes: '900', category: 'Product', style: 'Dynamic', description: "Dynamic floating sneaker shots with motion blur and energy." },
-  { id: '6', title: 'Gucci Lifestyle', author: 'LuxuryLens', price: 'Free', tags: ['Handbag', 'Lifestyle'], thumbnail: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '3.2k', likes: '850', category: 'Fashion', style: 'Lifestyle', description: "Lifestyle photography for luxury fashion accessories and handbags." },
-  { id: '7', title: 'Sunglasses Reflect', author: 'EyewearPro', price: 8, tags: ['Sunglasses', 'Reflection'], thumbnail: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '1.5k', likes: '300', category: 'Product', style: 'Reflection', description: "Stunning sunglasses photography with reflective surfaces and dramatic lighting." },
-  { id: '8', title: 'Jewelry Sparkle', author: 'GemShot', price: 15, tags: ['Jewelry', 'Sparkle'], thumbnail: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '6k', likes: '1.8k', category: 'Product', style: 'Sparkle', description: "Make jewelry sparkle with professional lighting and macro details." },
-  { id: '9', title: 'Adidas Clean', author: 'SportShot', price: 20, tags: ['Sneakers', 'Clean'], thumbnail: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '9k', likes: '2.5k', category: 'Product', style: 'Clean', description: "Minimalist white background sneaker photography for e-commerce." },
-  { id: '10', title: 'Dior Perfume Art', author: 'FragranceArt', price: 'Free', tags: ['Perfume', 'Art'], thumbnail: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '15k', likes: '4.2k', category: 'Product', style: 'Artistic', description: "Artistic perfume photography with creative compositions and lighting." },
+  // Shopee Templates
+  { id: '1', title: 'Shopee Flash Sale Banner', author: 'EcomPro', price: 'Free', tags: ['Shopee', 'Sale', 'Banner'], thumbnail: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '45k', likes: '12k', category: 'Shopee', style: 'Sale', description: "Template banner flash sale chuẩn Shopee với khung giờ vàng, giảm giá sốc." },
+  { id: '2', title: 'Shopee Freeship Extra', author: 'ShopeeKing', price: 'Free', tags: ['Shopee', 'Freeship', 'Promo'], thumbnail: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '52k', likes: '15k', category: 'Shopee', style: 'Promo', description: "Template freeship extra với badge miễn phí vận chuyển nổi bật." },
+  { id: '3', title: 'Shopee Live Thumbnail', author: 'LiveSeller', price: 5, tags: ['Shopee', 'Live', 'Livestream'], thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '38k', likes: '9.2k', category: 'Shopee', style: 'Live', description: "Thumbnail livestream Shopee Live thu hút người xem, tăng view." },
+  { id: '4', title: 'Shopee Mall Premium', author: 'MallPro', price: 15, tags: ['Shopee', 'Mall', 'Premium'], thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '6.5k', category: 'Shopee', style: 'Premium', description: "Template cao cấp cho Shopee Mall, tăng uy tín thương hiệu." },
+  
+  // Lazada Templates
+  { id: '5', title: 'Lazada 11.11 Mega Sale', author: 'SalesMaster', price: 'Free', tags: ['Lazada', 'Sale', '11.11'], thumbnail: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '48k', likes: '14k', category: 'Lazada', style: 'Mega Sale', description: "Template siêu sale 11.11 với hiệu ứng nổi bật, tăng tỷ lệ click." },
+  { id: '6', title: 'Lazada LazMall Brand', author: 'BrandVN', price: 12, tags: ['Lazada', 'LazMall', 'Brand'], thumbnail: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '18k', likes: '4.8k', category: 'Lazada', style: 'Brand', description: "Template LazMall chính hãng, tăng độ tin cậy cho khách hàng." },
+  { id: '7', title: 'Lazada Voucher Hunter', author: 'VoucherPro', price: 'Free', tags: ['Lazada', 'Voucher', 'Discount'], thumbnail: 'https://images.unsplash.com/photo-1556742111-a301076d9d18?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '35k', likes: '8.9k', category: 'Lazada', style: 'Voucher', description: "Template săn voucher Lazada với countdown và mã giảm giá." },
+  
+  // TikTok Shop Templates
+  { id: '8', title: 'TikTok Product Showcase', author: 'TikSeller', price: 5, tags: ['TikTok', 'Video', 'Product'], thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '58k', likes: '18k', category: 'TikTok Shop', style: 'Video', description: "Template video sản phẩm viral cho TikTok Shop, tối ưu thuật toán." },
+  { id: '9', title: 'TikTok Unboxing Review', author: 'ReviewKing', price: 8, tags: ['TikTok', 'Unboxing', 'Review'], thumbnail: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '42k', likes: '12k', category: 'TikTok Shop', style: 'Review', description: "Template unboxing review hấp dẫn, tăng tương tác và bán hàng." },
+  { id: '10', title: 'TikTok Before After', author: 'TransformVN', price: 'Free', tags: ['TikTok', 'Before After', 'Viral'], thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '65k', likes: '22k', category: 'TikTok Shop', style: 'Viral', description: "Template before/after viral, phù hợp mỹ phẩm, skincare, fitness." },
+  { id: '11', title: 'TikTok Flash Deal', author: 'DealHunter', price: 'Free', tags: ['TikTok', 'Flash', 'Deal'], thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '28k', likes: '7.5k', category: 'TikTok Shop', style: 'Deal', description: "Template flash deal TikTok với countdown và giá sốc." },
+  
+  // Facebook Templates
+  { id: '12', title: 'Facebook Carousel Ads', author: 'AdsPro', price: 8, tags: ['Facebook', 'Ads', 'Carousel'], thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '32k', likes: '8.8k', category: 'Facebook', style: 'Carousel', description: "Template quảng cáo carousel Facebook với CTR cao, tối ưu conversion." },
+  { id: '13', title: 'Facebook Shop Cover', author: 'CoverDesign', price: 'Free', tags: ['Facebook', 'Cover', 'Shop'], thumbnail: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '25k', likes: '6.2k', category: 'Facebook', style: 'Cover', description: "Template cover Facebook Shop chuyên nghiệp, thu hút khách hàng." },
+  { id: '14', title: 'Facebook Marketplace Post', author: 'MarketPro', price: 'Free', tags: ['Facebook', 'Marketplace', 'Post'], thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '45k', likes: '11k', category: 'Facebook', style: 'Post', description: "Template đăng bán Facebook Marketplace chuẩn SEO, dễ tìm kiếm." },
+  { id: '15', title: 'Facebook Video Ads', author: 'VideoAds', price: 15, tags: ['Facebook', 'Video', 'Ads'], thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '38k', likes: '9.5k', category: 'Facebook', style: 'Video', description: "Template video ads Facebook với hook mạnh, tăng retention." },
+  
+  // Instagram Templates
+  { id: '16', title: 'Instagram Story Product', author: 'InstaShop', price: 'Free', tags: ['Instagram', 'Story', 'Product'], thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '55k', likes: '16k', category: 'Instagram', style: 'Story', description: "Template story Instagram bắt mắt, swipe up mua hàng ngay." },
+  { id: '17', title: 'Instagram Reels Trending', author: 'ReelsMaster', price: 10, tags: ['Instagram', 'Reels', 'Trending'], thumbnail: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '48k', likes: '14k', category: 'Instagram', style: 'Reels', description: "Template Reels trending với nhạc hot, tăng reach organic." },
+  { id: '18', title: 'Instagram Grid Aesthetic', author: 'AestheticVN', price: 20, tags: ['Instagram', 'Grid', 'Aesthetic'], thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '7.8k', category: 'Instagram', style: 'Aesthetic', description: "Template grid Instagram đồng bộ, tạo feed đẹp chuyên nghiệp." },
+  { id: '19', title: 'Instagram Shopping Tag', author: 'ShopTag', price: 'Free', tags: ['Instagram', 'Shopping', 'Tag'], thumbnail: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '28k', likes: '6.5k', category: 'Instagram', style: 'Shopping', description: "Template với shopping tag, khách hàng mua trực tiếp từ post." },
+  
+  // Zalo Shop Templates
+  { id: '20', title: 'Zalo Shop Mini Banner', author: 'ZaloSeller', price: 'Free', tags: ['Zalo', 'Mini', 'Banner'], thumbnail: 'https://images.unsplash.com/photo-1556742111-a301076d9d18?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '18k', likes: '4.2k', category: 'Zalo Shop', style: 'Mini', description: "Template banner nhỏ gọn cho Zalo Shop, phù hợp chat bán hàng." },
+  { id: '21', title: 'Zalo OA Broadcast', author: 'ZaloOA', price: 5, tags: ['Zalo', 'OA', 'Broadcast'], thumbnail: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '12k', likes: '3.1k', category: 'Zalo Shop', style: 'Broadcast', description: "Template broadcast Zalo OA với CTA rõ ràng, tăng click rate." },
+  
+  // Sendo Templates
+  { id: '22', title: 'Sendo Deal Sốc', author: 'SendoPro', price: 5, tags: ['Sendo', 'Deal', 'Giảm giá'], thumbnail: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '8k', likes: '1.8k', category: 'Sendo', style: 'Deal', description: "Template deal sốc Sendo với countdown và badge giảm giá nổi bật." },
+  { id: '23', title: 'Sendo Siêu Rẻ', author: 'SieuRe', price: 'Free', tags: ['Sendo', 'Siêu rẻ', 'Budget'], thumbnail: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '6k', likes: '1.2k', category: 'Sendo', style: 'Budget', description: "Template siêu rẻ Sendo, nhấn mạnh giá tốt nhất thị trường." },
+  
+  // Product Category Templates
+  { id: '24', title: 'Mỹ phẩm White Background', author: 'BeautyShot', price: 'Free', tags: ['Mỹ phẩm', 'White BG', 'Clean'], thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '28k', likes: '7.2k', category: 'Shopee', style: 'Clean', description: "Nền trắng chuẩn sàn TMĐT cho mỹ phẩm, skincare, makeup." },
+  { id: '25', title: 'Thời trang Lifestyle', author: 'FashionVN', price: 12, tags: ['Thời trang', 'Lifestyle', 'Model'], thumbnail: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '35k', likes: '9.5k', category: 'Instagram', style: 'Lifestyle', description: "Template lifestyle cho thời trang, phù hợp Instagram và Facebook." },
+  { id: '26', title: 'Điện thoại Tech Showcase', author: 'TechPro', price: 15, tags: ['Điện tử', 'Tech', 'Smartphone'], thumbnail: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '5.8k', category: 'Lazada', style: 'Tech', description: "Template công nghệ cao cấp cho điện thoại, laptop, phụ kiện tech." },
+  { id: '27', title: 'Food & Beverage Delicious', author: 'FoodieShot', price: 'Free', tags: ['Thực phẩm', 'Food', 'Yummy'], thumbnail: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '42k', likes: '12k', category: 'TikTok Shop', style: 'Food', description: "Template đồ ăn hấp dẫn, tăng cảm giác thèm ăn cho khách hàng." },
+  { id: '28', title: 'Đồ gia dụng Home Living', author: 'HomePro', price: 8, tags: ['Gia dụng', 'Home', 'Living'], thumbnail: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '15k', likes: '3.8k', category: 'Shopee', style: 'Home', description: "Template đồ gia dụng với không gian sống đẹp, tăng giá trị sản phẩm." },
+  { id: '29', title: 'Phụ kiện Accessories Pro', author: 'AccessPro', price: 'Free', tags: ['Phụ kiện', 'Accessories', 'Fashion'], thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '18k', likes: '4.5k', category: 'Instagram', style: 'Accessories', description: "Template phụ kiện thời trang với góc chụp đẹp, tăng giá trị cảm nhận." },
+  
+  // Multi-Platform Templates
+  { id: '30', title: 'Multi-Platform Product Card', author: 'OmniSeller', price: 20, tags: ['Đa nền tảng', 'Product', 'Universal'], thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '52k', likes: '15k', category: 'All', style: 'Universal', description: "Template sản phẩm đa năng, xuất ra nhiều kích thước cho mọi sàn TMĐT." },
+  { id: '31', title: 'All-in-One Sale Banner', author: 'SalePro', price: 25, tags: ['Đa nền tảng', 'Sale', 'Banner'], thumbnail: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '48k', likes: '13k', category: 'All', style: 'Sale', description: "Template sale đa nền tảng, tự động resize cho Shopee, Lazada, TikTok." },
+  { id: '32', title: 'Universal Video Template', author: 'VideoKing', price: 30, tags: ['Đa nền tảng', 'Video', 'Universal'], thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '38k', likes: '11k', category: 'All', style: 'Video', description: "Template video đa nền tảng, xuất 9:16, 1:1, 16:9 cho mọi kênh." },
 ];
 
 // --- TEMPLATE DETAIL MODAL ---
@@ -598,82 +719,137 @@ const CreatorStudio: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   );
 };
 
-const FilterSection: React.FC<{ title: string; options: string[] }> = ({ title, options }) => {
-  const [selected, setSelected] = useState<string[]>([]);
 
-  const toggle = (opt: string) => {
-    if (selected.includes(opt)) setSelected(selected.filter(s => s !== opt));
-    else setSelected([...selected, opt]);
-  }
+
+const TrendTracker: React.FC<{
+  trans: any;
+  selectedType: string;
+  selectedPlatform: string;
+  setSelectedPlatform: (id: string) => void;
+  selectedCategory: string;
+  setSelectedCategory: (id: string) => void;
+  currentPlatforms: Array<{id: string; name: string}>;
+  productCategories: Array<{id: string; name: string}>;
+}> = ({trans, selectedType, selectedPlatform, setSelectedPlatform, selectedCategory, setSelectedCategory, currentPlatforms, productCategories}) => {
+  // Get trending keywords based on type
+  const getTrendingKeywords = () => {
+    switch (selectedType) {
+      case 'ecommerce':
+        return [{k: "Flash Sale", v: "+150%"}, {k: "11.11", v: "+120%"}, {k: "Livestream", v: "+85%"}];
+      case 'social':
+        return [{k: "Reels", v: "+180%"}, {k: "Carousel", v: "+95%"}, {k: "Story", v: "+75%"}];
+      case 'marketing':
+        return [{k: "Retargeting", v: "+140%"}, {k: "A/B Test", v: "+90%"}, {k: "CTA", v: "+65%"}];
+      case 'branding':
+        return [{k: "Minimalist", v: "+130%"}, {k: "Gradient", v: "+85%"}, {k: "3D Logo", v: "+70%"}];
+      case 'print':
+        return [{k: "Eco Print", v: "+110%"}, {k: "QR Code", v: "+95%"}, {k: "Foil", v: "+60%"}];
+      default:
+        return [{k: "Flash Sale", v: "+150%"}, {k: "11.11", v: "+120%"}, {k: "Livestream", v: "+85%"}];
+    }
+  };
 
   return (
     <div className="mb-6">
-      <h4 className="text-sm font-semibold text-zinc-900 dark:text-white mb-3 uppercase tracking-wider">{title}</h4>
-      <div className="space-y-2">
-        {options.map(opt => (
-          <div key={opt} className="flex items-center gap-2 cursor-pointer group" onClick={() => toggle(opt)}>
-             <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${selected.includes(opt) ? 'bg-repix-500 border-repix-500' : 'border-zinc-300 dark:border-zinc-600 group-hover:border-repix-500'}`}>
-                {selected.includes(opt) && <Check size={10} className="text-white" />}
-             </div>
-             <span className={`text-sm ${selected.includes(opt) ? 'text-zinc-900 dark:text-white font-medium' : 'text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'}`}>{opt}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
+        <div className="bg-gradient-to-r from-zinc-100 to-white dark:from-zinc-900 dark:to-dark-surface border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              {/* Left: Trend Info */}
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-500/20 text-pink-500 flex items-center justify-center shrink-0">
+                    <TrendingUp size={20} />
+                 </div>
+                 <div>
+                    <h3 className="font-bold text-sm text-zinc-900 dark:text-white">{trans.marketplace.trendTracker}</h3>
+                    <p className="text-xs text-zinc-500 hidden sm:block">{trans.marketplace.risingKeywords}</p>
+                 </div>
+                 <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar ml-4">
+                    {getTrendingKeywords().map((trend, i) => (
+                       <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 whitespace-nowrap">
+                          <span className="text-xs font-medium">{trend.k}</span>
+                          <span className="text-xs font-bold text-green-500 flex items-center gap-0.5"><ArrowUpRight size={10} /> {trend.v}</span>
+                       </div>
+                    ))}
+                 </div>
+              </div>
 
-const TrendTracker: React.FC<{trans: any}> = ({trans}) => (
-  <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="col-span-1 md:col-span-3 bg-gradient-to-r from-zinc-100 to-white dark:from-zinc-900 dark:to-dark-surface border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center justify-between shadow-sm">
-         <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-500/20 text-pink-500 flex items-center justify-center shrink-0">
-                <TrendingUp size={20} />
-             </div>
-             <div>
-                <h3 className="font-bold text-sm text-zinc-900 dark:text-white">{trans.marketplace.trendTracker}</h3>
-                <p className="text-xs text-zinc-500 hidden sm:block">{trans.marketplace.risingKeywords}</p>
-             </div>
-         </div>
-         <div className="flex gap-3 overflow-x-auto pb-1 hide-scrollbar max-w-[200px] sm:max-w-none mask-linear-fade">
-             {[
-               {k: "Y2K Aesthetic", v: "+120%"},
-               {k: "Glassmorphism", v: "+85%"},
-               {k: "Cyberpunk", v: "+60%"},
-               {k: "Retro Anime", v: "+45%"}
-             ].map((trend, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 whitespace-nowrap">
-                   <span className="text-xs font-medium">{trend.k}</span>
-                   <span className="text-xs font-bold text-green-500 flex items-center gap-0.5"><ArrowUpRight size={10} /> {trend.v}</span>
-                </div>
-             ))}
-         </div>
-      </div>
-  </div>
-);
+              {/* Right: Filter Dropdowns */}
+              <div className="flex items-center gap-3 flex-wrap">
+                 {/* Platform Filter Dropdown - Dynamic based on type */}
+                 <div className="relative">
+                    <select
+                       value={selectedPlatform}
+                       onChange={(e) => setSelectedPlatform(e.target.value)}
+                       className="h-9 pl-3 pr-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-medium outline-none cursor-pointer appearance-none"
+                    >
+                       {currentPlatforms.map(platform => (
+                          <option key={platform.id} value={platform.id}>
+                             {platform.name}
+                          </option>
+                       ))}
+                    </select>
+                    <Filter size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                 </div>
+
+                 {/* Category Filter Dropdown */}
+                 <div className="relative">
+                    <select
+                       value={selectedCategory}
+                       onChange={(e) => setSelectedCategory(e.target.value)}
+                       className="h-9 pl-3 pr-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-medium outline-none cursor-pointer appearance-none"
+                    >
+                       {productCategories.map(cat => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                       ))}
+                    </select>
+                    <Tag size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                 </div>
+
+                 {/* Active Filters Display */}
+                 {(selectedPlatform !== 'all' || selectedCategory !== 'all') && (
+                    <button 
+                       onClick={() => { setSelectedPlatform('all'); setSelectedCategory('all'); }}
+                       className="text-xs text-repix-500 hover:text-repix-600 font-medium flex items-center gap-1"
+                    >
+                       <X size={12} /> {trans.marketplace.clearFilters}
+                    </button>
+                 )}
+              </div>
+           </div>
+        </div>
+    </div>
+  );
+};
 
 export const MarketplaceView: React.FC = () => {
   const { trans } = useLanguage();
   const [showFilters, setShowFilters] = useState(false);
   const [showCreatorStudio, setShowCreatorStudio] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ExtendedTemplate | null>(null);
+  const [selectedType, setSelectedType] = useState('ecommerce');
+  const [selectedPlatform, setSelectedPlatform] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // Get translated data
+  const templateTypes = getTemplateTypes(trans);
+  const productCategories = getProductCategories(trans);
+  
+  // Get current platforms based on selected type
+  const currentPlatforms = getPlatformsByType(selectedType, trans);
+
+  // Filter templates based on selected platform and category
+  const filteredTemplates = templates.filter(template => {
+    const platformMatch = selectedPlatform === 'all' || 
+      template.category.toLowerCase().includes(selectedPlatform) ||
+      template.tags.some(tag => tag.toLowerCase().includes(selectedPlatform));
+    const categoryMatch = selectedCategory === 'all' ||
+      template.tags.some(tag => tag.toLowerCase().includes(selectedCategory));
+    return platformMatch && categoryMatch;
+  });
   
   return (
     <div className="flex h-full bg-light-bg dark:bg-dark-bg text-zinc-900 dark:text-white overflow-hidden relative">
-      
-      {/* Sidebar Filters (Desktop) */}
-      <div className="w-64 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-dark-surface p-6 overflow-y-auto hidden md:block">
-         <div className="flex items-center justify-between mb-8">
-            <h3 className="font-bold text-lg flex items-center gap-2"><Filter size={20} /> {trans.marketplace.filters}</h3>
-            <span className="text-xs text-repix-500 cursor-pointer hover:underline">Reset</span>
-         </div>
-         <FilterSection title={trans.marketplace.categories} options={['Portrait', 'Product', 'Fashion', 'Architecture', '3D Asset', 'Illustration']} />
-         <FilterSection title={trans.marketplace.styles} options={['Photorealistic', 'Anime', 'Minimalist', 'Cyberpunk', 'Vintage', 'Cinematic']} />
-         <FilterSection title="License" options={[trans.marketplace.free, trans.marketplace.pro]} />
-         <FilterSection title="Format" options={['Square (1:1)', 'Portrait (3:4)', 'Landscape (16:9)', 'Vertical (9:16)']} />
-      </div>
 
-      {/* Main Content */}
+      {/* Main Content - Full Width */}
       <div className="flex-1 flex flex-col overflow-y-auto">
         
         {/* Top Header & Search */}
@@ -696,6 +872,7 @@ export const MarketplaceView: React.FC = () => {
               </div>
            </div>
 
+           {/* Search Bar */}
            <div className="flex gap-3">
               <div className="relative flex-1">
                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
@@ -706,18 +883,21 @@ export const MarketplaceView: React.FC = () => {
                  />
               </div>
               <div className="flex items-center gap-2">
+                 {/* Template Type Selector */}
+                 <select 
+                   value={selectedType}
+                   onChange={(e) => { setSelectedType(e.target.value); setSelectedPlatform('all'); }}
+                   className="h-10 px-4 rounded-lg bg-zinc-900 dark:bg-zinc-800 text-white text-sm border-none outline-none cursor-pointer font-medium"
+                 >
+                    {templateTypes.map(type => (
+                       <option key={type.id} value={type.id}>{type.name}</option>
+                    ))}
+                 </select>
                  <select className="h-10 px-4 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-sm border-none outline-none cursor-pointer hidden md:block">
                     <option>{trans.marketplace.trending}</option>
                     <option>{trans.marketplace.newest}</option>
                     <option>{trans.marketplace.popular}</option>
                  </select>
-                 <Button 
-                   variant="outline" 
-                   className="h-10 w-10 p-0 md:hidden bg-zinc-100 dark:bg-zinc-900 border-none"
-                   onClick={() => setShowFilters(true)}
-                 >
-                    <SlidersHorizontal size={18}/>
-                 </Button>
               </div>
            </div>
         </div>
@@ -725,8 +905,17 @@ export const MarketplaceView: React.FC = () => {
         {/* Scrollable Content */}
         <div className="p-4 md:p-8 space-y-8 md:space-y-12">
            
-           {/* Trend Tracker */}
-           <TrendTracker trans={trans} />
+           {/* Trend Tracker with Filters */}
+           <TrendTracker 
+              trans={trans}
+              selectedType={selectedType}
+              selectedPlatform={selectedPlatform}
+              setSelectedPlatform={setSelectedPlatform}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              currentPlatforms={currentPlatforms}
+              productCategories={productCategories}
+           />
 
            {/* Hero Banner / Featured */}
            <div className="relative rounded-2xl overflow-hidden bg-zinc-900 shadow-2xl shadow-black/50 aspect-[4/3] md:aspect-[4/1] flex items-end md:items-center">
@@ -750,7 +939,7 @@ export const MarketplaceView: React.FC = () => {
 
            {/* Masonry Grid */}
            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
-              {templates.map(template => (
+              {filteredTemplates.map(template => (
                  <div 
                   key={template.id} 
                   onClick={() => setSelectedTemplate(template)}
@@ -834,27 +1023,7 @@ export const MarketplaceView: React.FC = () => {
         <CreatorStudio onClose={() => setShowCreatorStudio(false)} />
       )}
 
-      {/* Mobile Filters Modal */}
-      {showFilters && (
-        <div className="md:hidden fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowFilters(false)}></div>
-            <div className="relative bg-white dark:bg-dark-surface w-full sm:w-[400px] h-[80vh] sm:h-[600px] rounded-t-2xl sm:rounded-2xl flex flex-col shadow-2xl animate-in slide-in-from-bottom-10 duration-300">
-               <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
-                  <h3 className="font-bold text-lg flex items-center gap-2"><Filter size={20} /> {trans.marketplace.filters}</h3>
-                  <Button size="icon" variant="ghost" onClick={() => setShowFilters(false)}><X size={20} /></Button>
-               </div>
-               <div className="flex-1 overflow-y-auto p-6">
-                  <FilterSection title={trans.marketplace.categories} options={['Portrait', 'Product', 'Fashion', 'Architecture', '3D Asset', 'Illustration']} />
-                  <FilterSection title={trans.marketplace.styles} options={['Photorealistic', 'Anime', 'Minimalist', 'Cyberpunk', 'Vintage', 'Cinematic']} />
-                  <FilterSection title="License" options={[trans.marketplace.free, trans.marketplace.pro]} />
-                  <FilterSection title="Format" options={['Square (1:1)', 'Portrait (3:4)', 'Landscape (16:9)', 'Vertical (9:16)']} />
-               </div>
-               <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
-                  <Button className="w-full h-12 rounded-xl text-lg font-bold" onClick={() => setShowFilters(false)}>Apply Filters</Button>
-               </div>
-            </div>
-        </div>
-      )}
+
     </div>
   );
 };

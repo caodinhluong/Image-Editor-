@@ -4,7 +4,7 @@ import {
   Wand2, Eraser, Move, Crop, Layers, Download, 
   Undo, Redo, Sparkles, Share2, Aperture, 
   ScanFace, Palette, BrainCircuit, Upload, Command, Zap,
-  X, SlidersHorizontal, ChevronLeft, ArrowRight, History,
+  X, SlidersHorizontal, ChevronLeft, ChevronRight, ArrowRight, History,
   MessageSquare, Bell, Activity, ZoomIn, ZoomOut, Maximize2,
   ImagePlus, Paperclip, Trash2, Lock
 } from 'lucide-react';
@@ -53,6 +53,11 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Toolstrip collapse state
+  const [isToolstripCollapsed, setIsToolstripCollapsed] = useState(false);
+  // Right panel collapse state
+  const [isRightPanelCollapsed, setIsRightPanelCollapsed] = useState(false);
   
   // Moodboard Style Transfer States
   const [selectedStylePreset, setSelectedStylePreset] = useState<string | null>(null);
@@ -363,8 +368,18 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
     <div className="flex flex-col md:flex-row h-full w-full bg-light-bg dark:bg-dark-bg text-zinc-900 dark:text-white overflow-hidden relative">
       
       {/* TOOLBAR - Desktop: Left Sidebar | Mobile: Bottom Bar */}
-      <div className="order-3 md:order-1 w-full md:w-16 h-16 md:h-full border-t md:border-t-0 md:border-r border-zinc-200 dark:border-dark-border flex flex-row md:flex-col items-center justify-between px-4 md:px-0 md:py-4 gap-4 bg-white dark:bg-dark-surface z-30 overflow-x-auto md:overflow-visible hide-scrollbar shrink-0 safe-pb">
-        <div className="flex flex-row md:flex-col gap-4 w-full md:w-auto items-center justify-between md:justify-start">
+      <div className={`order-3 md:order-1 w-full ${isToolstripCollapsed ? 'md:w-16' : 'md:w-44'} h-16 md:h-full border-t md:border-t-0 md:border-r border-zinc-200 dark:border-dark-border flex flex-row md:flex-col items-center justify-between px-4 md:px-2 md:py-4 gap-2 bg-white dark:bg-dark-surface z-30 overflow-x-auto md:overflow-y-auto hide-scrollbar shrink-0 safe-pb relative transition-all duration-300`}>
+        
+        {/* Collapse Toggle Button - Desktop Only */}
+        <button
+          onClick={() => setIsToolstripCollapsed(!isToolstripCollapsed)}
+          className="hidden md:flex absolute -right-3 top-4 z-40 w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 items-center justify-center text-zinc-500 hover:text-repix-500 hover:border-repix-500 transition-colors shadow-sm"
+          title={isToolstripCollapsed ? 'Expand toolbar' : 'Collapse toolbar'}
+        >
+          {isToolstripCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+        </button>
+        
+        <div className="flex flex-row md:flex-col gap-1 w-full md:w-full items-center justify-between md:justify-start">
           {tools.map((tool) => {
             const isLocked = tool.feature && !canAccess(tool.feature);
             
@@ -372,8 +387,8 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
               <button
                 key={tool.id}
                 onClick={() => handleToolClick(tool)}
-                title={tool.label}
-                className={`p-3 rounded-xl transition-all group relative shrink-0 ${
+                title={isToolstripCollapsed ? tool.label : undefined}
+                className={`${isToolstripCollapsed ? 'p-3 justify-center' : 'px-3 py-2.5 justify-start gap-3'} w-full flex items-center rounded-xl transition-all group relative shrink-0 ${
                   activeTool === tool.id 
                     ? 'bg-gradient-to-br from-pink-500 to-repix-600 text-white shadow-lg shadow-repix-500/40' 
                     : isLocked
@@ -381,21 +396,30 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
                     : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
-                <tool.icon size={20} className={isLocked ? 'opacity-50' : ''} />
+                <tool.icon size={18} className={isLocked ? 'opacity-50' : ''} />
+                
+                {/* Tool Label - Only show when expanded */}
+                {!isToolstripCollapsed && (
+                  <span className={`hidden md:block text-xs font-medium truncate ${isLocked ? 'opacity-50' : ''}`}>
+                    {tool.label}
+                  </span>
+                )}
                 
                 {/* Lock icon for premium features */}
                 {isLocked && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">
+                  <div className={`absolute ${isToolstripCollapsed ? '-top-1 -right-1' : 'top-1/2 -translate-y-1/2 right-2'} w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center`}>
                     <Lock size={10} className="text-white" />
                   </div>
                 )}
                 
-                {/* Tooltip */}
-                <span className="hidden md:block absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-zinc-900 dark:bg-zinc-700 text-white text-xs px-2.5 py-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-[100] pointer-events-none shadow-lg">
-                  {tool.label}
-                  {isLocked && <span className="ml-1 text-amber-400">(PRO)</span>}
-                  <span className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-zinc-900 dark:border-r-zinc-700"></span>
-                </span>
+                {/* Tooltip - Only show when collapsed */}
+                {isToolstripCollapsed && (
+                  <span className="hidden md:block absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-zinc-900 dark:bg-zinc-700 text-white text-xs px-2.5 py-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-[100] pointer-events-none shadow-lg">
+                    {tool.label}
+                    {isLocked && <span className="ml-1 text-amber-400">(PRO)</span>}
+                    <span className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-zinc-900 dark:border-r-zinc-700"></span>
+                  </span>
+                )}
               </button>
             );
           })}
@@ -991,12 +1015,71 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
       {/* Right Properties Panel - Desktop: Always Visible */}
       <div 
         className={`
-          order-3 w-72 lg:w-80 bg-white dark:bg-dark-surface
+          order-3 ${isRightPanelCollapsed ? 'w-12' : 'w-72 lg:w-80'} bg-white dark:bg-dark-surface
           border-l border-zinc-200 dark:border-dark-border flex-col shrink-0
-          hidden md:flex
+          hidden md:flex relative transition-all duration-300
           ${showGeneratePreview ? 'md:hidden' : ''}
         `}
       >
+        {/* Collapse Toggle Button */}
+        <button
+          onClick={() => setIsRightPanelCollapsed(!isRightPanelCollapsed)}
+          className="absolute -left-3 top-4 z-40 w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-500 hover:text-repix-500 hover:border-repix-500 transition-colors shadow-sm"
+          title={isRightPanelCollapsed ? 'Expand panel' : 'Collapse panel'}
+        >
+          {isRightPanelCollapsed ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+        </button>
+
+        {/* Collapsed State - Icon Only Tabs */}
+        {isRightPanelCollapsed ? (
+          <div className="flex flex-col items-center py-4 gap-2">
+            <button 
+               onClick={() => { setActivePanel('adjustments'); setIsRightPanelCollapsed(false); }}
+               className={`p-2.5 rounded-lg transition-all ${
+                 activePanel === 'adjustments' 
+                   ? 'bg-repix-500/10 text-repix-500' 
+                   : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+               }`}
+               title="Adjustments"
+            >
+               <SlidersHorizontal size={18} />
+            </button>
+            <button 
+               onClick={() => { setActivePanel('layers'); setIsRightPanelCollapsed(false); }}
+               className={`p-2.5 rounded-lg transition-all ${
+                 activePanel === 'layers' 
+                   ? 'bg-repix-500/10 text-repix-500' 
+                   : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+               }`}
+               title="Layers"
+            >
+               <Layers size={18} />
+            </button>
+            <button 
+               onClick={() => { setActivePanel('style'); setIsRightPanelCollapsed(false); }}
+               className={`p-2.5 rounded-lg transition-all ${
+                 activePanel === 'style' 
+                   ? 'bg-repix-500/10 text-repix-500' 
+                   : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+               }`}
+               title="Style"
+            >
+               <Palette size={18} />
+            </button>
+            <button 
+               onClick={() => { setActivePanel('brandkit'); setIsRightPanelCollapsed(false); }}
+               className={`p-2.5 rounded-lg transition-all ${
+                 activePanel === 'brandkit' 
+                   ? 'bg-repix-500/10 text-repix-500' 
+                   : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+               }`}
+               title="Brand Kit"
+            >
+               <Sparkles size={18} />
+            </button>
+          </div>
+        ) : (
+          <>
         {/* Panel Tabs - Vertical Layout */}
         <div className="flex flex-col border-b border-zinc-200 dark:border-zinc-800 shrink-0">
           <div className="grid grid-cols-4 gap-1 p-2 bg-zinc-50 dark:bg-zinc-900/50">
@@ -1341,7 +1424,8 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
             </div>
           </div>
         )}
-
+          </>
+        )}
       </div>
 
       {/* Mobile Overlay Backdrop for Properties Panel */}
