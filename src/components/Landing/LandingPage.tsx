@@ -221,36 +221,6 @@ const BentoCard: React.FC<{
 export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) => {
   const { trans, toggleLanguage, language } = useLanguage();
   const { theme, toggleTheme } = useTheme();
-  
-  // Header scroll animation states
-  const [scrollY, setScrollY] = useState(0);
-  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Determine scroll direction
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setScrollDirection('down');
-        setIsHeaderVisible(false);
-      } else {
-        setScrollDirection('up');
-        setIsHeaderVisible(true);
-      }
-      
-      // Check if scrolled past hero
-      setIsScrolled(currentScrollY > 80);
-      setScrollY(currentScrollY);
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
 
   return (
     <ClickSpark
@@ -330,93 +300,41 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
          </div>
       </section>
 
-      {/* --- FLOATING NAVBAR WITH SCROLL ANIMATION --- */}
-      <nav 
-        className={`fixed left-0 right-0 z-50 flex justify-center px-4 transition-all duration-500 ease-out ${
-          isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-        } ${isScrolled ? 'top-3' : 'top-6'}`}
-      >
-        <div 
-          className={`w-full flex items-center justify-between transition-all duration-500 ease-out ${
-            isScrolled 
-              ? 'max-w-5xl h-16 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-zinc-200/80 dark:border-white/15 rounded-2xl px-4 pl-5 shadow-2xl shadow-black/10 dark:shadow-black/30' 
-              : 'max-w-6xl h-20 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200 dark:border-white/10 rounded-full px-4 pl-8 shadow-xl shadow-black/5'
-          }`}
-          style={{
-            transform: isScrolled ? 'scale(0.98)' : 'scale(1)',
-          }}
-        >
-          {/* Logo */}
-          <div 
-            className="flex items-center gap-3 cursor-pointer group" 
-            onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
-          >
-            <div className={`rounded-lg bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center shadow-lg shadow-repix-500/20 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 ${
-              isScrolled ? 'w-9 h-9' : 'w-10 h-10'
-            }`}>
-               <Sun size={isScrolled ? 18 : 20} className="text-white fill-white transition-all duration-300" />
+      {/* --- FLOATING NAVBAR --- */}
+      <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
+        <div className="w-full max-w-6xl h-20 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200 dark:border-white/10 rounded-full flex items-center justify-between px-4 pl-8 shadow-xl shadow-black/5">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center shadow-lg shadow-repix-500/20">
+               <Sun size={20} className="text-white fill-white" />
             </div>
-            <span className={`font-bold tracking-tight transition-all duration-300 ${
-              isScrolled ? 'text-xl' : 'text-2xl'
-            }`}>Repix</span>
+            <span className="font-bold text-2xl tracking-tight">Repix</span>
           </div>
 
-          {/* Nav Links */}
-          <div className={`hidden md:flex items-center text-base font-medium text-zinc-600 dark:text-zinc-400 transition-all duration-300 ${
-            isScrolled ? 'gap-6' : 'gap-10'
-          }`}>
-             <a href="#features" className="relative hover:text-zinc-900 dark:hover:text-white transition-colors group">
-               {trans.landing.features}
-               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-repix-500 transition-all duration-300 group-hover:w-full rounded-full"></span>
-             </a>
-             <a href="#templates" className="relative hover:text-zinc-900 dark:hover:text-white transition-colors group">
-               {trans.landing.marketplace}
-               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-repix-500 to-accent-blue transition-all duration-300 group-hover:w-full rounded-full"></span>
-             </a>
-             <a href="#pricing" className="relative hover:text-zinc-900 dark:hover:text-white transition-colors group">
-               {trans.landing.pricing}
-               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-accent-blue to-pink-500 transition-all duration-300 group-hover:w-full rounded-full"></span>
-             </a>
+          <div className="hidden md:flex items-center gap-10 text-base font-medium text-zinc-600 dark:text-zinc-400">
+             <a href="#features" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{trans.landing.features}</a>
+             <a href="#templates" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{trans.landing.marketplace}</a>
+             <a href="#pricing" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{trans.landing.pricing}</a>
           </div>
 
-          {/* Right Actions */}
           <div className="flex items-center gap-3">
              <button 
                onClick={toggleLanguage} 
-               className={`flex items-center gap-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 transition-all duration-300 border border-zinc-300 dark:border-white/20 hover:border-repix-400 dark:hover:border-repix-500 hover:text-repix-600 dark:hover:text-repix-400 ${
-                 isScrolled ? 'px-2.5 py-1.5' : 'px-3 py-2'
-               }`}
+               className="flex items-center gap-1.5 px-3 py-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 transition-colors border border-zinc-300 dark:border-white/20"
              >
-               <Globe size={isScrolled ? 14 : 16} className="transition-all duration-300" />
-               <span className={`font-bold transition-all duration-300 ${isScrolled ? 'text-xs' : 'text-sm'}`}>
-                 {language === 'vi' ? 'VI' : 'EN'}
-               </span>
+               <Globe size={16} />
+               <span className="text-sm font-bold">{language === 'vi' ? 'VI' : 'EN'}</span>
              </button>
-             <div className={`w-px bg-zinc-300 dark:bg-white/10 transition-all duration-300 ${isScrolled ? 'h-5' : 'h-6'}`}></div>
-             {/* Try Repix CTA Button - Goes to Login */}
+             <div className="h-6 w-px bg-zinc-300 dark:bg-white/10"></div>
              <Button 
                 onClick={onLogin} 
                 variant="primary"
-                size={isScrolled ? 'md' : 'lg'}
-                className={`animated-border rounded-full font-extrabold shadow-xl shadow-repix-500/30 hover:shadow-repix-500/50 transition-all duration-300 hover:scale-105 active:scale-95 ${
-                  isScrolled ? 'px-6 h-10 text-sm' : 'px-10 h-12 text-lg'
-                }`}
+                size="lg" 
+                className="animated-border rounded-full px-10 h-12 text-lg font-extrabold shadow-xl shadow-repix-500/30 hover:shadow-repix-500/50 transition-all"
              >
                {trans.nav.getStarted}
              </Button>
           </div>
         </div>
-        
-        {/* Scroll Progress Indicator */}
-        <div 
-          className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-pink-500 via-repix-500 to-accent-blue rounded-full transition-all duration-300 ${
-            isScrolled ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{ 
-            width: `${Math.min((scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100, 100)}%`,
-            maxWidth: isScrolled ? '90%' : '0%'
-          }}
-        />
       </nav>
 
       {/* REST OF PAGE - Transparent backgrounds to show AntiGravity */}
