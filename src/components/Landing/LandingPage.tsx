@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Wand2, Users, ShoppingBag, Sun, Moon, ArrowRight,
@@ -11,7 +10,6 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import Galaxy from './Galaxy';
 import { ScrollReveal } from './ScrollReveal';
-import TrueFocus from './TrueFocus';
 import LogoLoop, { LogoItem } from './LogoLoop';
 import ClickSpark from './ClickSpark';
 import { PLANS, PlanType } from '../../types/subscription';
@@ -223,6 +221,36 @@ const BentoCard: React.FC<{
 export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) => {
   const { trans, toggleLanguage, language } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  
+  // Header scroll animation states
+  const [scrollY, setScrollY] = useState(0);
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Determine scroll direction
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setScrollDirection('down');
+        setIsHeaderVisible(false);
+      } else {
+        setScrollDirection('up');
+        setIsHeaderVisible(true);
+      }
+      
+      // Check if scrolled past hero
+      setIsScrolled(currentScrollY > 80);
+      setScrollY(currentScrollY);
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   return (
     <ClickSpark
@@ -257,23 +285,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
       <section className="relative h-screen w-full overflow-hidden">
          {/* Hero Content */}
          <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-           {/* Main Heading with TrueFocus Animation */}
-           <div 
-             className="max-w-5xl mb-8 opacity-0"
+           {/* Main Heading */}
+           <h1 
+             className="max-w-4xl text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-8 leading-[1.1] opacity-0"
              style={{ animation: 'fadeSlideUp 0.8s ease-out 0.4s forwards' }}
            >
-             <TrueFocus
-               sentence={`${trans.landing.heroTitle} ${trans.landing.heroTitleHighlight}`}
-               manualMode={false}
-               blurAmount={5}
-               borderColor="#EC4899"
-               animationDuration={0.6}
-               pauseBetweenAnimations={0.5}
-               highlightLastWord={true}
-               highlightGradient="linear-gradient(to right, #EC4899, #A855F7, #3B82F6)"
-               className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1] text-white"
-             />
-           </div>
+             <span className="text-white">
+               {trans.landing.heroTitle}
+             </span>
+             <br />
+             <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-repix-500 to-accent-blue animate-gradient-x">
+               {trans.landing.heroTitleHighlight}
+             </span>
+           </h1>
 
            {/* Description */}
            <p 
@@ -306,42 +330,93 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
          </div>
       </section>
 
-      {/* --- FLOATING NAVBAR --- */}
-      <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
-        <div className="w-full max-w-6xl h-20 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200 dark:border-white/10 rounded-full flex items-center justify-between px-4 pl-8 shadow-xl shadow-black/5">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center shadow-lg shadow-repix-500/20">
-               <Sun size={20} className="text-white fill-white" />
+      {/* --- FLOATING NAVBAR WITH SCROLL ANIMATION --- */}
+      <nav 
+        className={`fixed left-0 right-0 z-50 flex justify-center px-4 transition-all duration-500 ease-out ${
+          isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+        } ${isScrolled ? 'top-3' : 'top-6'}`}
+      >
+        <div 
+          className={`w-full flex items-center justify-between transition-all duration-500 ease-out ${
+            isScrolled 
+              ? 'max-w-5xl h-16 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-zinc-200/80 dark:border-white/15 rounded-2xl px-4 pl-5 shadow-2xl shadow-black/10 dark:shadow-black/30' 
+              : 'max-w-6xl h-20 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200 dark:border-white/10 rounded-full px-4 pl-8 shadow-xl shadow-black/5'
+          }`}
+          style={{
+            transform: isScrolled ? 'scale(0.98)' : 'scale(1)',
+          }}
+        >
+          {/* Logo */}
+          <div 
+            className="flex items-center gap-3 cursor-pointer group" 
+            onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+          >
+            <div className={`rounded-lg bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center shadow-lg shadow-repix-500/20 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 ${
+              isScrolled ? 'w-9 h-9' : 'w-10 h-10'
+            }`}>
+               <Sun size={isScrolled ? 18 : 20} className="text-white fill-white transition-all duration-300" />
             </div>
-            <span className="font-bold text-2xl tracking-tight">Repix</span>
+            <span className={`font-bold tracking-tight transition-all duration-300 ${
+              isScrolled ? 'text-xl' : 'text-2xl'
+            }`}>Repix</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-10 text-base font-medium text-zinc-600 dark:text-zinc-400">
-             <a href="#features" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{trans.landing.features}</a>
-             <a href="#templates" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{trans.landing.marketplace}</a>
-             <a href="#pricing" className="hover:text-zinc-900 dark:hover:text-white transition-colors">{trans.landing.pricing}</a>
+          {/* Nav Links */}
+          <div className={`hidden md:flex items-center text-base font-medium text-zinc-600 dark:text-zinc-400 transition-all duration-300 ${
+            isScrolled ? 'gap-6' : 'gap-10'
+          }`}>
+             <a href="#features" className="relative hover:text-zinc-900 dark:hover:text-white transition-colors group">
+               {trans.landing.features}
+               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-repix-500 transition-all duration-300 group-hover:w-full rounded-full"></span>
+             </a>
+             <a href="#templates" className="relative hover:text-zinc-900 dark:hover:text-white transition-colors group">
+               {trans.landing.marketplace}
+               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-repix-500 to-accent-blue transition-all duration-300 group-hover:w-full rounded-full"></span>
+             </a>
+             <a href="#pricing" className="relative hover:text-zinc-900 dark:hover:text-white transition-colors group">
+               {trans.landing.pricing}
+               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-accent-blue to-pink-500 transition-all duration-300 group-hover:w-full rounded-full"></span>
+             </a>
           </div>
 
+          {/* Right Actions */}
           <div className="flex items-center gap-3">
              <button 
                onClick={toggleLanguage} 
-               className="flex items-center gap-1.5 px-3 py-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 transition-colors border border-zinc-300 dark:border-white/20"
+               className={`flex items-center gap-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 transition-all duration-300 border border-zinc-300 dark:border-white/20 hover:border-repix-400 dark:hover:border-repix-500 hover:text-repix-600 dark:hover:text-repix-400 ${
+                 isScrolled ? 'px-2.5 py-1.5' : 'px-3 py-2'
+               }`}
              >
-               <Globe size={16} />
-               <span className="text-sm font-bold">{language === 'vi' ? 'VI' : 'EN'}</span>
+               <Globe size={isScrolled ? 14 : 16} className="transition-all duration-300" />
+               <span className={`font-bold transition-all duration-300 ${isScrolled ? 'text-xs' : 'text-sm'}`}>
+                 {language === 'vi' ? 'VI' : 'EN'}
+               </span>
              </button>
-             <div className="h-6 w-px bg-zinc-300 dark:bg-white/10"></div>
+             <div className={`w-px bg-zinc-300 dark:bg-white/10 transition-all duration-300 ${isScrolled ? 'h-5' : 'h-6'}`}></div>
              {/* Try Repix CTA Button - Goes to Login */}
              <Button 
                 onClick={onLogin} 
                 variant="primary"
-                size="lg" 
-                className="animated-border rounded-full px-10 h-12 text-lg font-extrabold shadow-xl shadow-repix-500/30 hover:shadow-repix-500/50 transition-all"
+                size={isScrolled ? 'md' : 'lg'}
+                className={`animated-border rounded-full font-extrabold shadow-xl shadow-repix-500/30 hover:shadow-repix-500/50 transition-all duration-300 hover:scale-105 active:scale-95 ${
+                  isScrolled ? 'px-6 h-10 text-sm' : 'px-10 h-12 text-lg'
+                }`}
              >
                {trans.nav.getStarted}
              </Button>
           </div>
         </div>
+        
+        {/* Scroll Progress Indicator */}
+        <div 
+          className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-pink-500 via-repix-500 to-accent-blue rounded-full transition-all duration-300 ${
+            isScrolled ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{ 
+            width: `${Math.min((scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100, 100)}%`,
+            maxWidth: isScrolled ? '90%' : '0%'
+          }}
+        />
       </nav>
 
       {/* REST OF PAGE - Transparent backgrounds to show AntiGravity */}
@@ -364,6 +439,196 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
            scaleOnHover={true}
            ariaLabel="Trusted by leading companies"
          />
+      </section>
+
+      {/* --- AI SHOWCASE GALLERY --- */}
+      <section className="py-24 px-6 relative z-10 bg-gradient-to-b from-black/80 via-black/60 to-black/80 backdrop-blur-sm overflow-hidden">
+         <div className="max-w-7xl mx-auto">
+            <ScrollReveal>
+              <div className="text-center mb-16">
+                 <Badge variant="pro" className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-500/20 border-pink-500/30 text-pink-300">
+                   {language === 'vi' ? '✨ Sức mạnh AI' : '✨ AI Powered'}
+                 </Badge>
+                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                   {language === 'vi' ? 'Biến ý tưởng thành hiện thực' : 'Transform Ideas Into Reality'}
+                 </h2>
+                 <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
+                   {language === 'vi' 
+                     ? 'Khám phá những tác phẩm tuyệt đẹp được tạo ra bởi AI - chất lượng studio chuyên nghiệp'
+                     : 'Discover stunning creations powered by AI - professional studio quality'
+                   }
+                 </p>
+              </div>
+            </ScrollReveal>
+
+            {/* Showcase Grid - Premium AI Generated Images */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+               {[
+                 { 
+                   img: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=600&h=750&fit=crop&q=90', 
+                   label: language === 'vi' ? 'Phong cảnh AI' : 'AI Landscape',
+                   tag: '8K Ultra HD'
+                 },
+                 { 
+                   img: 'https://images.unsplash.com/photo-1686191128892-3b37add4a4d4?w=600&h=750&fit=crop&q=90', 
+                   label: language === 'vi' ? 'Chân dung nghệ thuật' : 'Art Portrait',
+                   tag: 'Style Transfer'
+                 },
+                 { 
+                   img: 'https://images.unsplash.com/photo-1684779847639-fbcc5a57dfe9?w=600&h=750&fit=crop&q=90', 
+                   label: language === 'vi' ? 'Sản phẩm 3D' : '3D Product',
+                   tag: 'Gen Fill'
+                 },
+                 { 
+                   img: 'https://images.unsplash.com/photo-1683009427666-340595e57e43?w=600&h=750&fit=crop&q=90', 
+                   label: language === 'vi' ? 'Nghệ thuật số' : 'Digital Art',
+                   tag: 'AI Enhanced'
+                 },
+               ].map((item, idx) => (
+                 <ScrollReveal key={idx} delay={idx * 100}>
+                   <div className="group relative aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer border border-white/5 hover:border-pink-500/30 transition-all duration-500">
+                     <img 
+                       src={item.img} 
+                       alt={item.label}
+                       className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+                     />
+                     {/* Gradient Overlay */}
+                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+                     
+                     {/* Tag Badge */}
+                     <div className="absolute top-3 left-3">
+                       <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full">
+                         {item.tag}
+                       </span>
+                     </div>
+                     
+                     {/* Bottom Info */}
+                     <div className="absolute bottom-0 left-0 right-0 p-4">
+                       <span className="text-white font-bold text-lg">{item.label}</span>
+                       <div className="flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                         <Sparkles size={12} className="text-pink-400" />
+                         <span className="text-white/70 text-xs">{language === 'vi' ? 'Tạo bởi Repix AI' : 'Created with Repix AI'}</span>
+                       </div>
+                     </div>
+                     
+                     {/* Hover Glow Effect */}
+                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                       <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/10 via-transparent to-purple-500/10" />
+                     </div>
+                   </div>
+                 </ScrollReveal>
+               ))}
+            </div>
+
+            {/* AI Upscale 4K/8K Demo */}
+            <ScrollReveal delay={200}>
+              <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 border border-white/10 p-8 md:p-12">
+                {/* Background Glow */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500/20 rounded-full blur-[80px] pointer-events-none" />
+                
+                <div className="grid md:grid-cols-2 gap-12 items-center relative z-10">
+                  {/* Before/After Images - Upscale Demo */}
+                  <div className="relative">
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Before - Low Resolution */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs uppercase tracking-wider text-zinc-500 font-bold">{language === 'vi' ? 'Gốc' : 'Original'}</span>
+                          <span className="px-2 py-0.5 text-[10px] bg-zinc-800 text-zinc-400 rounded">480p</span>
+                        </div>
+                        <div className="aspect-square rounded-xl overflow-hidden border border-white/10 relative group">
+                          <img 
+                            src="https://images.unsplash.com/photo-1682687982501-1e58ab814714?w=200&h=200&fit=crop&q=30" 
+                            alt="Low Resolution"
+                            className="w-full h-full object-cover blur-[1px]"
+                          />
+                          {/* Pixelated overlay effect */}
+                          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9InJnYmEoMCwwLDAsMC4xKSIvPjwvc3ZnPg==')] opacity-50" />
+                          <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-[10px] text-zinc-400">
+                            640 × 480
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* After - 8K Enhanced */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs uppercase tracking-wider text-emerald-400 font-bold">{language === 'vi' ? 'Nâng cấp' : 'Enhanced'}</span>
+                          <span className="px-2 py-0.5 text-[10px] bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded font-bold">8K</span>
+                        </div>
+                        <div className="aspect-square rounded-xl overflow-hidden border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20 relative group">
+                          <img 
+                            src="https://images.unsplash.com/photo-1682687982501-1e58ab814714?w=800&h=800&fit=crop&q=95" 
+                            alt="8K Enhanced"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute bottom-2 left-2 px-2 py-1 bg-emerald-500/80 backdrop-blur-sm rounded text-[10px] text-white font-bold">
+                            7680 × 4320
+                          </div>
+                          {/* Shine effect */}
+                          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Center Arrow with Animation */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/40 animate-pulse">
+                        <Zap size={24} className="text-white" />
+                      </div>
+                    </div>
+                    
+                    {/* Zoom indicator */}
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-4 py-2 bg-zinc-900/90 backdrop-blur-sm rounded-full border border-white/10">
+                      <span className="text-xs text-zinc-400">{language === 'vi' ? 'Phóng to' : 'Zoom'} <span className="text-emerald-400 font-bold">16×</span></span>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-4">
+                      <Sparkles size={14} className="text-emerald-400" />
+                      <span className="text-sm text-emerald-400 font-medium">{language === 'vi' ? 'Công nghệ mới' : 'New Technology'}</span>
+                    </div>
+                    
+                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                      {language === 'vi' ? 'AI Upscale 4K / 8K' : 'AI Upscale 4K / 8K'}
+                    </h3>
+                    <p className="text-zinc-400 mb-6 text-lg leading-relaxed">
+                      {language === 'vi' 
+                        ? 'Nâng cấp ảnh lên độ phân giải 4K hoặc 8K với chi tiết sắc nét đáng kinh ngạc. AI phục hồi texture, làm rõ cạnh và tăng cường màu sắc tự nhiên.'
+                        : 'Upscale images to 4K or 8K resolution with stunning detail. AI restores textures, sharpens edges, and enhances natural colors.'
+                      }
+                    </p>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      {[
+                        { value: '16×', label: language === 'vi' ? 'Phóng to tối đa' : 'Max Upscale' },
+                        { value: '< 5s', label: language === 'vi' ? 'Thời gian xử lý' : 'Processing Time' },
+                        { value: '99.2%', label: language === 'vi' ? 'Độ chính xác' : 'Accuracy' },
+                        { value: '8K', label: language === 'vi' ? 'Độ phân giải' : 'Resolution' },
+                      ].map((stat, idx) => (
+                        <div key={idx} className="p-3 rounded-xl bg-white/5 border border-white/10">
+                          <div className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                            {stat.value}
+                          </div>
+                          <div className="text-xs text-zinc-500">{stat.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Button 
+                      onClick={onSignup}
+                      className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-emerald-500/30"
+                    >
+                      {language === 'vi' ? 'Thử ngay miễn phí' : 'Try Free Now'} <ArrowRight size={18} className="ml-2" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+         </div>
       </section>
 
       {/* --- FEATURES (BENTO GRID) --- */}
@@ -500,6 +765,82 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
                  </div>
               </div>
             </ScrollReveal>
+         </div>
+      </section>
+
+      {/* --- TESTIMONIALS SECTION --- */}
+      <section className="py-24 px-6 relative z-10 bg-gradient-to-b from-black/60 to-black/80 backdrop-blur-sm overflow-hidden">
+         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(236,72,153,0.1),transparent_50%)]"></div>
+         <div className="max-w-7xl mx-auto relative z-10">
+            <ScrollReveal>
+              <div className="text-center mb-16">
+                 <Badge variant="pro" className="mb-4 bg-pink-500/20 border-pink-500/30 text-pink-300">
+                   {language === 'vi' ? '💬 Đánh giá' : '💬 Testimonials'}
+                 </Badge>
+                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                   {language === 'vi' ? 'Được yêu thích bởi creators' : 'Loved by Creators'}
+                 </h2>
+              </div>
+            </ScrollReveal>
+
+            <div className="grid md:grid-cols-3 gap-6">
+               {[
+                 {
+                   name: 'Sarah Chen',
+                   role: language === 'vi' ? 'Nhà thiết kế UI/UX' : 'UI/UX Designer',
+                   avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+                   content: language === 'vi' 
+                     ? 'Repix đã thay đổi hoàn toàn workflow của tôi. Tính năng AI remove background tiết kiệm cho tôi hàng giờ mỗi ngày!'
+                     : 'Repix completely transformed my workflow. The AI background removal saves me hours every day!',
+                   rating: 5
+                 },
+                 {
+                   name: 'Marcus Johnson',
+                   role: language === 'vi' ? 'Nhiếp ảnh gia' : 'Photographer',
+                   avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+                   content: language === 'vi'
+                     ? 'Chất lượng upscale 4K thật đáng kinh ngạc. Khách hàng của tôi không thể phân biệt được với ảnh gốc độ phân giải cao.'
+                     : 'The 4K upscale quality is mind-blowing. My clients can\'t tell the difference from native high-res shots.',
+                   rating: 5
+                 },
+                 {
+                   name: 'Emily Park',
+                   role: language === 'vi' ? 'Quản lý Marketing' : 'Marketing Manager',
+                   avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+                   content: language === 'vi'
+                     ? 'Tính năng cộng tác real-time giúp team của tôi làm việc hiệu quả hơn 3x. Đây là công cụ không thể thiếu!'
+                     : 'Real-time collaboration made our team 3x more efficient. This tool is indispensable!',
+                   rating: 5
+                 }
+               ].map((testimonial, idx) => (
+                 <ScrollReveal key={idx} delay={idx * 100}>
+                   <div className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-pink-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-pink-500/10 h-full">
+                     <div className="flex items-center gap-4 mb-4">
+                       <img 
+                         src={testimonial.avatar} 
+                         alt={testimonial.name}
+                         className="w-12 h-12 rounded-full object-cover border-2 border-white/20"
+                       />
+                       <div>
+                         <h4 className="font-bold text-white">{testimonial.name}</h4>
+                         <p className="text-sm text-zinc-400">{testimonial.role}</p>
+                       </div>
+                     </div>
+                     <div className="flex gap-1 mb-3">
+                       {Array.from({ length: testimonial.rating }).map((_, i) => (
+                         <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />
+                       ))}
+                     </div>
+                     <p className="text-zinc-300 leading-relaxed">"{testimonial.content}"</p>
+                     <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                       <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="text-pink-400">
+                         <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                       </svg>
+                     </div>
+                   </div>
+                 </ScrollReveal>
+               ))}
+            </div>
          </div>
       </section>
 
