@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Layout } from './components/Layout';
 import { EditorView } from './components/Editor/EditorView';
 import { MarketplaceView } from './components/Marketplace/MarketplaceView';
@@ -14,23 +14,135 @@ import { OnboardingFlow } from './components/Onboarding/OnboardingFlow';
 import { ViewState } from './types';
 import { 
   Sparkles, ArrowRight, Image as ImageIcon, Scissors, Layers, Maximize2, Wand2, Search, Play,
-  ShoppingBag, Camera, Briefcase, Zap, Crown, Check, ShieldCheck, Building2, Star
+  ShoppingBag, Camera, Briefcase, Zap, Crown, Check, ShieldCheck, Building2, Star,
+  Paperclip, X, ImagePlus
 } from 'lucide-react';
 import { Button, Card, Badge } from './components/ui/UIComponents';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { BrandKitProvider } from './contexts/BrandKitContext';
+import { BrandKitView } from './components/BrandKit/BrandKitView';
+import { AssetLibrary } from './components/Assets/AssetLibrary';
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import { UpgradeModal } from './components/Subscription/UpgradeModal';
 
 // --- Modern Home Dashboard View ---
-const HomeView: React.FC<{ onStartEditing: () => void }> = ({ onStartEditing }) => {
-  const { trans } = useLanguage();
+const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onStartEditing }) => {
+  const { trans, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'trending' | 'recent'>('trending');
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [generateProgress, setGenerateProgress] = useState(0);
   
-  // Mock Inspiration Data
+  // Image Upload States
+  const [uploadedImages, setUploadedImages] = useState<{ id: string; file: File; preview: string }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle image upload
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files) as File[];
+    const newImages = files.slice(0, 4 - uploadedImages.length).map((file: File, idx: number) => ({
+      id: `upload-${Date.now()}-${idx}`,
+      file,
+      preview: URL.createObjectURL(file)
+    }));
+    setUploadedImages(prev => [...prev, ...newImages].slice(0, 4));
+  };
+
+  // Remove uploaded image
+  const handleRemoveImage = (id: string) => {
+    setUploadedImages(prev => {
+      const img = prev.find(i => i.id === id);
+      if (img) URL.revokeObjectURL(img.preview);
+      return prev.filter(i => i.id !== id);
+    });
+  };
+
+  // Handle paste image
+  const handlePasteImage = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file && uploadedImages.length < 4) {
+          const newImage = {
+            id: `paste-${Date.now()}`,
+            file,
+            preview: URL.createObjectURL(file)
+          };
+          setUploadedImages(prev => [...prev, newImage].slice(0, 4));
+        }
+        break;
+      }
+    }
+  };
+
+  const handleGenerate = () => {
+    if (!prompt.trim() && uploadedImages.length === 0) return;
+    setIsGenerating(true);
+    setShowGenerateModal(true);
+    setGenerateProgress(0);
+    setSelectedImage(null);
+
+    // Simulate progress
+    const progressInterval = setInterval(() => {
+      setGenerateProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return prev + Math.random() * 15;
+      });
+    }, 300);
+
+    // Simulate AI Generation
+    setTimeout(() => {
+      clearInterval(progressInterval);
+      setGenerateProgress(100);
+      setIsGenerating(false);
+      setGeneratedImages([
+        'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=750&fit=crop',
+        'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=600&h=750&fit=crop',
+        'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&h=750&fit=crop',
+        'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&h=750&fit=crop',
+      ]);
+    }, 3000);
+  };
+
+  const handleApplyAndEdit = () => {
+    if (selectedImage === null) return;
+    onStartEditing(generatedImages[selectedImage]);
+    setShowGenerateModal(false);
+    setGeneratedImages([]);
+    setPrompt('');
+  };
+
+  const handleCloseModal = () => {
+    setShowGenerateModal(false);
+    setGeneratedImages([]);
+    setSelectedImage(null);
+    setIsGenerating(false);
+    setGenerateProgress(0);
+  };
+  
+  // Mock Inspiration Data - Product Photography
   const inspirationImages = [
-    { id: 1, src: "https://picsum.photos/seed/cyberpunk/400/600", prompt: "Cyberpunk street with neon lights", author: "@neo_artist" },
-    { id: 2, src: "https://picsum.photos/seed/nature/400/400", prompt: "Hyperrealistic forest in morning mist", author: "@eco_love" },
-    { id: 3, src: "https://picsum.photos/seed/portrait/400/500", prompt: "Studio portrait with rembrandt lighting", author: "@portrait_pro" },
-    { id: 4, src: "https://picsum.photos/seed/arch/400/300", prompt: "Minimalist concrete architecture", author: "@archi_daily" },
+    { id: 1, src: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=600&fit=crop", prompt: "Nike Air Max product shot with dramatic lighting", author: "@sneaker_studio" },
+    { id: 2, src: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop", prompt: "Louis Vuitton leather bag on marble", author: "@luxury_shots" },
+    { id: 3, src: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=500&fit=crop", prompt: "Chanel perfume with soft studio lighting", author: "@fragrance_art" },
+    { id: 4, src: "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400&h=400&fit=crop", prompt: "Adidas sneakers minimalist white background", author: "@clean_product" },
+    { id: 5, src: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=500&fit=crop", prompt: "Gucci handbag lifestyle photography", author: "@fashion_lens" },
+    { id: 6, src: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop", prompt: "Apple Watch product photography", author: "@tech_visuals" },
+    { id: 7, src: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=600&fit=crop", prompt: "Jordan sneakers floating effect", author: "@kicks_daily" },
+    { id: 8, src: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop", prompt: "Dior perfume elegant composition", author: "@scent_studio" },
+    { id: 9, src: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=500&fit=crop", prompt: "Nike running shoes dynamic angle", author: "@sport_shots" },
+    { id: 10, src: "https://images.unsplash.com/photo-1591561954557-26941169b49e?w=400&h=400&fit=crop", prompt: "Designer sunglasses on reflective surface", author: "@eyewear_pro" },
+    { id: 11, src: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=400&h=500&fit=crop", prompt: "Luxury watch macro photography", author: "@time_pieces" },
+    { id: 12, src: "https://images.unsplash.com/photo-1556906781-9a412961c28c?w=400&h=600&fit=crop", prompt: "Converse sneakers vintage style", author: "@retro_kicks" },
   ];
 
   // Quick Tools (Persona: Casual User)
@@ -72,44 +184,52 @@ const HomeView: React.FC<{ onStartEditing: () => void }> = ({ onStartEditing }) 
   // Pricing Plans (Monetization Strategy)
   const plans = [
     {
-      name: trans.home.planGo,
+      name: "Free",
       price: "Free",
-      userType: "Casual User",
+      userType: language === 'vi' ? "Người dùng mới" : "Getting Started",
       icon: Zap,
-      features: ["50 Credits/mo", "Standard Resolution", "Basic AI Tools", "Community Templates"],
+      features: language === 'vi' 
+        ? ["5 ảnh/tháng", "Công cụ cơ bản", "Xuất 1080p", "Bộ lọc tiêu chuẩn"]
+        : ["5 images/month", "Basic tools", "1080p export", "Standard filters"],
       cta: trans.home.currentPlan,
       primary: false,
-      color: "text-blue-500"
+      color: "text-zinc-500"
     },
     {
-      name: trans.home.planPro,
-      price: "$19",
-      userType: "Creator / Seller",
-      icon: Crown,
-      features: ["500 Credits/mo", "4K Upscaling", "Batch Processing", "Pro Templates", "No Watermark"],
+      name: "Plus",
+      price: "$9",
+      userType: language === 'vi' ? "Người sáng tạo" : "Creator",
+      icon: Sparkles,
+      features: language === 'vi'
+        ? ["50 ảnh/tháng", "AI xóa phông nền", "Xuất 4K", "Bộ lọc cao cấp", "Không watermark"]
+        : ["50 images/month", "AI background removal", "4K export", "Premium filters", "No watermark"],
       cta: trans.home.upgrade,
       primary: true, // Highlight this
-      color: "text-amber-400"
-    },
-    {
-      name: trans.home.planTeam,
-      price: "$49",
-      userType: "Agency / Small Team",
-      icon: Briefcase,
-      features: ["Shared Workspace", "2000 Credits/mo", "Brand Kit & Presets", "Comment & Review", "Priority Support"],
-      cta: trans.home.upgrade,
-      primary: false,
       color: "text-purple-500"
     },
     {
-      name: trans.home.planEnt,
-      price: "Custom",
-      userType: "Enterprise",
+      name: "Pro",
+      price: "$19",
+      userType: language === 'vi' ? "Chuyên nghiệp" : "Professional",
+      icon: Crown,
+      features: language === 'vi'
+        ? ["Không giới hạn ảnh", "Tất cả công cụ AI", "Brand Kit", "Xử lý hàng loạt", "Hỗ trợ ưu tiên"]
+        : ["Unlimited images", "All AI tools", "Brand Kit", "Batch processing", "Priority support"],
+      cta: trans.home.upgrade,
+      primary: false,
+      color: "text-amber-500"
+    },
+    {
+      name: "Team",
+      price: language === 'vi' ? "Liên hệ" : "Custom",
+      userType: language === 'vi' ? "Doanh nghiệp" : "Enterprise",
       icon: Building2,
-      features: ["Unlimited Volume", "Custom Model Training", "SSO & Security", "On-premise Option", "Dedicated Manager"],
+      features: language === 'vi'
+        ? ["Tất cả tính năng Pro", "5 thành viên", "Cộng tác thời gian thực", "Quản lý thương hiệu", "Hỗ trợ chuyên biệt"]
+        : ["Everything in Pro", "5 team members", "Real-time collaboration", "Brand management", "Dedicated support"],
       cta: trans.home.contactSales,
       primary: false,
-      color: "text-zinc-500"
+      color: "text-blue-500"
     }
   ];
 
@@ -129,21 +249,198 @@ const HomeView: React.FC<{ onStartEditing: () => void }> = ({ onStartEditing }) 
               </h1>
               
               <div className="relative group animated-border rounded-2xl">
-                <div className="relative z-10 bg-white dark:bg-zinc-900 rounded-2xl p-2 flex items-center shadow-2xl transition-colors">
-                   <div className="pl-4 text-repix-500 animate-pulse">
-                      <Sparkles size={24} />
+                <div className="relative z-10 bg-white dark:bg-zinc-900 rounded-2xl p-3 shadow-2xl transition-colors">
+                   
+                   {/* Uploaded Images Preview */}
+                   {uploadedImages.length > 0 && (
+                     <div className="mb-3 flex flex-wrap gap-2 px-2">
+                       {uploadedImages.map((img) => (
+                         <div key={img.id} className="relative group/img">
+                           <img 
+                             src={img.preview} 
+                             alt="Upload" 
+                             className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-xl border-2 border-zinc-200 dark:border-zinc-700"
+                           />
+                           <button
+                             onClick={() => handleRemoveImage(img.id)}
+                             className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity shadow-lg"
+                           >
+                             <X size={12} className="text-white" />
+                           </button>
+                           <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/60 rounded text-[9px] text-white font-medium">
+                             {img.file.type.split('/')[1]?.toUpperCase() || 'IMG'}
+                           </div>
+                         </div>
+                       ))}
+                       {uploadedImages.length < 4 && (
+                         <button
+                           onClick={() => fileInputRef.current?.click()}
+                           className="w-16 h-16 md:w-20 md:h-20 border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl flex flex-col items-center justify-center text-zinc-400 hover:text-repix-500 hover:border-repix-400 transition-colors"
+                         >
+                           <ImagePlus size={20} />
+                           <span className="text-[9px] mt-1">Add</span>
+                         </button>
+                       )}
+                     </div>
+                   )}
+
+                   {/* Main Input Row */}
+                   <div className="flex items-end gap-2">
+                     {/* Hidden File Input */}
+                     <input
+                       ref={fileInputRef}
+                       type="file"
+                       accept="image/*"
+                       multiple
+                       onChange={handleImageUpload}
+                       className="hidden"
+                     />
+                     
+                     {/* Upload Button */}
+                     <button
+                       onClick={() => fileInputRef.current?.click()}
+                       className="p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors shrink-0"
+                       title="Upload image (Ctrl+V to paste)"
+                     >
+                       <Paperclip size={20} />
+                     </button>
+
+                     {/* Textarea */}
+                     <textarea 
+                       placeholder={uploadedImages.length > 0 ? "Describe what to do with these images..." : trans.home.placeholder}
+                       value={prompt}
+                       onChange={(e) => {
+                         setPrompt(e.target.value);
+                         // Auto-resize logic
+                         const textarea = e.target;
+                         textarea.style.height = 'auto';
+                         const maxH = window.innerWidth < 768 ? 150 : 200;
+                         const newHeight = Math.max(48, Math.min(textarea.scrollHeight, maxH));
+                         textarea.style.height = newHeight + 'px';
+                       }}
+                       onKeyDown={(e) => {
+                         if (e.key === 'Enter' && !e.shiftKey) {
+                           e.preventDefault();
+                           handleGenerate();
+                         }
+                       }}
+                       onPaste={handlePasteImage}
+                       className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-lg px-4 py-2.5 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 resize-none overflow-y-auto transition-[height] duration-150 ease-out"
+                       style={{ minHeight: '48px', maxHeight: window.innerWidth < 768 ? '150px' : '200px' }}
+                       rows={1}
+                     />
+                     
+                     {/* Generate Button */}
+                     <Button 
+                       size="lg" 
+                       className="rounded-xl h-12 px-6 shadow-lg shadow-repix-500/20 shrink-0" 
+                       onClick={handleGenerate} 
+                       disabled={!prompt.trim() && uploadedImages.length === 0}
+                     >
+                       {trans.home.generate}
+                     </Button>
                    </div>
-                   <input 
-                     type="text" 
-                     placeholder={trans.home.placeholder}
-                     className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-lg px-4 py-3 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 h-14"
-                   />
-                   <Button size="lg" className="rounded-xl h-12 px-6 shadow-lg shadow-repix-500/20" onClick={onStartEditing}>
-                      {trans.home.generate}
-                   </Button>
                 </div>
               </div>
             </div>
+
+            {/* Generate Preview Modal */}
+            {showGenerateModal && (
+              <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-br from-pink-500 to-repix-600 rounded-xl">
+                        <Sparkles size={20} className="text-white" />
+                      </div>
+                      <div>
+                        <h2 className="font-bold text-lg text-zinc-900 dark:text-white">AI Generation</h2>
+                        <p className="text-zinc-500 text-sm truncate max-w-[300px]">"{prompt}"</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={handleCloseModal}
+                      className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+                    >
+                      <ArrowRight size={20} className="rotate-45 text-zinc-500" />
+                    </button>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6">
+                    {isGenerating ? (
+                      <div className="text-center py-16 space-y-6">
+                        <div className="relative w-24 h-24 mx-auto">
+                          <div className="absolute inset-0 rounded-full border-4 border-zinc-200 dark:border-zinc-700"></div>
+                          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-repix-500 animate-spin"></div>
+                          <div className="absolute inset-4 rounded-full bg-gradient-to-br from-pink-500/20 to-repix-600/20 flex items-center justify-center">
+                            <Sparkles size={24} className="text-repix-500 animate-pulse" />
+                          </div>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-zinc-900 dark:text-white mb-2">Generating variations...</p>
+                          <p className="text-zinc-500 text-sm mb-4">Creating 4 unique options for you</p>
+                          <div className="w-48 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden mx-auto">
+                            <div 
+                              className="h-full bg-gradient-to-r from-pink-500 to-repix-500 rounded-full transition-all duration-300"
+                              style={{ width: `${Math.min(generateProgress, 100)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <p className="text-center text-zinc-500 text-sm">Select your favorite variation to edit</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {generatedImages.map((img, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setSelectedImage(index)}
+                              className={`relative aspect-[4/5] rounded-xl overflow-hidden group transition-all duration-300 ${
+                                selectedImage === index 
+                                  ? 'ring-4 ring-repix-500 scale-[1.02]' 
+                                  : 'ring-2 ring-zinc-200 dark:ring-zinc-700 hover:ring-zinc-400'
+                              }`}
+                            >
+                              <img src={img} alt={`Variation ${index + 1}`} className="w-full h-full object-cover" />
+                              <div className={`absolute inset-0 transition-opacity ${selectedImage === index ? 'bg-repix-500/20' : 'bg-black/0 group-hover:bg-black/20'}`}></div>
+                              <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-bold ${
+                                selectedImage === index ? 'bg-repix-500 text-white' : 'bg-black/50 text-white'
+                              }`}>
+                                {selectedImage === index ? '✓ Selected' : `V${index + 1}`}
+                              </div>
+                              <div className="absolute bottom-2 right-2 px-2 py-1 rounded-full bg-black/50 text-white text-xs">
+                                {['Best Match', 'Creative', 'Vibrant', 'Minimal'][index]}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  {!isGenerating && generatedImages.length > 0 && (
+                    <div className="flex items-center justify-between p-6 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
+                      <Button variant="outline" onClick={handleCloseModal}>Cancel</Button>
+                      <div className="flex gap-3">
+                        <Button variant="outline" onClick={handleGenerate}>
+                          <Sparkles size={16} className="mr-2" /> Regenerate
+                        </Button>
+                        <Button 
+                          disabled={selectedImage === null}
+                          onClick={handleApplyAndEdit}
+                          className="bg-gradient-to-r from-pink-500 to-repix-600"
+                        >
+                          <Wand2 size={16} className="mr-2" /> Edit in Studio
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* --- SECTION 2: QUICK ACTIONS (Casual / Fast) --- */}
             <div className="mb-16">
@@ -159,7 +456,7 @@ const HomeView: React.FC<{ onStartEditing: () => void }> = ({ onStartEditing }) 
                 {tools.map((tool, idx) => (
                   <button 
                     key={idx}
-                    onClick={onStartEditing}
+                    onClick={() => onStartEditing()}
                     className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-repix-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all group shadow-sm hover:shadow-md"
                   >
                     <div className={`w-14 h-14 rounded-2xl ${tool.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
@@ -180,7 +477,7 @@ const HomeView: React.FC<{ onStartEditing: () => void }> = ({ onStartEditing }) 
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {workflows.map((wf) => (
-                  <div key={wf.id} onClick={onStartEditing} className="cursor-pointer group relative overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 hover:border-repix-500/50 transition-all">
+                  <div key={wf.id} onClick={() => onStartEditing()} className="cursor-pointer group relative overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 hover:border-repix-500/50 transition-all">
                     <div className={`absolute top-0 right-0 p-2 bg-gradient-to-bl ${wf.color} opacity-10 group-hover:opacity-20 rounded-bl-3xl transition-opacity w-24 h-24`}></div>
                     <div className="flex items-start justify-between mb-4">
                        <div className={`p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 group-hover:text-white group-hover:bg-gradient-to-br ${wf.color} transition-colors`}>
@@ -208,7 +505,7 @@ const HomeView: React.FC<{ onStartEditing: () => void }> = ({ onStartEditing }) 
                
                <div className="columns-2 md:columns-4 gap-4 space-y-4">
                   {inspirationImages.map((img) => (
-                     <div key={img.id} className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer" onClick={onStartEditing}>
+                     <div key={img.id} className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer" onClick={() => onStartEditing()}>
                         <img src={img.src} alt={img.prompt} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
                            <p className="text-white text-sm font-medium line-clamp-2 mb-2">{img.prompt}</p>
@@ -316,6 +613,7 @@ const AppContent: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [view, setView] = useState<ViewState>('landing');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [initialEditorImage, setInitialEditorImage] = useState<string | undefined>(undefined);
 
   // Check if user has completed onboarding (using localStorage)
   useEffect(() => {
@@ -333,6 +631,18 @@ const AppContent: React.FC = () => {
   const handleOnboardingSkip = () => {
     localStorage.setItem('repix_onboarding_completed', 'true');
     setShowOnboarding(false);
+  };
+
+  const handleSignOut = () => {
+    setIsAuthenticated(false);
+    setView('landing');
+  };
+
+  const handleStartEditing = (image?: string) => {
+    if (image) {
+      setInitialEditorImage(image);
+    }
+    setView('editor');
   };
 
   // Show Onboarding for new users
@@ -366,17 +676,13 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // Handle Main App Flow
-  const handleSignOut = () => {
-    setIsAuthenticated(false);
-    setView('landing');
-  }
-
   // Wrap Main App in Layout
   return (
     <Layout currentView={view} onChangeView={setView} onSignOut={handleSignOut}>
-      {view === 'home' && <HomeView onStartEditing={() => setView('editor')} />}
-      {view === 'editor' && <EditorView />}
+      {view === 'home' && <HomeView onStartEditing={handleStartEditing} />}
+      {view === 'editor' && <EditorView initialImage={initialEditorImage} />}
+      {view === 'assets' && <AssetLibrary />}
+      {view === 'brandkit' && <BrandKitView />}
       {view === 'marketplace' && <MarketplaceView />}
       {view === 'team' && <TeamView />}
       {view === 'analytics' && <AnalyticsView />}
@@ -391,7 +697,12 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <AppContent />
+        <SubscriptionProvider>
+          <BrandKitProvider>
+            <AppContent />
+            <UpgradeModal />
+          </BrandKitProvider>
+        </SubscriptionProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

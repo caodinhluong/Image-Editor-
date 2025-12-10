@@ -1,11 +1,12 @@
 import React from 'react';
 import { 
   Home, Edit3, ShoppingBag, Users, Settings, 
-  LogOut, Sun, Moon, BarChart3, Award
+  LogOut, Sun, Moon, BarChart3, Award, Palette, FolderOpen
 } from 'lucide-react';
 import { ViewState } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { PlanBadge } from './Subscription/PlanBadge';
 
 interface LayoutProps {
   currentView: ViewState;
@@ -21,10 +22,12 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
   const navItems = [
     { id: 'home', icon: Home, label: trans.nav.home },
     { id: 'editor', icon: Edit3, label: trans.nav.editor },
+    { id: 'assets', icon: FolderOpen, label: trans.nav.assets },
+    { id: 'brandkit', icon: Palette, label: trans.brandkit.title },
     { id: 'marketplace', icon: ShoppingBag, label: trans.nav.marketplace },
     { id: 'team', icon: Users, label: trans.nav.team },
     { id: 'analytics', icon: BarChart3, label: trans.nav.analytics },
-    { id: 'creator', icon: Award, label: 'Creator', isPro: true },
+    { id: 'creator', icon: Award, label: trans.creator.dashboard },
   ];
 
   // In Editor mode, we might want to hide the main navigation on mobile for immersion
@@ -85,9 +88,6 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
                <div className="flex items-center gap-3">
                  <item.icon size={18} className={currentView === item.id ? 'text-repix-500' : ''} />
                  {item.label}
-                 {(item as any).isPro && (
-                   <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded">PRO</span>
-                 )}
                </div>
                {currentView === item.id && <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-repix-500"></div>}
              </button>
@@ -96,6 +96,9 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
 
         {/* Bottom User Area */}
         <div className="p-4 border-t border-zinc-200 dark:border-dark-border bg-zinc-50 dark:bg-zinc-900/30">
+           {/* Plan Badge */}
+           <PlanBadge className="mb-4" />
+           
            <div 
             className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 p-2 rounded-lg transition-colors group"
             onClick={() => onChangeView('profile')}
@@ -104,7 +107,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
                  <img src="https://picsum.photos/seed/user/100/100" className="w-full h-full rounded-full border-2 border-white dark:border-zinc-900" alt="User" />
               </div>
               <div className="flex-1 overflow-hidden">
-                 <h4 className="text-sm font-semibold truncate text-zinc-900 dark:text-white group-hover:text-repix-500 transition-colors">Alex Creative</h4>
+                 <h4 className="text-sm font-semibold truncate text-zinc-900 dark:text-white group-hover:text-repix-500 transition-colors">Lương So Cute</h4>
                  <p className="text-xs text-zinc-500 truncate">Pro Member</p>
               </div>
               <button 

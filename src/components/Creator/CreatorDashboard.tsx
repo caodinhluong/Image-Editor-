@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   DollarSign, TrendingUp, Download, Star, Eye, ShoppingCart,
   Upload, Edit3, Trash2, MoreVertical, Calendar, ArrowUpRight,
-  ArrowDownRight, Package, Award, Target
+  ArrowDownRight, Package, Award, Target, Wallet
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Button, Card, Badge } from '../ui/UIComponents';
@@ -10,6 +10,9 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import { PayoutSettings } from './PayoutSettings';
+import { AnalyticsDeepDive } from './AnalyticsDeepDive';
+import { TemplateEditor } from './TemplateEditor';
 
 interface Template {
   id: string;
@@ -46,7 +49,8 @@ interface Review {
 
 export const CreatorDashboard: React.FC = () => {
   const { trans } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'overview' | 'templates' | 'earnings' | 'reviews'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'templates' | 'earnings' | 'reviews' | 'payout' | 'analytics'>('overview');
+  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
 
   // Mock data
   const stats = {
@@ -79,7 +83,7 @@ export const CreatorDashboard: React.FC = () => {
       rating: 4.9,
       reviews: 89,
       status: 'published',
-      thumbnail: 'https://picsum.photos/seed/template1/400/300',
+      thumbnail: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop',
       createdAt: new Date('2024-01-15')
     },
     {
@@ -93,7 +97,7 @@ export const CreatorDashboard: React.FC = () => {
       rating: 4.7,
       reviews: 67,
       status: 'published',
-      thumbnail: 'https://picsum.photos/seed/template2/400/300',
+      thumbnail: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=300&fit=crop',
       createdAt: new Date('2024-02-20')
     },
     {
@@ -107,7 +111,7 @@ export const CreatorDashboard: React.FC = () => {
       rating: 4.8,
       reviews: 54,
       status: 'published',
-      thumbnail: 'https://picsum.photos/seed/template3/400/300',
+      thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop',
       createdAt: new Date('2024-03-10')
     },
     {
@@ -121,7 +125,7 @@ export const CreatorDashboard: React.FC = () => {
       rating: 4.9,
       reviews: 42,
       status: 'published',
-      thumbnail: 'https://picsum.photos/seed/template4/400/300',
+      thumbnail: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=300&fit=crop',
       createdAt: new Date('2024-04-05')
     },
     {
@@ -135,7 +139,7 @@ export const CreatorDashboard: React.FC = () => {
       rating: 4.6,
       reviews: 123,
       status: 'published',
-      thumbnail: 'https://picsum.photos/seed/template5/400/300',
+      thumbnail: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=400&h=300&fit=crop',
       createdAt: new Date('2024-05-12')
     }
   ];
@@ -216,11 +220,11 @@ export const CreatorDashboard: React.FC = () => {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-zinc-200 dark:border-zinc-800 overflow-x-auto">
-          {(['overview', 'templates', 'earnings', 'reviews'] as const).map((tab) => (
+          {(['overview', 'templates', 'analytics', 'earnings', 'reviews', 'payout'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
+              className={`px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
                 activeTab === tab
                   ? 'text-repix-500 border-b-2 border-repix-500'
                   : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
@@ -228,8 +232,10 @@ export const CreatorDashboard: React.FC = () => {
             >
               {tab === 'overview' && 'Overview'}
               {tab === 'templates' && trans.creator.myTemplates}
+              {tab === 'analytics' && '📊 Analytics'}
               {tab === 'earnings' && trans.creator.earnings}
               {tab === 'reviews' && trans.creator.reviews}
+              {tab === 'payout' && <><Wallet size={16} /> Payout</>}
             </button>
           ))}
         </div>
@@ -244,7 +250,7 @@ export const CreatorDashboard: React.FC = () => {
                   <div className="p-3 rounded-xl bg-emerald-500/10">
                     <DollarSign className="text-emerald-500" size={24} />
                   </div>
-                  <Badge variant="success" className="flex items-center gap-1">
+                  <Badge className="flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
                     <ArrowUpRight size={12} />
                     +12.5%
                   </Badge>
@@ -444,7 +450,7 @@ export const CreatorDashboard: React.FC = () => {
                         {template.price === 0 ? 'Free' : `$${template.price}`}
                       </span>
                       <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" className="h-8 w-8">
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditingTemplateId(template.id)}>
                           <Edit3 size={14} />
                         </Button>
                         <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500 hover:text-red-600">
@@ -509,7 +515,26 @@ export const CreatorDashboard: React.FC = () => {
             ))}
           </div>
         )}
+
+        {/* Analytics Tab */}
+        {activeTab === 'analytics' && (
+          <AnalyticsDeepDive />
+        )}
+
+        {/* Payout Tab */}
+        {activeTab === 'payout' && (
+          <PayoutSettings />
+        )}
       </div>
+
+      {/* Template Editor Modal */}
+      {editingTemplateId && (
+        <TemplateEditor
+          templateId={editingTemplateId}
+          onClose={() => setEditingTemplateId(null)}
+          onSave={() => setEditingTemplateId(null)}
+        />
+      )}
     </div>
   );
 };

@@ -51,8 +51,17 @@
       #ec4899  /* pink loop */
     );
     border-radius: inherit;
-    animation: spin-angle 3s linear infinite;
+    animation: spin-angle 3s linear infinite paused;
+    opacity: 0;
+    transition: opacity 0.3s ease;
     z-index: -1;
+  }
+  
+  /* Activate animation on hover and focus */
+  .animated-border:hover::before,
+  .animated-border:focus-within::before {
+    opacity: 1;
+    animation-play-state: running;
   }
   
   @keyframes spin-angle {

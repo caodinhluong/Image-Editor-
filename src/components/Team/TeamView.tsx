@@ -16,9 +16,9 @@ import { useLanguage } from '../../contexts/LanguageContext';
 
 // --- MOCK DATA ---
 const mockProjects: Project[] = [
-  { id: 'p1', name: 'Summer Campaign 2024', lastEdited: '2 mins ago', status: 'In Review', collaborators: ['A', 'B'], thumbnail: 'https://picsum.photos/seed/camp1/100/100' },
-  { id: 'p2', name: 'Product Launch Q3', lastEdited: '1 hour ago', status: 'Approved', collaborators: ['C'], thumbnail: 'https://picsum.photos/seed/prod/100/100' },
-  { id: 'p3', name: 'Social Media Assets', lastEdited: '4 hours ago', status: 'Draft', collaborators: ['A', 'C', 'D'], thumbnail: 'https://picsum.photos/seed/social/100/100' },
+  { id: 'p1', name: 'Nike Summer Campaign', lastEdited: '2 mins ago', status: 'In Review', collaborators: ['A', 'B'], thumbnail: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop' },
+  { id: 'p2', name: 'Gucci Product Launch', lastEdited: '1 hour ago', status: 'Approved', collaborators: ['C'], thumbnail: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop' },
+  { id: 'p3', name: 'Watch Collection Assets', lastEdited: '4 hours ago', status: 'Draft', collaborators: ['A', 'C', 'D'], thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop' },
 ];
 
 const analyticData: AnalyticData[] = [
@@ -72,7 +72,7 @@ const CreateProjectWizard: React.FC<WizardProps> = ({ onClose, onCreate }) => {
         status: 'Draft',
         lastEdited: 'Just now',
         collaborators: ['You', ...selectedMembers],
-        thumbnail: 'https://picsum.photos/seed/new_project/100/100'
+        thumbnail: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=100&h=100&fit=crop'
       });
     }, 2000);
   };
@@ -328,10 +328,10 @@ const ProjectDetailView: React.FC<{ project: Partial<Project>; onBack: () => voi
   };
 
   const assets = [
-    { id: 1, src: 'https://picsum.photos/seed/a1/300/300', name: 'Hero_Banner_v2.jpg', status: 'Approved' },
-    { id: 2, src: 'https://picsum.photos/seed/a2/300/300', name: 'Instagram_Story.png', status: 'In Review' },
-    { id: 3, src: 'https://picsum.photos/seed/a3/300/300', name: 'Email_Header.jpg', status: 'Draft' },
-    { id: 4, src: 'https://picsum.photos/seed/a4/300/300', name: 'Product_Shot_Main.png', status: 'Approved' },
+    { id: 1, src: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop', name: 'Nike_Hero_Banner.jpg', status: 'Approved' },
+    { id: 2, src: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=300&h=300&fit=crop', name: 'Gucci_Instagram.png', status: 'In Review' },
+    { id: 3, src: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop', name: 'Watch_Email_Header.jpg', status: 'Draft' },
+    { id: 4, src: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=300&h=300&fit=crop', name: 'Perfume_Product_Shot.png', status: 'Approved' },
   ];
 
   return (
@@ -505,11 +505,11 @@ const ProjectDetailView: React.FC<{ project: Partial<Project>; onBack: () => voi
                       <h3 className="font-bold text-lg mb-2 flex items-center gap-2"><LinkIcon/> References</h3>
                       <div className="flex gap-4">
                          <div className="h-24 w-32 bg-zinc-200 dark:bg-zinc-800 rounded-lg overflow-hidden relative group cursor-pointer">
-                            <img src="https://picsum.photos/seed/ref1/200/200" className="w-full h-full object-cover" />
+                            <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?w=200&h=200&fit=crop" className="w-full h-full object-cover" />
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors"></div>
                          </div>
                          <div className="h-24 w-32 bg-zinc-200 dark:bg-zinc-800 rounded-lg overflow-hidden relative group cursor-pointer">
-                            <img src="https://picsum.photos/seed/ref2/200/200" className="w-full h-full object-cover" />
+                            <img src="https://images.unsplash.com/photo-1591561954557-26941169b49e?w=200&h=200&fit=crop" className="w-full h-full object-cover" />
                          </div>
                          <div className="h-24 w-32 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg flex items-center justify-center text-zinc-400 hover:text-repix-500 hover:border-repix-500 cursor-pointer">
                             <Plus size={20} />

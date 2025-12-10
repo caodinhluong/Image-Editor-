@@ -37,7 +37,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
       icon: Sparkles,
       color: 'text-repix-500',
       bgGradient: 'from-pink-500 via-repix-500 to-blue-500',
-      image: 'https://picsum.photos/seed/welcome/600/400',
+      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=400&fit=crop',
       features: [
         language === 'vi' ? '✨ AI tạo ảnh từ text' : '✨ Text-to-image generation',
         language === 'vi' ? '🎨 Chỉnh sửa chuyên nghiệp' : '🎨 Professional editing tools',
@@ -64,7 +64,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
       icon: Wand2,
       color: 'text-purple-500',
       bgGradient: 'from-purple-500 to-pink-500',
-      image: 'https://picsum.photos/seed/tools/600/400',
+      image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=400&fit=crop',
       features: [
         language === 'vi' ? '🖼️ Generative Fill - Thêm/xóa elements' : '🖼️ Generative Fill - Add/remove elements',
         language === 'vi' ? '✂️ Remove BG - Xóa nền tự động' : '✂️ Remove BG - Auto background removal',
@@ -81,7 +81,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
       icon: Rocket,
       color: 'text-emerald-500',
       bgGradient: 'from-emerald-500 to-teal-500',
-      image: 'https://picsum.photos/seed/ready/600/400'
+      image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=400&fit=crop'
     }
   ];
 

@@ -2,20 +2,40 @@ import React, { useState } from 'react';
 import {
   Settings as SettingsIcon, User, CreditCard, Shield, Key, Users,
   Bell, Globe, Copy, Check, Eye, EyeOff, Plus, Trash2, Edit3,
-  Crown, Calendar, DollarSign, Download, ExternalLink
+  Crown, Calendar, DollarSign, Download, ExternalLink, Sparkles, Zap, Building2, RefreshCw
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Button, Card, Badge, Input } from '../ui/UIComponents';
+import { useSubscription } from '../../contexts/SubscriptionContext';
+import { PLANS, PlanType } from '../../types/subscription';
 
 type SettingsTab = 'account' | 'billing' | 'security' | 'api' | 'team' | 'notifications';
 
 export const SettingsPanel: React.FC = () => {
   const { trans, language, toggleLanguage } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { 
+    currentPlan, 
+    credits, 
+    subscription, 
+    setShowUpgradeModal, 
+    resetCredits, 
+    addCredits,
+    upgradePlan 
+  } = useSubscription();
   const [activeTab, setActiveTab] = useState<SettingsTab>('account');
   const [showApiKey, setShowApiKey] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const plan = PLANS[currentPlan];
+  const planIcons: Record<PlanType, React.ElementType> = {
+    free: Zap,
+    plus: Sparkles,
+    pro: Crown,
+    team: Building2
+  };
+  const PlanIcon = planIcons[currentPlan];
 
   const tabs = [
     { id: 'account' as const, icon: User, label: trans.settings.account },
@@ -129,29 +149,89 @@ export const SettingsPanel: React.FC = () => {
                       <p className="text-sm text-zinc-500 dark:text-zinc-400">Manage your subscription</p>
                     </div>
                     <Badge variant="pro" className="flex items-center gap-1">
-                      <Crown size={12} />
-                      Repix Pro
+                      <PlanIcon size={12} />
+                      {language === 'vi' ? plan.nameVi : plan.name}
                     </Badge>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900/50">
                       <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Price</p>
-                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">$19<span className="text-sm font-normal">/mo</span></p>
+                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">
+                        {plan.price === 'custom' ? 'Custom' : plan.price === 0 ? 'Free' : `$${plan.price}`}
+                        {typeof plan.price === 'number' && plan.price > 0 && <span className="text-sm font-normal">/mo</span>}
+                      </p>
                     </div>
                     <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900/50">
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Credits</p>
-                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">500<span className="text-sm font-normal">/mo</span></p>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Credits Remaining</p>
+                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">
+                        {currentPlan === 'team' ? '∞' : credits}
+                        <span className="text-sm font-normal text-zinc-500">/{plan.credits === -1 ? '∞' : plan.credits}</span>
+                      </p>
                     </div>
                     <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900/50">
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Next billing</p>
-                      <p className="text-lg font-bold text-zinc-900 dark:text-white">Jan 15, 2025</p>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Used This Month</p>
+                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">{subscription.usedCredits}</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900/50">
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Next Renewal</p>
+                      <p className="text-lg font-bold text-zinc-900 dark:text-white">
+                        {subscription.renewalDate.toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
-                    <Button variant="outline">{trans.settings.upgrade}</Button>
-                    <Button variant="ghost" className="text-red-500 hover:text-red-600">{trans.settings.cancelSubscription}</Button>
+                  {/* Credits Progress Bar */}
+                  <div className="mb-6">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-zinc-500">Credits Usage</span>
+                      <span className="font-medium text-zinc-900 dark:text-white">
+                        {currentPlan === 'team' ? '∞' : `${Math.round((credits / subscription.maxCredits) * 100)}%`} remaining
+                      </span>
+                    </div>
+                    <div className="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all"
+                        style={{ width: `${currentPlan === 'team' ? 100 : (credits / subscription.maxCredits) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 flex-wrap">
+                    <Button onClick={() => setShowUpgradeModal(true)}>
+                      <Crown size={16} className="mr-2" />
+                      {trans.settings.upgrade}
+                    </Button>
+                    <Button variant="outline" onClick={() => addCredits(100)}>
+                      <Plus size={16} className="mr-2" />
+                      Buy 100 Credits
+                    </Button>
+                    <Button variant="ghost" onClick={resetCredits}>
+                      <RefreshCw size={16} className="mr-2" />
+                      Reset Credits (Demo)
+                    </Button>
+                  </div>
+                </Card>
+
+                {/* Quick Plan Switcher for Demo */}
+                <Card className="p-6">
+                  <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-4">
+                    🎮 Demo: Quick Plan Switcher
+                  </h2>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+                    Switch plans instantly to test feature gating (for demo purposes only)
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
+                    {(['free', 'plus', 'pro', 'team'] as PlanType[]).map((p) => (
+                      <Button
+                        key={p}
+                        variant={currentPlan === p ? 'primary' : 'outline'}
+                        size="sm"
+                        onClick={() => upgradePlan(p)}
+                      >
+                        {PLANS[p].name}
+                      </Button>
+                    ))}
                   </div>
                 </Card>
 
@@ -191,7 +271,7 @@ export const SettingsPanel: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="font-bold text-zinc-900 dark:text-white">{item.amount}</span>
-                          <Badge variant="success">{item.status}</Badge>
+                          <Badge className="bg-emerald-500/10 text-emerald-500">{item.status}</Badge>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
                             <Download size={14} />
                           </Button>
@@ -249,7 +329,7 @@ export const SettingsPanel: React.FC = () => {
                           <p className="text-sm text-zinc-500 dark:text-zinc-400">{session.location}</p>
                         </div>
                         {session.current ? (
-                          <Badge variant="success">Current</Badge>
+                          <Badge className="bg-emerald-500/10 text-emerald-500">Current</Badge>
                         ) : (
                           <Button variant="ghost" size="sm" className="text-red-500">Revoke</Button>
                         )}
@@ -326,7 +406,7 @@ export const SettingsPanel: React.FC = () => {
                         <p className="font-medium text-zinc-900 dark:text-white mb-1">https://api.example.com/webhook</p>
                         <p className="text-xs text-zinc-500 dark:text-zinc-400">Events: generation.completed, credit.used</p>
                       </div>
-                      <Badge variant="success">{trans.settings.enabled}</Badge>
+                      <Badge className="bg-emerald-500/10 text-emerald-500">{trans.settings.enabled}</Badge>
                     </div>
                   </div>
                 </Card>
@@ -362,7 +442,7 @@ export const SettingsPanel: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <Badge variant="outline">{member.role}</Badge>
+                        <Badge className="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">{member.role}</Badge>
                         {member.role !== 'Owner' && (
                           <Button variant="ghost" size="icon" className="h-8 w-8">
                             <Edit3 size={14} />

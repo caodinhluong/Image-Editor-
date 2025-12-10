@@ -15,8 +15,8 @@ export const ProfileView: React.FC = () => {
 
   // Mock User Data
   const user = {
-    name: "Alex Creative",
-    handle: "@alex_designs",
+    name: "Lương đẹp trai",
+    handle: "@luong_designs",
     avatar: "https://picsum.photos/seed/user/200/200",
     cover: "https://picsum.photos/seed/cover/1200/400",
     joined: "Sep 2023",
@@ -29,12 +29,15 @@ export const ProfileView: React.FC = () => {
     }
   };
 
-  const portfolioImages = Array(6).fill(null).map((_, i) => ({
-    id: i,
-    src: `https://picsum.photos/seed/portfolio${i}/400/400`,
-    title: `Project ${i + 1}`,
-    date: '2 days ago'
-  }));
+  // Portfolio với ảnh sản phẩm thời trang nổi tiếng
+  const portfolioImages = [
+    { id: 0, src: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop', title: 'Nike Air Max', date: '2 days ago' },
+    { id: 1, src: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop', title: 'Louis Vuitton Bag', date: '3 days ago' },
+    { id: 2, src: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop', title: 'Apple Watch', date: '5 days ago' },
+    { id: 3, src: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop', title: 'Chanel Perfume', date: '1 week ago' },
+    { id: 4, src: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400&h=400&fit=crop', title: 'Adidas Sneakers', date: '1 week ago' },
+    { id: 5, src: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop', title: 'Gucci Handbag', date: '2 weeks ago' },
+  ];
 
   const myTemplates = Array(3).fill(null).map((_, i) => ({
     id: i,

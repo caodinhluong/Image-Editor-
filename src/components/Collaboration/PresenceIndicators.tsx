@@ -18,21 +18,21 @@ export const PresenceIndicators: React.FC = () => {
   const activeUsers: User[] = [
     {
       id: '1',
-      name: 'Sarah Chen',
+      name: 'Trang âu díu',
       avatar: 'https://picsum.photos/seed/sarah/100/100',
       status: 'editing',
       color: '#3b82f6' // blue
     },
     {
       id: '2',
-      name: 'Mike Johnson',
+      name: 'Xuân Ngoo',
       avatar: 'https://picsum.photos/seed/mike/100/100',
       status: 'viewing',
       color: '#ec4899' // pink
     },
     {
       id: '3',
-      name: 'Emma Wilson',
+      name: 'Chu Đức Thanh',
       avatar: 'https://picsum.photos/seed/emma/100/100',
       status: 'viewing',
       color: '#10b981' // emerald
@@ -73,21 +73,21 @@ export const PresenceIndicators: React.FC = () => {
               )}
             </div>
 
-            {/* Tooltip */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            {/* Tooltip - Shows below */}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
               <div className="font-medium">{user.name}</div>
               <div className="text-[10px] opacity-75">
                 {user.status === 'editing' ? trans.collaboration.editing : trans.collaboration.viewing}
               </div>
-              {/* Arrow */}
+              {/* Arrow pointing up */}
               <div
-                className="absolute top-full left-1/2 -translate-x-1/2 -mt-px"
+                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-[-1px]"
                 style={{
                   width: 0,
                   height: 0,
                   borderLeft: '4px solid transparent',
                   borderRight: '4px solid transparent',
-                  borderTop: '4px solid rgb(24 24 27)'
+                  borderBottom: '4px solid rgb(24 24 27)'
                 }}
               />
             </div>
