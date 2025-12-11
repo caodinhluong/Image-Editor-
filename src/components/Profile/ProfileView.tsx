@@ -2,16 +2,21 @@ import React, { useState } from 'react';
 import { 
   User, Settings, CreditCard, Heart, Image as ImageIcon, 
   Share2, Edit2, Zap, Clock, Bell, Key, Download, MoreHorizontal,
-  LogOut, Shield, Crown, Grid, List, CheckCircle
+  Shield, Crown, Grid, Award, DollarSign, TrendingUp, ShoppingCart,
+  Star, Package, Upload, Wallet, Eye
 } from 'lucide-react';
 import { Button, Card, Badge, Input } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer
+} from 'recharts';
 
 export const ProfileView: React.FC = () => {
   const { trans, toggleLanguage, language } = useLanguage();
   const { theme, toggleTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState<'portfolio' | 'templates' | 'likes' | 'billing' | 'settings'>('portfolio');
+  const [activeTab, setActiveTab] = useState<'portfolio' | 'creator' | 'templates' | 'likes' | 'billing' | 'settings'>('portfolio');
 
   // Mock User Data
   const user = {
@@ -46,6 +51,32 @@ export const ProfileView: React.FC = () => {
     sales: Math.floor(Math.random() * 1000),
     status: 'Active'
   }));
+
+  // Creator Stats
+  const creatorStats = {
+    totalEarnings: 12450,
+    thisMonth: 2340,
+    totalSales: 1247,
+    avgRating: 4.8,
+    totalDownloads: 5632,
+    activeTemplates: 24,
+    pendingBalance: 1234
+  };
+
+  const revenueData = [
+    { month: 'Jan', revenue: 1200 },
+    { month: 'Feb', revenue: 1800 },
+    { month: 'Mar', revenue: 1500 },
+    { month: 'Apr', revenue: 2200 },
+    { month: 'May', revenue: 1900 },
+    { month: 'Jun', revenue: 2340 }
+  ];
+
+  const recentSales = [
+    { id: '1', template: 'Cyberpunk City Pack', buyer: 'John Doe', amount: 29, time: '2h ago' },
+    { id: '2', template: 'Nature Landscape Set', buyer: 'Jane Smith', amount: 19, time: '5h ago' },
+    { id: '3', template: 'Product Photography', buyer: 'Mike Johnson', amount: 39, time: '8h ago' },
+  ];
 
   return (
     <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto">
@@ -157,6 +188,7 @@ export const ProfileView: React.FC = () => {
                <nav className="flex gap-6 overflow-x-auto hide-scrollbar">
                   {[
                      { id: 'portfolio', label: trans.profile.portfolio, icon: ImageIcon },
+                     { id: 'creator', label: language === 'vi' ? 'Creator Studio' : 'Creator Studio', icon: Award },
                      { id: 'templates', label: trans.profile.templates, icon: Grid },
                      { id: 'likes', label: trans.profile.likes, icon: Heart },
                      { id: 'billing', label: trans.profile.billing, icon: CreditCard },
@@ -198,6 +230,148 @@ export const ProfileView: React.FC = () => {
                         </div>
                         <span className="font-medium text-sm">Create New</span>
                      </div>
+                  </div>
+               )}
+
+               {/* CREATOR STUDIO TAB */}
+               {activeTab === 'creator' && (
+                  <div className="space-y-6">
+                     {/* Creator Stats Grid */}
+                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <Card className="p-4">
+                           <div className="flex items-center gap-3 mb-2">
+                              <div className="p-2 rounded-lg bg-emerald-500/10">
+                                 <DollarSign className="text-emerald-500" size={18} />
+                              </div>
+                              <span className="text-xs text-zinc-500">{language === 'vi' ? 'Tổng thu nhập' : 'Total Earnings'}</span>
+                           </div>
+                           <p className="text-2xl font-bold text-zinc-900 dark:text-white">${creatorStats.totalEarnings.toLocaleString()}</p>
+                           <p className="text-xs text-emerald-500 mt-1">+${creatorStats.thisMonth} {language === 'vi' ? 'tháng này' : 'this month'}</p>
+                        </Card>
+                        
+                        <Card className="p-4">
+                           <div className="flex items-center gap-3 mb-2">
+                              <div className="p-2 rounded-lg bg-blue-500/10">
+                                 <ShoppingCart className="text-blue-500" size={18} />
+                              </div>
+                              <span className="text-xs text-zinc-500">{language === 'vi' ? 'Tổng bán' : 'Total Sales'}</span>
+                           </div>
+                           <p className="text-2xl font-bold text-zinc-900 dark:text-white">{creatorStats.totalSales.toLocaleString()}</p>
+                        </Card>
+                        
+                        <Card className="p-4">
+                           <div className="flex items-center gap-3 mb-2">
+                              <div className="p-2 rounded-lg bg-amber-500/10">
+                                 <Star className="text-amber-500" size={18} />
+                              </div>
+                              <span className="text-xs text-zinc-500">{language === 'vi' ? 'Đánh giá TB' : 'Avg Rating'}</span>
+                           </div>
+                           <p className="text-2xl font-bold text-zinc-900 dark:text-white">{creatorStats.avgRating}</p>
+                        </Card>
+                        
+                        <Card className="p-4">
+                           <div className="flex items-center gap-3 mb-2">
+                              <div className="p-2 rounded-lg bg-purple-500/10">
+                                 <Package className="text-purple-500" size={18} />
+                              </div>
+                              <span className="text-xs text-zinc-500">{language === 'vi' ? 'Templates' : 'Templates'}</span>
+                           </div>
+                           <p className="text-2xl font-bold text-zinc-900 dark:text-white">{creatorStats.activeTemplates}</p>
+                        </Card>
+                     </div>
+
+                     {/* Revenue Chart & Recent Sales */}
+                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Revenue Chart */}
+                        <Card className="p-5">
+                           <h3 className="font-bold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+                              <TrendingUp size={18} className="text-repix-500" />
+                              {language === 'vi' ? 'Doanh thu' : 'Revenue'}
+                           </h3>
+                           <ResponsiveContainer width="100%" height={200}>
+                              <LineChart data={revenueData}>
+                                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" opacity={0.3} />
+                                 <XAxis dataKey="month" stroke="#71717a" style={{ fontSize: '11px' }} />
+                                 <YAxis stroke="#71717a" style={{ fontSize: '11px' }} />
+                                 <Tooltip
+                                    contentStyle={{
+                                       backgroundColor: '#18181b',
+                                       border: '1px solid #27272a',
+                                       borderRadius: '8px',
+                                       color: '#fff',
+                                       fontSize: '12px'
+                                    }}
+                                 />
+                                 <Line type="monotone" dataKey="revenue" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7', r: 3 }} />
+                              </LineChart>
+                           </ResponsiveContainer>
+                        </Card>
+
+                        {/* Recent Sales */}
+                        <Card className="p-5">
+                           <h3 className="font-bold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+                              <ShoppingCart size={18} className="text-blue-500" />
+                              {language === 'vi' ? 'Bán gần đây' : 'Recent Sales'}
+                           </h3>
+                           <div className="space-y-3">
+                              {recentSales.map((sale) => (
+                                 <div key={sale.id} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
+                                    <div>
+                                       <p className="font-medium text-sm text-zinc-900 dark:text-white">{sale.template}</p>
+                                       <p className="text-xs text-zinc-500">{sale.buyer} • {sale.time}</p>
+                                    </div>
+                                    <span className="font-bold text-emerald-600">${sale.amount}</span>
+                                 </div>
+                              ))}
+                           </div>
+                        </Card>
+                     </div>
+
+                     {/* Payout Section */}
+                     <Card className="p-5">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                           <div className="flex items-center gap-4">
+                              <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600">
+                                 <Wallet className="text-white" size={24} />
+                              </div>
+                              <div>
+                                 <p className="text-sm text-zinc-500">{language === 'vi' ? 'Số dư khả dụng' : 'Available Balance'}</p>
+                                 <p className="text-3xl font-bold text-zinc-900 dark:text-white">${creatorStats.totalEarnings.toLocaleString()}</p>
+                              </div>
+                           </div>
+                           <div className="flex gap-3">
+                              <div className="text-right">
+                                 <p className="text-xs text-zinc-500">{language === 'vi' ? 'Đang chờ' : 'Pending'}</p>
+                                 <p className="font-bold text-zinc-900 dark:text-white">${creatorStats.pendingBalance}</p>
+                              </div>
+                              <Button className="gap-2">
+                                 <DollarSign size={16} />
+                                 {language === 'vi' ? 'Rút tiền' : 'Withdraw'}
+                              </Button>
+                           </div>
+                        </div>
+                     </Card>
+
+                     {/* Upload New Template CTA */}
+                     <Card className="p-6 bg-gradient-to-br from-repix-500/10 to-pink-500/10 border-repix-500/20">
+                        <div className="flex flex-col md:flex-row items-center gap-4">
+                           <div className="p-4 rounded-2xl bg-gradient-to-br from-repix-500 to-pink-500">
+                              <Upload className="text-white" size={28} />
+                           </div>
+                           <div className="flex-1 text-center md:text-left">
+                              <h3 className="font-bold text-lg text-zinc-900 dark:text-white mb-1">
+                                 {language === 'vi' ? 'Tải lên template mới' : 'Upload New Template'}
+                              </h3>
+                              <p className="text-sm text-zinc-500">
+                                 {language === 'vi' ? 'Chia sẻ sáng tạo của bạn và kiếm tiền từ cộng đồng' : 'Share your creations and earn from the community'}
+                              </p>
+                           </div>
+                           <Button className="gap-2 bg-gradient-to-r from-repix-500 to-pink-500 hover:from-repix-600 hover:to-pink-600">
+                              <Upload size={16} />
+                              {language === 'vi' ? 'Tải lên' : 'Upload'}
+                           </Button>
+                        </div>
+                     </Card>
                   </div>
                )}
 

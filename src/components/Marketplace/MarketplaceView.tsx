@@ -18,6 +18,7 @@ interface ExtendedTemplate extends Template {
   category: string;
   style: string;
   description?: string;
+  gallery?: string[]; // Multiple preview images
 }
 
 // Main template types - will be translated via trans object
@@ -103,11 +104,29 @@ const getPlatformsByType = (type: string, trans: any) => {
 };
 
 const templates: ExtendedTemplate[] = [
-  // Shopee Templates
-  { id: '1', title: 'Shopee Flash Sale Banner', author: 'EcomPro', price: 'Free', tags: ['Shopee', 'Sale', 'Banner'], thumbnail: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '45k', likes: '12k', category: 'Shopee', style: 'Sale', description: "Template banner flash sale chuẩn Shopee với khung giờ vàng, giảm giá sốc." },
-  { id: '2', title: 'Shopee Freeship Extra', author: 'ShopeeKing', price: 'Free', tags: ['Shopee', 'Freeship', 'Promo'], thumbnail: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '52k', likes: '15k', category: 'Shopee', style: 'Promo', description: "Template freeship extra với badge miễn phí vận chuyển nổi bật." },
-  { id: '3', title: 'Shopee Live Thumbnail', author: 'LiveSeller', price: 5, tags: ['Shopee', 'Live', 'Livestream'], thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '38k', likes: '9.2k', category: 'Shopee', style: 'Live', description: "Thumbnail livestream Shopee Live thu hút người xem, tăng view." },
-  { id: '4', title: 'Shopee Mall Premium', author: 'MallPro', price: 15, tags: ['Shopee', 'Mall', 'Premium'], thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '6.5k', category: 'Shopee', style: 'Premium', description: "Template cao cấp cho Shopee Mall, tăng uy tín thương hiệu." },
+  // Shopee Templates - with gallery
+  { id: '1', title: 'Shopee Flash Sale Banner', author: 'EcomPro', price: 'Free', tags: ['Shopee', 'Sale', 'Banner'], thumbnail: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '45k', likes: '12k', category: 'Shopee', style: 'Sale', description: "Template banner flash sale chuẩn Shopee với khung giờ vàng, giảm giá sốc.", gallery: [
+    'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1556742111-a301076d9d18?auto=format&fit=crop&w=600&q=80',
+  ]},
+  { id: '2', title: 'Shopee Freeship Extra', author: 'ShopeeKing', price: 'Free', tags: ['Shopee', 'Freeship', 'Promo'], thumbnail: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '52k', likes: '15k', category: 'Shopee', style: 'Promo', description: "Template freeship extra với badge miễn phí vận chuyển nổi bật.", gallery: [
+    'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&q=80',
+  ]},
+  { id: '3', title: 'Shopee Live Thumbnail', author: 'LiveSeller', price: 5, tags: ['Shopee', 'Live', 'Livestream'], thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '38k', likes: '9.2k', category: 'Shopee', style: 'Live', description: "Thumbnail livestream Shopee Live thu hút người xem, tăng view.", gallery: [
+    'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?auto=format&fit=crop&w=600&q=80',
+  ]},
+  { id: '4', title: 'Shopee Mall Premium', author: 'MallPro', price: 15, tags: ['Shopee', 'Mall', 'Premium'], thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '6.5k', category: 'Shopee', style: 'Premium', description: "Template cao cấp cho Shopee Mall, tăng uy tín thương hiệu.", gallery: [
+    'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=600&q=80',
+  ]},
   
   // Lazada Templates
   { id: '5', title: 'Lazada 11.11 Mega Sale', author: 'SalesMaster', price: 'Free', tags: ['Lazada', 'Sale', '11.11'], thumbnail: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '48k', likes: '14k', category: 'Lazada', style: 'Mega Sale', description: "Template siêu sale 11.11 với hiệu ứng nổi bật, tăng tỷ lệ click." },
@@ -159,12 +178,18 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
    const [viewMode, setViewMode] = useState<'after' | 'before' | 'split'>('after');
    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
    const [isProcessing, setIsProcessing] = useState(false);
+   const [selectedGalleryIndex, setSelectedGalleryIndex] = useState(0);
    
    // Import Mode State
    const [importTab, setImportTab] = useState<'upload' | 'drive'>('upload');
    const [driveLink, setDriveLink] = useState('');
    const [driveImages, setDriveImages] = useState<string[]>([]);
    const [isFetchingDrive, setIsFetchingDrive] = useState(false);
+   
+   // Get gallery images or fallback to thumbnail
+   const galleryImages = template.gallery && template.gallery.length > 0 
+     ? template.gallery 
+     : [template.thumbnail];
 
    const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
@@ -216,12 +241,12 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
             </button>
 
             {/* LEFT: PREVIEW AREA */}
-            <div className="w-full md:w-7/12 bg-zinc-900 relative flex items-center justify-center overflow-hidden group h-64 md:h-full shrink-0">
-               {/* Image Container */}
-               <div className="relative w-full h-full bg-black">
+            <div className="w-full md:w-7/12 bg-zinc-900 relative flex flex-col overflow-hidden h-72 md:h-full shrink-0">
+               {/* Main Image Container */}
+               <div className="relative flex-1 bg-black flex items-center justify-center">
                   <img 
-                     src={uploadedImage || template.thumbnail} 
-                     className={`w-full h-full object-contain transition-all duration-500 ${viewMode === 'before' ? 'grayscale brightness-75 blur-[1px]' : ''}`}
+                     src={uploadedImage || galleryImages[selectedGalleryIndex]} 
+                     className={`max-w-full max-h-full object-contain transition-all duration-500 ${viewMode === 'before' ? 'grayscale brightness-75 blur-[1px]' : ''}`}
                      alt="Preview"
                   />
                   
@@ -233,8 +258,33 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
                      </div>
                   )}
 
+                  {/* Gallery Navigation Arrows */}
+                  {galleryImages.length > 1 && !uploadedImage && (
+                     <>
+                        <button 
+                           onClick={() => setSelectedGalleryIndex(prev => prev === 0 ? galleryImages.length - 1 : prev - 1)}
+                           className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-black/60 hover:bg-black/80 text-white rounded-full transition-colors"
+                        >
+                           <ArrowRight size={20} className="rotate-180" />
+                        </button>
+                        <button 
+                           onClick={() => setSelectedGalleryIndex(prev => prev === galleryImages.length - 1 ? 0 : prev + 1)}
+                           className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-black/60 hover:bg-black/80 text-white rounded-full transition-colors"
+                        >
+                           <ArrowRight size={20} />
+                        </button>
+                     </>
+                  )}
+
+                  {/* Image Counter */}
+                  {galleryImages.length > 1 && !uploadedImage && (
+                     <div className="absolute top-3 right-3 px-2 py-1 bg-black/60 rounded-full text-white text-xs font-medium">
+                        {selectedGalleryIndex + 1} / {galleryImages.length}
+                     </div>
+                  )}
+
                   {/* View Controls Overlay */}
-                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full p-1.5 flex gap-1 border border-white/10 shadow-xl">
+                  <div className="absolute bottom-16 md:bottom-20 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full p-1.5 flex gap-1 border border-white/10 shadow-xl">
                      <button 
                         onClick={() => setViewMode('before')}
                         className={`px-4 py-2 rounded-full text-xs font-bold transition-colors ${viewMode === 'before' ? 'bg-zinc-700 text-white' : 'text-zinc-400 hover:text-white'}`}
@@ -249,6 +299,27 @@ const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () =>
                      </button>
                   </div>
                </div>
+
+               {/* Gallery Thumbnails */}
+               {galleryImages.length > 1 && !uploadedImage && (
+                  <div className="bg-zinc-950 p-3 border-t border-zinc-800">
+                     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                        {galleryImages.map((img, idx) => (
+                           <button
+                              key={idx}
+                              onClick={() => setSelectedGalleryIndex(idx)}
+                              className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                                 selectedGalleryIndex === idx 
+                                    ? 'border-repix-500 ring-2 ring-repix-500/30' 
+                                    : 'border-transparent hover:border-zinc-600'
+                              }`}
+                           >
+                              <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+                           </button>
+                        ))}
+                     </div>
+                  </div>
+               )}
             </div>
 
             {/* RIGHT: INFO & ACTIONS */}

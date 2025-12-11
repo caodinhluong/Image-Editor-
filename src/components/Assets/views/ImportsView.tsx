@@ -89,9 +89,10 @@ export const ImportsView: React.FC<ImportsViewProps> = ({
         </div>
 
         {/* Quick Stats - Clickable Filters */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-3">
           {[
             { key: 'all', label: language === 'vi' ? 'Tổng import' : 'Total Imports', value: '28', icon: Upload, color: 'text-cyan-500', bgActive: 'bg-cyan-100 dark:bg-cyan-900/30 border-cyan-500' },
+            { key: 'local', label: language === 'vi' ? 'Thiết bị này' : 'This Device', value: '10', icon: HardDrive, color: 'text-orange-500', bgActive: 'bg-orange-100 dark:bg-orange-900/30 border-orange-500' },
             { key: 'phone', label: language === 'vi' ? 'Từ điện thoại' : 'From Phone', value: '12', icon: Smartphone, color: 'text-purple-500', bgActive: 'bg-purple-100 dark:bg-purple-900/30 border-purple-500' },
             { key: 'url', label: language === 'vi' ? 'Từ URL' : 'From URL', value: '8', icon: Link2, color: 'text-blue-500', bgActive: 'bg-blue-100 dark:bg-blue-900/30 border-blue-500' },
             { key: 'cloud', label: language === 'vi' ? 'Từ Cloud' : 'From Cloud', value: '8', icon: Cloud, color: 'text-green-500', bgActive: 'bg-green-100 dark:bg-green-900/30 border-green-500' },
@@ -127,7 +128,7 @@ export const ImportsView: React.FC<ImportsViewProps> = ({
               {filterSource === 'phone' && (language === 'vi' ? 'Từ điện thoại' : 'From Phone')}
               {filterSource === 'url' && 'From URL'}
               {filterSource === 'cloud' && 'From Cloud'}
-              {filterSource === 'local' && (language === 'vi' ? 'Từ máy tính' : 'From Computer')}
+              {filterSource === 'local' && (language === 'vi' ? 'Thiết bị này' : 'This Device')}
             </Badge>
             <button 
               onClick={() => setFilterSource('all')}

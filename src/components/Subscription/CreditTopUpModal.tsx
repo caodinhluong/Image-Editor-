@@ -108,111 +108,113 @@ export const CreditTopUpModal: React.FC<CreditTopUpModalProps> = ({ isOpen, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full max-h-[85vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
         
-        {/* Header */}
-        <div className="relative p-6 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-r from-amber-500/10 to-orange-500/10">
+        {/* Header - Compact */}
+        <div className="relative p-4 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-r from-amber-500/10 to-orange-500/10 flex-shrink-0">
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
-            <X size={20} className="text-zinc-500" />
+            <X size={18} className="text-zinc-500" />
           </button>
           
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-              <Zap size={24} className="text-white" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+              <Zap size={20} className="text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-white">{trans.title}</h2>
-              <p className="text-sm text-zinc-500">{trans.subtitle}</p>
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">{trans.title}</h2>
+              <p className="text-xs text-zinc-500">{trans.subtitle}</p>
             </div>
           </div>
 
-          {/* Current Status */}
-          <div className="flex gap-4">
-            <div className="flex-1 p-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
-              <p className="text-xs text-zinc-500 mb-1">{trans.currentCredits}</p>
-              <p className="text-2xl font-bold text-amber-500">{credits}</p>
+          {/* Current Status - Compact */}
+          <div className="flex gap-3">
+            <div className="flex-1 p-2.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+              <p className="text-[10px] text-zinc-500 mb-0.5">{trans.currentCredits}</p>
+              <p className="text-xl font-bold text-amber-500">{credits}</p>
             </div>
-            <div className="flex-1 p-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
-              <p className="text-xs text-zinc-500 mb-1">{trans.currentPlan}</p>
-              <p className="text-lg font-bold text-zinc-900 dark:text-white capitalize">{currentPlan}</p>
+            <div className="flex-1 p-2.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+              <p className="text-[10px] text-zinc-500 mb-0.5">{trans.currentPlan}</p>
+              <p className="text-base font-bold text-zinc-900 dark:text-white capitalize">{currentPlan}</p>
             </div>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto flex-1 min-h-0">
+        {/* Content - Compact */}
+        <div className="p-4 overflow-y-auto flex-1 min-h-0">
           {/* Plan limit info */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{trans.selectPackage}</p>
             {maxCreditsForPlan > 0 && (
-              <span className="text-xs px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300">
                 {trans.maxCredits}: {maxCreditsForPlan}
               </span>
             )}
           </div>
           
-          {/* Available packages */}
-          <div className="space-y-3">
+          {/* Available packages - Compact */}
+          <div className="space-y-2">
             {availablePackages.map((pkg) => (
               <button
                 key={pkg.id}
                 onClick={() => setSelectedPackage(pkg.id)}
-                className={`w-full p-4 rounded-xl border-2 transition-all text-left relative ${
+                className={`w-full p-3 rounded-lg border-2 transition-all text-left relative ${
                   selectedPackage === pkg.id
                     ? 'border-amber-500 bg-amber-50 dark:bg-amber-500/10'
                     : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
                 }`}
               >
                 {/* Badges */}
-                <div className="absolute -top-2 right-3 flex gap-2">
-                  {pkg.popular && (
-                    <Badge className="bg-blue-500 text-white border-0 text-[10px]">
-                      {trans.popular}
-                    </Badge>
-                  )}
-                  {pkg.bestValue && (
-                    <Badge className="bg-green-500 text-white border-0 text-[10px]">
-                      {trans.bestValue}
-                    </Badge>
-                  )}
-                </div>
+                {(pkg.popular || pkg.bestValue) && (
+                  <div className="absolute -top-2 right-3 flex gap-1">
+                    {pkg.popular && (
+                      <Badge className="bg-blue-500 text-white border-0 text-[9px] px-1.5 py-0">
+                        {trans.popular}
+                      </Badge>
+                    )}
+                    {pkg.bestValue && (
+                      <Badge className="bg-green-500 text-white border-0 text-[9px] px-1.5 py-0">
+                        {trans.bestValue}
+                      </Badge>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
                       selectedPackage === pkg.id
                         ? 'border-amber-500 bg-amber-500'
                         : 'border-zinc-300 dark:border-zinc-600'
                     }`}>
-                      {selectedPackage === pkg.id && <Check size={12} className="text-white" />}
+                      {selectedPackage === pkg.id && <Check size={10} className="text-white" />}
                     </div>
                     
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-zinc-900 dark:text-white">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-base font-bold text-zinc-900 dark:text-white">
                           {pkg.credits} {trans.credits}
                         </span>
                         {pkg.bonus > 0 && (
-                          <span className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
-                            <Gift size={12} /> +{pkg.bonus} {trans.bonus}
+                          <span className="text-[10px] font-medium text-green-600 dark:text-green-400">
+                            +{pkg.bonus} {trans.bonus}
                           </span>
                         )}
                       </div>
-                      {pkg.bonus > 0 && (
-                        <p className="text-xs text-zinc-500">
-                          = {pkg.credits + pkg.bonus} {trans.credits} {trans.total.toLowerCase()}
+                      {pkg.minPlan !== 'free' && (
+                        <p className="text-[10px] text-zinc-400">
+                          {trans.requiresPlan} {PLANS[pkg.minPlan].name}
                         </p>
                       )}
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xl font-bold text-zinc-900 dark:text-white">${pkg.price}</p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-lg font-bold text-zinc-900 dark:text-white">${pkg.price}</p>
+                    <p className="text-[10px] text-zinc-500">
                       ${(pkg.price / (pkg.credits + pkg.bonus)).toFixed(3)}/credit
                     </p>
                   </div>
@@ -223,41 +225,26 @@ export const CreditTopUpModal: React.FC<CreditTopUpModalProps> = ({ isOpen, onCl
 
           {/* Locked packages - require upgrade */}
           {lockedPackages.length > 0 && (
-            <div className="mt-6">
-              <p className="text-xs font-medium text-zinc-500 mb-3 flex items-center gap-2">
-                <Lock size={12} />
+            <div className="mt-4">
+              <p className="text-[10px] font-medium text-zinc-500 mb-2 flex items-center gap-1.5">
+                <Lock size={10} />
                 {trans.lockedPackages}
               </p>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {lockedPackages.map((pkg) => (
                   <div
                     key={pkg.id}
-                    className="w-full p-3 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 opacity-60"
+                    className="w-full p-2.5 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 opacity-50"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 rounded-full border-2 border-zinc-300 dark:border-zinc-600 flex items-center justify-center">
-                          <Lock size={10} className="text-zinc-400" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-base font-medium text-zinc-500">
-                              {pkg.credits} {trans.credits}
-                            </span>
-                            {pkg.bonus > 0 && (
-                              <span className="text-xs text-zinc-400">
-                                +{pkg.bonus} {trans.bonus}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-zinc-400">
-                            {trans.requiresPlan} {PLANS[pkg.minPlan].name}
-                          </p>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Lock size={12} className="text-zinc-400" />
+                        <span className="text-sm text-zinc-500">
+                          {pkg.credits} {trans.credits}
+                          {pkg.bonus > 0 && <span className="text-xs ml-1">+{pkg.bonus}</span>}
+                        </span>
                       </div>
-                      <div className="text-right">
-                        <p className="text-lg font-medium text-zinc-400">${pkg.price}</p>
-                      </div>
+                      <span className="text-sm text-zinc-400">${pkg.price}</span>
                     </div>
                   </div>
                 ))}
@@ -269,56 +256,41 @@ export const CreditTopUpModal: React.FC<CreditTopUpModalProps> = ({ isOpen, onCl
                   onClose();
                   setShowUpgradeModal(true);
                 }}
-                className="w-full mt-3 p-3 rounded-xl border-2 border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-500/10 hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors flex items-center justify-center gap-2"
+                className="w-full mt-2 p-2 rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-500/10 hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors flex items-center justify-center gap-1.5"
               >
-                <ArrowUp size={16} className="text-violet-600 dark:text-violet-400" />
-                <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                <ArrowUp size={14} className="text-violet-600 dark:text-violet-400" />
+                <span className="text-xs font-medium text-violet-700 dark:text-violet-300">
                   {trans.upgradeToUnlock}
                 </span>
               </button>
             </div>
           )}
-
-          {/* Benefits */}
-          <div className="mt-6 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 space-y-2">
-            <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-              <Sparkles size={14} className="text-amber-500" />
-              <span>{trans.instantDelivery}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-              <TrendingUp size={14} className="text-green-500" />
-              <span>{trans.noExpiry}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-              <CreditCard size={14} className="text-blue-500" />
-              <span>{trans.securePayment} Stripe</span>
-            </div>
-          </div>
         </div>
 
-        {/* Footer - Always visible */}
-        <div className="p-6 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 flex-shrink-0">
+        {/* Footer - Compact */}
+        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 flex-shrink-0">
           {selectedPkg && (
-            <div className="flex items-center justify-between mb-4 p-3 rounded-lg bg-amber-100 dark:bg-amber-500/20">
-              <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
+            <div className="flex items-center justify-between mb-3 p-2 rounded-lg bg-amber-100 dark:bg-amber-500/20">
+              <span className="text-xs font-medium text-amber-800 dark:text-amber-300">
                 {trans.total}:
               </span>
-              <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
+              <span className="text-base font-bold text-amber-600 dark:text-amber-400">
                 {selectedPkg.credits + selectedPkg.bonus} {trans.credits}
               </span>
             </div>
           )}
           
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={onClose}>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="flex-1" onClick={onClose}>
               {trans.cancel}
             </Button>
             <Button 
+              size="sm"
               className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 border-0"
               onClick={handleProceedToPayment}
               disabled={!selectedPackage}
             >
-              <CreditCard size={16} className="mr-2" />
+              <CreditCard size={14} className="mr-1.5" />
               {trans.purchase} ${selectedPkg?.price || 0}
             </Button>
           </div>

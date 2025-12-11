@@ -22,6 +22,7 @@ import { useSubscription } from '../../contexts/SubscriptionContext';
 import { FeatureKey } from '../../types/subscription';
 import { CreditsIndicator } from '../Subscription/FeatureGate';
 import { ToolDemoPanel } from './ToolDemoPanel';
+import { AssetPickerModal } from './AssetPickerModal';
 
 interface EditorViewProps {
   initialImage?: string;
@@ -57,8 +58,19 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
   // Prompt Upload States
   const [uploadedImages, setUploadedImages] = useState<{ id: string; file: File; preview: string }[]>([]);
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
+  const [showAssetPicker, setShowAssetPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Mock imported assets from My Assets
+  const myImportedAssets = [
+    { id: 'asset-1', src: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop', name: 'Product_001.jpg' },
+    { id: 'asset-2', src: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=300&h=300&fit=crop', name: 'Sneaker_white.png' },
+    { id: 'asset-3', src: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop', name: 'Watch_hero.jpg' },
+    { id: 'asset-4', src: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=300&h=300&fit=crop', name: 'Perfume_shot.jpg' },
+    { id: 'asset-5', src: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=300&fit=crop', name: 'Cosmetics_flat.jpg' },
+    { id: 'asset-6', src: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=300&h=300&fit=crop', name: 'Nike_running.png' },
+  ];
   
   // Toolstrip collapse state
   const [isToolstripCollapsed, setIsToolstripCollapsed] = useState(false);
@@ -959,7 +971,7 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
 
             {/* Main Input Row */}
             <div className="flex items-end gap-2">
-              {/* Upload Button */}
+              {/* Upload Button with Dropdown */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -968,13 +980,31 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
                 onChange={handlePromptImageUpload}
                 className="hidden"
               />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors shrink-0"
-                title="Upload image (Ctrl+V to paste)"
-              >
-                <Paperclip size={18} />
-              </button>
+              <div className="relative group">
+                <button
+                  className="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors shrink-0"
+                  title="Add image"
+                >
+                  <Paperclip size={18} />
+                </button>
+                {/* Dropdown Menu */}
+                <div className="absolute bottom-full left-0 mb-2 py-1 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 min-w-[180px]">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                  >
+                    <Upload size={16} />
+                    Upload from device
+                  </button>
+                  <button
+                    onClick={() => setShowAssetPicker(true)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                  >
+                    <ImagePlus size={16} />
+                    From My Assets
+                  </button>
+                </div>
+              </div>
 
               {/* AI Icon - Hidden on mobile when images uploaded */}
               <div className={`p-2 bg-gradient-to-br from-pink-500 to-repix-600 rounded-xl shrink-0 ${uploadedImages.length > 0 ? 'hidden md:block' : 'hidden xs:block'}`}>
@@ -1500,6 +1530,23 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
           onClose={() => setShowToolDemo(null)}
           onApply={handleApplyToolFromDemo}
           onDontShowAgain={handleDontShowToolDemos}
+        />
+      )}
+
+      {/* Asset Picker Modal */}
+      {showAssetPicker && (
+        <AssetPickerModal
+          isOpen={showAssetPicker}
+          onClose={() => setShowAssetPicker(false)}
+          onSelectAsset={(asset) => {
+            const newImage = {
+              id: `asset-${Date.now()}`,
+              file: new File([], asset.name),
+              preview: asset.src,
+            };
+            setUploadedImages(prev => [...prev, newImage].slice(0, 4));
+            setShowAssetPicker(false);
+          }}
         />
       )}
     </div>

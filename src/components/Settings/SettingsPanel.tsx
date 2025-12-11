@@ -204,7 +204,7 @@ export const SettingsPanel: React.FC = () => {
                     </Button>
                     <Button variant="outline" onClick={() => addCredits(100)}>
                       <Plus size={16} className="mr-2" />
-                      Buy 100 Credits
+                      Buy Credits
                     </Button>
                     <Button variant="ghost" onClick={resetCredits}>
                       <RefreshCw size={16} className="mr-2" />

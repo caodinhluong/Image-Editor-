@@ -21,11 +21,13 @@ import {
   Plug,
   Infinity,
   Upload,
+  Info,
 } from 'lucide-react';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { PlanType, PLANS } from '../../types/subscription';
 import { Button } from '../ui/UIComponents';
+import { PlanDetailModal } from './PlanDetailModal';
 
 const iconMap: Record<string, React.ElementType> = {
   sparkles: Sparkles,
@@ -56,6 +58,7 @@ export const UpgradeModal: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showPlanDetail, setShowPlanDetail] = useState<PlanType | null>(null);
 
   if (!showUpgradeModal) return null;
 
@@ -244,37 +247,43 @@ export const UpgradeModal: React.FC = () => {
                     })}
                   </div>
 
-                  {/* CTA Button */}
-                  {isCurrentPlan ? (
-                    <Button
-                      disabled
-                      variant="outline"
-                      className="w-full h-11 rounded-xl font-bold border-zinc-700 text-zinc-500"
-                    >
-                      {language === 'vi' ? 'Gói hiện tại' : 'Current Plan'}
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handleUpgrade(planId)}
-                      disabled={isProcessing}
-                      className={`w-full h-11 rounded-xl font-bold transition-all ${
-                        isPopular
-                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-500/25'
-                          : 'bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700'
-                      }`}
-                    >
-                      {isProcessingThis ? (
-                        <span className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          {language === 'vi' ? 'Đang xử lý...' : 'Processing...'}
-                        </span>
-                      ) : plan.price === 'custom' ? (
-                        language === 'vi' ? 'Liên hệ' : 'Contact Sales'
-                      ) : (
-                        language === 'vi' ? `Nâng cấp lên ${plan.name}` : `Upgrade to ${plan.name}`
-                      )}
-                    </Button>
-                  )}
+                  {/* CTA Buttons */}
+                  <div className="space-y-2">
+                    {isCurrentPlan ? (
+                      <Button
+                        disabled
+                        variant="outline"
+                        className="w-full h-11 rounded-xl font-bold border-zinc-700 text-zinc-500"
+                      >
+                        {language === 'vi' ? 'Gói hiện tại' : 'Current Plan'}
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={() => setShowPlanDetail(planId)}
+                          disabled={isProcessing}
+                          className={`w-full h-11 rounded-xl font-bold transition-all ${
+                            isPopular
+                              ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-500/25'
+                              : 'bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700'
+                          }`}
+                        >
+                          {plan.price === 'custom' ? (
+                            language === 'vi' ? 'Liên hệ' : 'Contact Sales'
+                          ) : (
+                            language === 'vi' ? `Nâng cấp lên ${plan.name}` : `Upgrade to ${plan.name}`
+                          )}
+                        </Button>
+                        <button
+                          onClick={() => setShowPlanDetail(planId)}
+                          className="w-full text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center justify-center gap-1"
+                        >
+                          <Info size={12} />
+                          {language === 'vi' ? 'Xem chi tiết gói' : 'View plan details'}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -290,6 +299,20 @@ export const UpgradeModal: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* Plan Detail Modal */}
+      {showPlanDetail && (
+        <PlanDetailModal
+          isOpen={!!showPlanDetail}
+          onClose={() => setShowPlanDetail(null)}
+          planId={showPlanDetail}
+          onUpgrade={(planId) => {
+            setShowPlanDetail(null);
+            handleUpgrade(planId);
+          }}
+          isProcessing={isProcessing}
+        />
+      )}
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { MarketplaceView } from './components/Marketplace/MarketplaceView';
 import { TeamView } from './components/Team/TeamView';
 import { ProfileView } from './components/Profile/ProfileView';
 import { AnalyticsView } from './components/Analytics/AnalyticsView';
-import { CreatorDashboard } from './components/Creator/CreatorDashboard';
+// Creator features integrated into ProfileView
 import { SettingsPanel } from './components/Settings/SettingsPanel';
 import { LandingPage } from './components/Landing/LandingPage';
 import { AuthPage } from './components/Auth/AuthPage';
@@ -41,6 +41,47 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
   // Image Upload States
   const [uploadedImages, setUploadedImages] = useState<{ id: string; file: File; preview: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Generation Options States
+  const [selectedModel, setSelectedModel] = useState('standard');
+  const [selectedStyle, setSelectedStyle] = useState('photograph');
+  const [selectedRatio, setSelectedRatio] = useState('3:2');
+  const [imageCount, setImageCount] = useState(2);
+  const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const [showStyleDropdown, setShowStyleDropdown] = useState(false);
+  const [showRatioDropdown, setShowRatioDropdown] = useState(false);
+  
+  // Example Preview Modal State
+  const [selectedExample, setSelectedExample] = useState<{ title: string; src: string; prompt: string } | null>(null);
+  const [showMoreExamples, setShowMoreExamples] = useState(false);
+  
+  // Options Data
+  const modelOptions = [
+    { id: 'standard', label: 'Standard', labelVi: 'Tiêu chuẩn' },
+    { id: 'creative', label: 'Creative', labelVi: 'Sáng tạo' },
+    { id: 'realistic', label: 'Realistic', labelVi: 'Chân thực' },
+    { id: 'anime', label: 'Anime', labelVi: 'Anime' },
+  ];
+  
+  const styleOptions = [
+    { id: 'photograph', label: 'Photograph', labelVi: 'Ảnh chụp' },
+    { id: 'illustration', label: 'Illustration', labelVi: 'Minh họa' },
+    { id: 'digital-art', label: 'Digital Art', labelVi: 'Nghệ thuật số' },
+    { id: '3d-render', label: '3D Render', labelVi: '3D Render' },
+    { id: 'painting', label: 'Painting', labelVi: 'Tranh vẽ' },
+  ];
+  
+  const ratioOptions = [
+    { id: '1:1', label: '1:1', width: 1, height: 1 },
+    { id: '16:9', label: '16:9', width: 16, height: 9 },
+    { id: '9:16', label: '9:16', width: 9, height: 16 },
+    { id: '3:2', label: '3:2', width: 3, height: 2 },
+    { id: '2:3', label: '2:3', width: 2, height: 3 },
+    { id: '4:3', label: '4:3', width: 4, height: 3 },
+    { id: '3:4', label: '3:4', width: 3, height: 4 },
+  ];
+  
+  const countOptions = [1, 2, 4];
 
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -306,38 +347,17 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                      </div>
                    )}
 
-                   {/* Main Input Row */}
-                   <div className="flex items-end gap-2">
-                     {/* Hidden File Input */}
-                     <input
-                       ref={fileInputRef}
-                       type="file"
-                       accept="image/*"
-                       multiple
-                       onChange={handleImageUpload}
-                       className="hidden"
-                     />
-                     
-                     {/* Upload Button */}
-                     <button
-                       onClick={() => fileInputRef.current?.click()}
-                       className="p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors shrink-0"
-                       title="Upload image (Ctrl+V to paste)"
-                     >
-                       <Paperclip size={20} />
-                     </button>
-
-                     {/* Textarea */}
+                   {/* Textarea Row */}
+                   <div className="relative">
                      <textarea 
                        placeholder={uploadedImages.length > 0 ? "Describe what to do with these images..." : trans.home.placeholder}
                        value={prompt}
                        onChange={(e) => {
                          setPrompt(e.target.value);
-                         // Auto-resize logic
                          const textarea = e.target;
                          textarea.style.height = 'auto';
-                         const maxH = window.innerWidth < 768 ? 150 : 200;
-                         const newHeight = Math.max(48, Math.min(textarea.scrollHeight, maxH));
+                         const maxH = window.innerWidth < 768 ? 100 : 120;
+                         const newHeight = Math.max(44, Math.min(textarea.scrollHeight, maxH));
                          textarea.style.height = newHeight + 'px';
                        }}
                        onKeyDown={(e) => {
@@ -347,24 +367,471 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                          }
                        }}
                        onPaste={handlePasteImage}
-                       className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-lg px-4 py-2.5 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 resize-none overflow-y-auto transition-[height] duration-150 ease-out"
-                       style={{ minHeight: '48px', maxHeight: window.innerWidth < 768 ? '150px' : '200px' }}
+                       className="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-base px-4 py-3 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 resize-none overflow-y-auto"
+                       style={{ minHeight: '44px', maxHeight: window.innerWidth < 768 ? '100px' : '120px' }}
                        rows={1}
                      />
+
+                   </div>
+
+                   {/* Options Row */}
+                   <div className="flex items-center justify-between gap-2 px-2 py-2 border-t border-zinc-100 dark:border-zinc-800">
+                     <div className="flex items-center gap-1.5 flex-wrap">
+                       {/* Hidden File Input */}
+                       <input
+                         ref={fileInputRef}
+                         type="file"
+                         accept="image/*"
+                         multiple
+                         onChange={handleImageUpload}
+                         className="hidden"
+                       />
+                       
+                       {/* Reference Image Button */}
+                       <button
+                         onClick={() => fileInputRef.current?.click()}
+                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors"
+                       >
+                         <ImagePlus size={14} />
+                         {language === 'vi' ? 'Ảnh tham chiếu' : 'Reference image'}
+                       </button>
+
+                       {/* Model Dropdown */}
+                       <div className="relative">
+                         <button 
+                           onClick={() => { setShowModelDropdown(!showModelDropdown); setShowStyleDropdown(false); setShowRatioDropdown(false); }}
+                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                         >
+                           Model: {modelOptions.find(m => m.id === selectedModel)?.[language === 'vi' ? 'labelVi' : 'label']}
+                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                         </button>
+                         {showModelDropdown && (
+                           <div className="absolute top-full left-0 mt-1 py-1 bg-white dark:bg-zinc-800 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[140px]">
+                             {modelOptions.map(opt => (
+                               <button
+                                 key={opt.id}
+                                 onClick={() => { setSelectedModel(opt.id); setShowModelDropdown(false); }}
+                                 className={`w-full px-3 py-1.5 text-left text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${selectedModel === opt.id ? 'text-repix-500 font-medium' : 'text-zinc-600 dark:text-zinc-400'}`}
+                               >
+                                 {language === 'vi' ? opt.labelVi : opt.label}
+                               </button>
+                             ))}
+                           </div>
+                         )}
+                       </div>
+
+                       {/* Style Dropdown */}
+                       <div className="relative">
+                         <button 
+                           onClick={() => { setShowStyleDropdown(!showStyleDropdown); setShowModelDropdown(false); setShowRatioDropdown(false); }}
+                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                         >
+                           Style: {styleOptions.find(s => s.id === selectedStyle)?.[language === 'vi' ? 'labelVi' : 'label']}
+                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                         </button>
+                         {showStyleDropdown && (
+                           <div className="absolute top-full left-0 mt-1 py-1 bg-white dark:bg-zinc-800 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[140px]">
+                             {styleOptions.map(opt => (
+                               <button
+                                 key={opt.id}
+                                 onClick={() => { setSelectedStyle(opt.id); setShowStyleDropdown(false); }}
+                                 className={`w-full px-3 py-1.5 text-left text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${selectedStyle === opt.id ? 'text-repix-500 font-medium' : 'text-zinc-600 dark:text-zinc-400'}`}
+                               >
+                                 {language === 'vi' ? opt.labelVi : opt.label}
+                               </button>
+                             ))}
+                           </div>
+                         )}
+                       </div>
+
+                       {/* Ratio & Count Dropdown */}
+                       <div className="relative">
+                         <button 
+                           onClick={() => { setShowRatioDropdown(!showRatioDropdown); setShowModelDropdown(false); setShowStyleDropdown(false); }}
+                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                         >
+                           {selectedRatio} · {imageCount} {language === 'vi' ? 'ảnh' : 'images'}
+                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                         </button>
+                         {showRatioDropdown && (
+                           <div className="absolute top-full right-0 mt-1 p-4 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[280px]">
+                             {/* Aspect Ratio */}
+                             <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                               {language === 'vi' ? 'Tỷ lệ khung hình' : 'Aspect Ratio'}
+                             </p>
+                             <div className="flex gap-2 mb-4">
+                               {ratioOptions.map(ratio => (
+                                 <button
+                                   key={ratio.id}
+                                   onClick={() => setSelectedRatio(ratio.id)}
+                                   className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
+                                     selectedRatio === ratio.id 
+                                       ? 'bg-blue-500 text-white' 
+                                       : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-600'
+                                   }`}
+                                 >
+                                   <div 
+                                     className={`border-2 ${selectedRatio === ratio.id ? 'border-white' : 'border-current'}`}
+                                     style={{ 
+                                       width: `${Math.min(ratio.width / Math.max(ratio.width, ratio.height) * 24, 24)}px`,
+                                       height: `${Math.min(ratio.height / Math.max(ratio.width, ratio.height) * 24, 24)}px`
+                                     }}
+                                   />
+                                   <span className="text-[10px] font-medium">{ratio.label}</span>
+                                 </button>
+                               ))}
+                             </div>
+                             
+                             {/* Count */}
+                             <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                               {language === 'vi' ? 'Số lượng' : 'Count'}
+                             </p>
+                             <div className="flex gap-2">
+                               {countOptions.map(count => (
+                                 <button
+                                   key={count}
+                                   onClick={() => setImageCount(count)}
+                                   className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                     imageCount === count 
+                                       ? 'bg-blue-500 text-white' 
+                                       : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-600'
+                                   }`}
+                                 >
+                                   {count}
+                                 </button>
+                               ))}
+                               <button
+                                 disabled
+                                 className="flex-1 py-2 rounded-lg text-sm font-medium bg-zinc-100 dark:bg-zinc-700 text-zinc-400 cursor-not-allowed flex items-center justify-center gap-1"
+                               >
+                                 4 <Crown size={10} />
+                               </button>
+                             </div>
+                             
+                             <button 
+                               onClick={() => setShowRatioDropdown(false)}
+                               className="w-full mt-3 py-2 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
+                             >
+                               {language === 'vi' ? 'Đóng' : 'Close'}
+                             </button>
+                           </div>
+                         )}
+                       </div>
+                     </div>
                      
                      {/* Generate Button */}
                      <Button 
-                       size="lg" 
-                       className="rounded-xl h-12 px-6 shadow-lg shadow-repix-500/20 shrink-0" 
+                       size="sm" 
+                       className="rounded-lg px-5 shadow-lg shadow-repix-500/20 shrink-0 gap-1.5" 
                        onClick={handleGenerate} 
                        disabled={!prompt.trim() && uploadedImages.length === 0}
                      >
+                       <Sparkles size={14} />
                        {trans.home.generate}
                      </Button>
                    </div>
                 </div>
               </div>
+
             </div>
+
+            {/* --- TRY AN EXAMPLE SECTION --- */}
+            <div className="mb-16">
+              <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white text-center mb-8">
+                {language === 'vi' ? 'THỬ MỘT VÍ DỤ' : 'TRY AN EXAMPLE'}
+              </h2>
+              
+              {/* Masonry Grid with Fade Effect */}
+              <div className="relative">
+                <div 
+                  className={`grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 overflow-hidden transition-all duration-500 ease-in-out ${
+                    showMoreExamples ? 'max-h-[2000px]' : 'max-h-[420px] md:max-h-[500px]'
+                  }`}
+                >
+                {/* Column 1 */}
+                <div className="space-y-3 md:space-y-4">
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Fantasy Bedroom Portal', src: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600&h=750&fit=crop', prompt: 'Cozy bedroom with magical glowing forest portal on the wall, fantasy art' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img 
+                      src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=500&fit=crop" 
+                      alt="Fantasy bedroom"
+                      className="w-full aspect-[4/5] object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Golden Hour Tram', src: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&h=450&fit=crop', prompt: 'Golden hour street photography with vintage tram, cinematic lighting' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img 
+                      src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=300&fit=crop" 
+                      alt="Street tram"
+                      className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  {/* Extra for column 1 */}
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Mountain Lake', src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=750&fit=crop', prompt: 'Serene mountain lake at sunrise, mirror reflection, landscape photography' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=500&fit=crop" alt="Mountain lake" className="w-full aspect-[4/5] object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Vintage Camera', src: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&h=450&fit=crop', prompt: 'Vintage film camera on wooden table, nostalgic product photography' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&h=300&fit=crop" alt="Camera" className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                </div>
+
+                {/* Column 2 */}
+                <div className="space-y-3 md:space-y-4">
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Vintage Chalkboard', src: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&h=450&fit=crop', prompt: 'Vintage chalkboard with motivational quote, classroom aesthetic' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img 
+                      src="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=400&h=300&fit=crop" 
+                      alt="Chalkboard"
+                      className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Space Astronaut Egg', src: 'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=600&h=750&fit=crop', prompt: 'Cute astronaut character hatching from egg on moon surface, 3D render' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img 
+                      src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400&h=500&fit=crop" 
+                      alt="Astronaut"
+                      className="w-full aspect-[4/5] object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Cozy Rainy Window', src: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&h=450&fit=crop', prompt: 'Cozy window with fairy lights and rain outside, warm atmosphere' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img 
+                      src="https://images.unsplash.com/photo-1513694203232-719a280e022f?w=400&h=300&fit=crop" 
+                      alt="Cozy window"
+                      className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  {/* Extra for column 2 */}
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Cute Robot', src: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&h=600&fit=crop', prompt: 'Adorable small robot with big eyes, friendly expression, 3D render' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=400&fit=crop" alt="Robot" className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Coffee Art', src: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=450&fit=crop', prompt: 'Artistic latte art in ceramic cup, cozy cafe atmosphere, food photography' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop" alt="Coffee" className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                </div>
+
+                {/* Column 3 */}
+                <div className="space-y-3 md:space-y-4">
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Vaporwave Fashion Dog', src: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=900&fit=crop', prompt: 'Adorable white dog wearing pink sunglasses and outfit on beach, fashion photography' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img 
+                      src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=600&fit=crop" 
+                      alt="Dog with sunglasses"
+                      className="w-full aspect-[2/3] object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Natural Portrait', src: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&h=600&fit=crop', prompt: 'Beautiful female portrait with soft natural lighting, professional headshot' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img 
+                      src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop" 
+                      alt="Portrait"
+                      className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  {/* Extra for column 3 */}
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Aurora Borealis', src: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&h=750&fit=crop', prompt: 'Northern lights dancing over snowy mountains, aurora borealis, night sky' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img src="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=400&h=500&fit=crop" alt="Aurora" className="w-full aspect-[4/5] object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                </div>
+
+                {/* Column 4 */}
+                <div className="space-y-3 md:space-y-4">
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Fairy Flower Village', src: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=600&h=600&fit=crop', prompt: 'Miniature fairy village on pink flower petal, macro photography, tilt-shift' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img 
+                      src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=400&fit=crop" 
+                      alt="Flower village"
+                      className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Cosmic Sky Whale', src: 'https://images.unsplash.com/photo-1454991727061-be514eae86f7?w=600&h=750&fit=crop', prompt: 'Majestic whale swimming through starry night sky, surreal digital art' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img 
+                      src="https://images.unsplash.com/photo-1454991727061-be514eae86f7?w=400&h=500&fit=crop" 
+                      alt="Sky whale"
+                      className="w-full aspect-[4/5] object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  {/* Extra images for this column when expanded */}
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Neon City Night', src: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=600&h=450&fit=crop', prompt: 'Cyberpunk neon city at night, rain reflections, blade runner style' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=400&h=300&fit=crop" alt="Neon city" className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedExample({ title: 'Tropical Paradise', src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=450&fit=crop', prompt: 'Tropical beach with crystal clear water, palm trees, paradise island' })}
+                    className="relative w-full rounded-2xl overflow-hidden group"
+                  >
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop" alt="Beach" className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                </div>
+                </div>
+
+                {/* Gradient Fade Overlay - only show when collapsed */}
+                {!showMoreExamples && (
+                  <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-light-bg dark:from-dark-bg to-transparent pointer-events-none" />
+                )}
+
+                {/* Show More Button - positioned over the fade when collapsed */}
+                {!showMoreExamples && (
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+                    <button
+                      onClick={() => setShowMoreExamples(true)}
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors shadow-lg"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                      {language === 'vi' ? 'Xem thêm' : 'Show more'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Show Less Button - centered below grid when expanded */}
+              {showMoreExamples && (
+                <div className="flex justify-center mt-6">
+                  <button
+                    onClick={() => setShowMoreExamples(false)}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors shadow-lg"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
+                    {language === 'vi' ? 'Thu gọn' : 'Show less'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Example Preview Modal */}
+            {selectedExample && (
+              <div 
+                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+                onClick={() => setSelectedExample(null)}
+              >
+                <div 
+                  className="relative bg-white dark:bg-zinc-900 rounded-2xl max-w-3xl w-full shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setSelectedExample(null)}
+                    className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 dark:bg-zinc-800/80 hover:bg-white dark:hover:bg-zinc-700 transition-colors shadow-lg"
+                  >
+                    <X size={20} className="text-zinc-600 dark:text-zinc-400" />
+                  </button>
+
+                  {/* Title */}
+                  <div className="text-center py-4 border-b border-zinc-200 dark:border-zinc-800">
+                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
+                      {selectedExample.title}
+                    </h2>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6 flex flex-col md:flex-row gap-6">
+                    {/* Image */}
+                    <div className="flex-shrink-0">
+                      <img
+                        src={selectedExample.src}
+                        alt={selectedExample.title}
+                        className="w-full md:w-72 h-auto rounded-xl shadow-lg"
+                      />
+                    </div>
+
+                    {/* Prompt Card */}
+                    <div className="flex-1 flex flex-col">
+                      <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4 flex-1">
+                        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-3">
+                          AI Art Image Prompt
+                        </h3>
+                        
+                        <div className="mb-3">
+                          <p className="text-xs text-zinc-500 mb-1">Prompt:</p>
+                          <div className="p-3 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                            <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                              {selectedExample.prompt}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(selectedExample.prompt);
+                          }}
+                          className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-repix-500 transition-colors ml-auto"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          {language === 'vi' ? 'Sao chép Prompt' : 'Copy Prompt'}
+                        </button>
+                      </div>
+
+                      {/* Open in Editor Button */}
+                      <Button
+                        onClick={() => {
+                          setPrompt(selectedExample.prompt);
+                          setSelectedExample(null);
+                          onStartEditing(selectedExample.src);
+                        }}
+                        className="w-full mt-4 gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                      >
+                        <Sparkles size={16} />
+                        {language === 'vi' ? 'Mở trong Editor' : 'Open in editor'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Generate Preview Modal */}
             {showGenerateModal && (
@@ -793,7 +1260,6 @@ const AppContent: React.FC = () => {
       {view === 'marketplace' && <MarketplaceView />}
       {view === 'team' && <TeamView />}
       {view === 'analytics' && <AnalyticsView />}
-      {view === 'creator' && <CreatorDashboard />}
       {view === 'settings' && <SettingsPanel />}
       {view === 'profile' && <ProfileView />}
     </Layout>

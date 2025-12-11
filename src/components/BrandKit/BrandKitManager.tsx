@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Palette, Plus, Edit, Trash2, Check, Lock, Crown } from 'lucide-react';
+import { Palette, Plus, Edit, Trash2, Check, Lock, Crown, Sparkles, Eye, Copy, Star, ArrowRight } from 'lucide-react';
 import { Button, Card, Badge } from '../ui/UIComponents';
 import { useBrandKit } from '../../contexts/BrandKitContext';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -7,6 +7,352 @@ import { BrandKit } from '../../types/brandKit';
 import { BatchProcessor } from './BatchProcessor';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { FeatureGate } from '../Subscription/FeatureGate';
+
+// Demo Brand Kits Component
+const DemoBrandKits: React.FC<{ language: string; onCreateNew: () => void }> = ({ language, onCreateNew }) => {
+  const [selectedDemo, setSelectedDemo] = useState<string | null>(null);
+  const [showAllDemos, setShowAllDemos] = useState(false);
+
+  const demoBrandKits = [
+    {
+      id: 'nike',
+      name: 'Nike',
+      logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/200px-Logo_NIKE.svg.png',
+      colors: ['#000000', '#FFFFFF', '#FF6B00', '#7C7C7C'],
+      keywords: ['Bold', 'Athletic', 'Dynamic', 'Inspiring'],
+      font: 'Futura Bold',
+      style: language === 'vi' ? 'Thể thao, năng động, mạnh mẽ' : 'Athletic, dynamic, powerful',
+      preview: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop',
+      category: 'Sports'
+    },
+    {
+      id: 'apple',
+      name: 'Apple',
+      logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/100px-Apple_logo_black.svg.png',
+      colors: ['#000000', '#FFFFFF', '#86868B', '#F5F5F7'],
+      keywords: ['Minimal', 'Premium', 'Clean', 'Innovative'],
+      font: 'SF Pro Display',
+      style: language === 'vi' ? 'Tối giản, cao cấp, tinh tế' : 'Minimal, premium, sophisticated',
+      preview: 'https://images.unsplash.com/photo-1491933382434-500287f9b54b?w=400&h=300&fit=crop',
+      category: 'Tech'
+    },
+    {
+      id: 'coca-cola',
+      name: 'Coca-Cola',
+      logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/200px-Coca-Cola_logo.svg.png',
+      colors: ['#F40009', '#FFFFFF', '#000000', '#FFC20E'],
+      keywords: ['Classic', 'Joyful', 'Refreshing', 'Iconic'],
+      font: 'Spencerian Script',
+      style: language === 'vi' ? 'Cổ điển, vui vẻ, sảng khoái' : 'Classic, joyful, refreshing',
+      preview: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=300&fit=crop',
+      category: 'Beverage'
+    },
+    {
+      id: 'spotify',
+      name: 'Spotify',
+      logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/100px-Spotify_logo_without_text.svg.png',
+      colors: ['#1DB954', '#191414', '#FFFFFF', '#535353'],
+      keywords: ['Modern', 'Vibrant', 'Musical', 'Connected'],
+      font: 'Circular',
+      style: language === 'vi' ? 'Hiện đại, sôi động, kết nối' : 'Modern, vibrant, connected',
+      preview: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=400&h=300&fit=crop',
+      category: 'Music'
+    },
+    {
+      id: 'gucci',
+      name: 'Gucci',
+      logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/1960s_Gucci_Logo.svg/200px-1960s_Gucci_Logo.svg.png',
+      colors: ['#000000', '#D4AF37', '#FFFFFF', '#8B0000'],
+      keywords: ['Luxury', 'Elegant', 'Bold', 'Heritage'],
+      font: 'Granjon',
+      style: language === 'vi' ? 'Xa xỉ, sang trọng, di sản' : 'Luxury, elegant, heritage',
+      preview: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=300&fit=crop',
+      category: 'Fashion'
+    },
+    {
+      id: 'starbucks',
+      name: 'Starbucks',
+      logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/100px-Starbucks_Corporation_Logo_2011.svg.png',
+      colors: ['#00704A', '#FFFFFF', '#1E3932', '#D4E9E2'],
+      keywords: ['Warm', 'Inviting', 'Premium', 'Community'],
+      font: 'Freight Sans',
+      style: language === 'vi' ? 'Ấm áp, thân thiện, cộng đồng' : 'Warm, inviting, community',
+      preview: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&h=300&fit=crop',
+      category: 'Coffee'
+    },
+  ];
+
+  const displayedDemos = showAllDemos ? demoBrandKits : demoBrandKits.slice(0, 3);
+
+  return (
+    <div className="mb-10">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+            <Sparkles size={20} className="text-amber-500" />
+            {language === 'vi' ? 'Brand Kit Mẫu' : 'Demo Brand Kits'}
+          </h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            {language === 'vi' ? 'Tham khảo các brand kit từ thương hiệu nổi tiếng' : 'Get inspired by famous brand identities'}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowAllDemos(!showAllDemos)}
+          className="text-sm text-repix-500 hover:text-repix-600 font-medium flex items-center gap-1"
+        >
+          {showAllDemos 
+            ? (language === 'vi' ? 'Thu gọn' : 'Show less')
+            : (language === 'vi' ? 'Xem tất cả' : 'View all')
+          }
+          <ArrowRight size={14} className={`transition-transform ${showAllDemos ? 'rotate-90' : ''}`} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {displayedDemos.map((demo) => (
+          <Card 
+            key={demo.id}
+            className={`overflow-hidden group cursor-pointer transition-all hover:shadow-xl ${
+              selectedDemo === demo.id ? 'ring-2 ring-repix-500' : ''
+            }`}
+            onClick={() => setSelectedDemo(selectedDemo === demo.id ? null : demo.id)}
+          >
+            {/* Preview Image */}
+            <div className="relative h-40 overflow-hidden">
+              <img 
+                src={demo.preview} 
+                alt={demo.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              
+              {/* Logo overlay */}
+              <div className="absolute top-3 left-3 p-2 bg-white/90 dark:bg-zinc-900/90 rounded-lg backdrop-blur-sm">
+                <img src={demo.logo} alt={demo.name} className="h-6 w-auto object-contain" />
+              </div>
+
+              {/* Category badge */}
+              <Badge className="absolute top-3 right-3 bg-white/90 dark:bg-zinc-900/90 text-zinc-700 dark:text-zinc-300 text-[10px]">
+                {demo.category}
+              </Badge>
+
+              {/* Brand name */}
+              <div className="absolute bottom-3 left-3 right-3">
+                <h3 className="text-xl font-bold text-white">{demo.name}</h3>
+                <p className="text-white/80 text-xs mt-0.5">{demo.style}</p>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              {/* Colors */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs text-zinc-500 dark:text-zinc-400 w-16">
+                  {language === 'vi' ? 'Màu sắc' : 'Colors'}
+                </span>
+                <div className="flex gap-1.5">
+                  {demo.colors.map((color, idx) => (
+                    <div
+                      key={idx}
+                      className="w-7 h-7 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm transition-transform hover:scale-110"
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Font */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs text-zinc-500 dark:text-zinc-400 w-16">
+                  {language === 'vi' ? 'Font' : 'Font'}
+                </span>
+                <span className="text-sm font-medium text-zinc-900 dark:text-white">{demo.font}</span>
+              </div>
+
+              {/* Keywords */}
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {demo.keywords.map((keyword, idx) => (
+                  <Badge key={idx} className="text-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                    {keyword}
+                  </Badge>
+                ))}
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 gap-1.5"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedDemo(demo.id);
+                  }}
+                >
+                  <Eye size={14} />
+                  {language === 'vi' ? 'Xem' : 'Preview'}
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="flex-1 gap-1.5"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCreateNew();
+                  }}
+                >
+                  <Copy size={14} />
+                  {language === 'vi' ? 'Dùng mẫu' : 'Use Template'}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Selected Demo Detail Modal */}
+      {selectedDemo && (
+        <DemoDetailModal 
+          demo={demoBrandKits.find(d => d.id === selectedDemo)!}
+          language={language}
+          onClose={() => setSelectedDemo(null)}
+          onUseTemplate={onCreateNew}
+        />
+      )}
+    </div>
+  );
+};
+
+// Demo Detail Modal
+const DemoDetailModal: React.FC<{
+  demo: {
+    id: string;
+    name: string;
+    logo: string;
+    colors: string[];
+    keywords: string[];
+    font: string;
+    style: string;
+    preview: string;
+    category: string;
+  };
+  language: string;
+  onClose: () => void;
+  onUseTemplate: () => void;
+}> = ({ demo, language, onClose, onUseTemplate }) => {
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white dark:bg-zinc-900 rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header with Preview */}
+        <div className="relative h-56">
+          <img src={demo.preview} alt={demo.name} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+          >
+            <Trash2 size={18} />
+          </button>
+
+          {/* Brand info */}
+          <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white rounded-xl shadow-lg">
+                <img src={demo.logo} alt={demo.name} className="h-10 w-auto object-contain" />
+              </div>
+              <div>
+                <Badge className="mb-2 bg-white/20 text-white border-white/30">{demo.category}</Badge>
+                <h2 className="text-3xl font-bold text-white">{demo.name}</h2>
+                <p className="text-white/80 text-sm">{demo.style}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-amber-400">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={16} fill="currentColor" />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          <div className="grid grid-cols-2 gap-6">
+            {/* Color Palette */}
+            <div>
+              <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">
+                {language === 'vi' ? 'Bảng màu' : 'Color Palette'}
+              </h3>
+              <div className="space-y-2">
+                {demo.colors.map((color, idx) => (
+                  <div key={idx} className="flex items-center gap-3 p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
+                    <div 
+                      className="w-10 h-10 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm"
+                      style={{ backgroundColor: color }}
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-zinc-900 dark:text-white">{color}</p>
+                      <p className="text-xs text-zinc-500">
+                        {idx === 0 ? 'Primary' : idx === 1 ? 'Secondary' : `Accent ${idx - 1}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Typography & Keywords */}
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">
+                  {language === 'vi' ? 'Typography' : 'Typography'}
+                </h3>
+                <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
+                  <p className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{demo.font}</p>
+                  <p className="text-sm text-zinc-500">{language === 'vi' ? 'Font chính' : 'Primary Font'}</p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">
+                  {language === 'vi' ? 'Từ khóa phong cách' : 'Style Keywords'}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {demo.keywords.map((keyword, idx) => (
+                    <Badge 
+                      key={idx} 
+                      className="px-3 py-1.5 bg-gradient-to-r from-repix-500/10 to-pink-500/10 text-repix-600 dark:text-repix-400 border-repix-500/20"
+                    >
+                      {keyword}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+            <Button variant="outline" className="flex-1" onClick={onClose}>
+              {language === 'vi' ? 'Đóng' : 'Close'}
+            </Button>
+            <Button className="flex-1 gap-2" onClick={onUseTemplate}>
+              <Sparkles size={16} />
+              {language === 'vi' ? 'Tạo Brand Kit tương tự' : 'Create Similar Brand Kit'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface BrandKitManagerProps {
   onCreateNew: () => void;
@@ -156,6 +502,9 @@ export const BrandKitManager: React.FC<BrandKitManagerProps> = ({ onCreateNew, o
             </div>
           </Card>
         )}
+
+        {/* Demo Brand Kits Section */}
+        <DemoBrandKits language={language} onCreateNew={handleCreateNew} />
 
         {/* Empty State */}
         {brandKits.length === 0 && (

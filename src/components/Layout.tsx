@@ -29,7 +29,6 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
     { id: 'marketplace', icon: ShoppingBag, label: trans.nav.marketplace },
     { id: 'team', icon: Users, label: trans.nav.team },
     { id: 'analytics', icon: BarChart3, label: trans.nav.analytics },
-    { id: 'creator', icon: Award, label: trans.creator.dashboard },
   ];
 
   // In Editor mode, we might want to hide the main navigation on mobile for immersion
