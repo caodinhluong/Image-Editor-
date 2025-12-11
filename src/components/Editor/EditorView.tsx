@@ -21,6 +21,7 @@ import { AIContentAdvisor } from '../AI/AIContentAdvisor';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { FeatureKey } from '../../types/subscription';
 import { CreditsIndicator } from '../Subscription/FeatureGate';
+import { ToolDemoPanel } from './ToolDemoPanel';
 
 interface EditorViewProps {
   initialImage?: string;
@@ -28,6 +29,11 @@ interface EditorViewProps {
 
 export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
   const { trans } = useLanguage();
+  const { currentPlan } = useSubscription();
+  
+  // Check if user has Team plan for collaboration features
+  const hasTeamPlan = currentPlan === 'team';
+  
   const [activeTool, setActiveTool] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<'adjustments' | 'layers' | 'style' | 'brandkit' | 'advisor'>('adjustments');
   const [isPropertiesOpen, setIsPropertiesOpen] = useState(false);
@@ -58,6 +64,12 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
   const [isToolstripCollapsed, setIsToolstripCollapsed] = useState(false);
   // Right panel collapse state
   const [isRightPanelCollapsed, setIsRightPanelCollapsed] = useState(false);
+  // Tool Demo Panel state
+  const [showToolDemo, setShowToolDemo] = useState<string | null>(null);
+  // Check if tool demos are disabled
+  const [hideToolDemos, setHideToolDemos] = useState(() => {
+    return localStorage.getItem('hideToolDemos') === 'true';
+  });
   
   // Moodboard Style Transfer States
   const [selectedStylePreset, setSelectedStylePreset] = useState<string | null>(null);
@@ -241,7 +253,30 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
       triggerUpgradeModal(tool.feature || 'textToImage');
       return;
     }
-    setActiveTool(tool.id);
+    // Show demo panel for tools that have demos (not move tool), unless disabled
+    if (tool.id !== 'move' && !hideToolDemos) {
+      setShowToolDemo(tool.id);
+    } else {
+      setActiveTool(tool.id);
+    }
+  };
+
+  // Handle apply tool from demo
+  const handleApplyToolFromDemo = () => {
+    if (showToolDemo) {
+      setActiveTool(showToolDemo);
+      setShowToolDemo(null);
+    }
+  };
+
+  // Handle don't show tool demos again
+  const handleDontShowToolDemos = () => {
+    localStorage.setItem('hideToolDemos', 'true');
+    setHideToolDemos(true);
+    if (showToolDemo) {
+      setActiveTool(showToolDemo);
+      setShowToolDemo(null);
+    }
   };
   
   // Mock Layers
@@ -462,36 +497,40 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
                 </Button>
              </div>
 
-             {/* Collaboration Tools */}
-             <div className="hidden md:flex items-center gap-1 border-r border-zinc-200 dark:border-zinc-800 pr-3 mr-1">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className={`h-8 w-8 relative ${isCommentsOpen ? 'text-blue-500 bg-blue-500/10' : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
-                  onClick={() => setIsCommentsOpen(!isCommentsOpen)}
-                  title="Comments"
-                >
-                   <MessageSquare size={18} />
-                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center">3</span>
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className={`h-8 w-8 relative ${isNotificationsOpen ? 'text-amber-500 bg-amber-500/10' : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
-                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                  title="Notifications"
-                >
-                   <Bell size={18} />
-                   {unreadNotifications > 0 && (
-                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">{unreadNotifications}</span>
-                   )}
-                </Button>
-             </div>
+             {/* Collaboration Tools - Only for Team/Enterprise plans */}
+             {hasTeamPlan && (
+               <div className="hidden md:flex items-center gap-1 border-r border-zinc-200 dark:border-zinc-800 pr-3 mr-1">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={`h-8 w-8 relative ${isCommentsOpen ? 'text-blue-500 bg-blue-500/10' : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
+                    onClick={() => setIsCommentsOpen(!isCommentsOpen)}
+                    title="Comments"
+                  >
+                     <MessageSquare size={18} />
+                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center">3</span>
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={`h-8 w-8 relative ${isNotificationsOpen ? 'text-amber-500 bg-amber-500/10' : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
+                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                    title="Notifications"
+                  >
+                     <Bell size={18} />
+                     {unreadNotifications > 0 && (
+                       <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">{unreadNotifications}</span>
+                     )}
+                  </Button>
+               </div>
+             )}
 
-             {/* Presence Indicators */}
-             <div className="hidden md:flex items-center border-r border-zinc-200 dark:border-zinc-800 pr-3 mr-1">
-                <PresenceIndicators />
-             </div>
+             {/* Presence Indicators - Only for Team/Enterprise plans */}
+             {hasTeamPlan && (
+               <div className="hidden md:flex items-center border-r border-zinc-200 dark:border-zinc-800 pr-3 mr-1">
+                  <PresenceIndicators />
+               </div>
+             )}
 
             <Button size="sm" variant="secondary" className="hidden sm:flex"><Share2 size={16} className="mr-2" /> {trans.editor.share}</Button>
             <Button size="sm" variant="primary"><Download size={16} className="mr-2 hidden sm:inline" /> {trans.editor.export}</Button>
@@ -1453,6 +1492,16 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
         isOpen={isNotificationsOpen} 
         onClose={() => setIsNotificationsOpen(false)} 
       />
+
+      {/* Tool Demo Panel */}
+      {showToolDemo && (
+        <ToolDemoPanel
+          toolId={showToolDemo}
+          onClose={() => setShowToolDemo(null)}
+          onApply={handleApplyToolFromDemo}
+          onDontShowAgain={handleDontShowToolDemos}
+        />
+      )}
     </div>
   );
 };

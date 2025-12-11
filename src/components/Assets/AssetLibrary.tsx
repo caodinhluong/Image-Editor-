@@ -3,10 +3,22 @@ import {
   FolderOpen, Image, Download, Trash2, Search, Filter, Grid, List,
   Clock, Star, Tag, MoreHorizontal, Eye, Share2, Copy, ExternalLink,
   CheckCircle2, XCircle, Loader2, Cloud, HardDrive, Sparkles, Palette,
-  Calendar, SortAsc, SortDesc, ChevronDown, Plus, Upload, FolderPlus
+  Calendar, SortAsc, SortDesc, ChevronDown, Plus, Upload, FolderPlus,
+  Smartphone, RefreshCw
 } from 'lucide-react';
 import { Button, Badge } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { StorageUpgradeModal } from './StorageUpgradeModal';
+import { ImportManager } from './ImportManager';
+import { PhoneSyncModal } from './PhoneSyncModal';
+import {
+  ImportsView,
+  ExportsView,
+  ProjectsView,
+  AIGeneratedView,
+  TemplatesView,
+  BatchProcessedView,
+} from './views';
 
 interface Asset {
   id: string;
@@ -41,10 +53,29 @@ export const AssetLibrary: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filterType, setFilterType] = useState<'all' | 'image' | 'project' | 'template'>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [showStorageModal, setShowStorageModal] = useState(false);
+  const [showImportManager, setShowImportManager] = useState(false);
+  const [showPhoneSyncModal, setShowPhoneSyncModal] = useState(false);
+  const [storageTotal, setStorageTotal] = useState(10); // GB
+
+  // Mock storage data
+  const storageUsed = 2.4; // GB
+
+  // Handle storage upgrade
+  const handleStorageUpgrade = (newTotal: number) => {
+    setStorageTotal(newTotal);
+  };
+
+  // Handle import complete
+  const handleImportComplete = (importedFiles: any[]) => {
+    console.log('Imported files:', importedFiles);
+    // Here you would add the imported files to your assets list
+  };
 
   // Mock folders with translations
   const folders: Folder[] = [
     { id: 'all', name: trans.assets.allAssets, count: 156, color: 'bg-zinc-500' },
+    { id: 'imports', name: trans.assets.imports || 'Imports', count: 28, color: 'bg-cyan-500' },
     { id: 'exports', name: trans.assets.exports, count: 48, color: 'bg-green-500' },
     { id: 'projects', name: trans.assets.projects, count: 23, color: 'bg-blue-500' },
     { id: 'generated', name: trans.assets.generated, count: 67, color: 'bg-purple-500' },
@@ -158,12 +189,19 @@ export const AssetLibrary: React.FC = () => {
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-zinc-500">{trans.assets.storageUsed}</span>
-            <span className="text-xs font-medium text-zinc-900 dark:text-white">2.4 GB / 10 GB</span>
+            <span className="text-xs font-medium text-zinc-900 dark:text-white">{storageUsed} GB / {storageTotal} GB</span>
           </div>
           <div className="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-            <div className="h-full w-[24%] bg-gradient-to-r from-repix-500 to-pink-500 rounded-full" />
+            <div 
+              className="h-full bg-gradient-to-r from-repix-500 to-pink-500 rounded-full transition-all" 
+              style={{ width: `${(storageUsed / storageTotal) * 100}%` }}
+            />
           </div>
-          <button className="mt-3 w-full text-xs text-repix-500 hover:text-repix-600 font-medium">
+          <button 
+            onClick={() => setShowStorageModal(true)}
+            className="mt-3 w-full text-xs text-repix-500 hover:text-repix-600 font-medium flex items-center justify-center gap-1 py-2 rounded-lg hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors"
+          >
+            <Cloud size={12} />
             {trans.assets.upgradeStorage} →
           </button>
         </div>
@@ -187,6 +225,29 @@ export const AssetLibrary: React.FC = () => {
           ))}
         </nav>
 
+        {/* Phone Sync CTA */}
+        <div className="mx-3 mb-3 p-3 bg-gradient-to-br from-repix-500/10 to-pink-500/10 dark:from-repix-900/30 dark:to-pink-900/30 rounded-xl border border-repix-200 dark:border-repix-800/50">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-1.5 bg-gradient-to-br from-repix-500 to-pink-500 rounded-lg">
+              <Smartphone size={14} className="text-white" />
+            </div>
+            <span className="text-xs font-semibold text-zinc-900 dark:text-white">
+              {trans.assets.syncPhone || 'Sync from Phone'}
+            </span>
+          </div>
+          <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mb-3 leading-relaxed">
+            {trans.assets.syncPhoneDesc || 'Sync photos from your phone with just one click!'}
+          </p>
+          <Button 
+            size="sm" 
+            className="w-full h-8 text-xs bg-gradient-to-r from-repix-500 to-pink-500 hover:from-repix-600 hover:to-pink-600 gap-1.5"
+            onClick={() => setShowPhoneSyncModal(true)}
+          >
+            <RefreshCw size={12} />
+            {trans.assets.syncNow || 'Sync Now'}
+          </Button>
+        </div>
+
         {/* Create Folder */}
         <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
           <Button variant="outline" className="w-full gap-2 text-sm">
@@ -197,35 +258,54 @@ export const AssetLibrary: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Toolbar */}
-        <div className="h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-dark-surface px-6 flex items-center justify-between gap-4">
-          {/* Search */}
-          <div className="flex-1 max-w-md relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={trans.assets.search}
-              className="w-full pl-10 pr-4 py-2 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-repix-500"
-            />
-          </div>
+      <main className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-dark-surface">
+        {/* Render specific view based on selected folder */}
+        {selectedFolder === 'imports' ? (
+          <ImportsView 
+            onOpenImportManager={() => setShowImportManager(true)}
+            onOpenPhoneSync={() => setShowPhoneSyncModal(true)}
+          />
+        ) : selectedFolder === 'exports' ? (
+          <ExportsView />
+        ) : selectedFolder === 'projects' ? (
+          <ProjectsView />
+        ) : selectedFolder === 'generated' ? (
+          <AIGeneratedView />
+        ) : selectedFolder === 'templates' ? (
+          <TemplatesView />
+        ) : selectedFolder === 'batch' ? (
+          <BatchProcessedView />
+        ) : (
+          /* Default All Assets View */
+          <>
+            {/* Toolbar */}
+            <div className="h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-dark-surface px-6 flex items-center justify-between gap-4">
+              {/* Search */}
+              <div className="flex-1 max-w-md relative">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={trans.assets.search}
+                  className="w-full pl-10 pr-4 py-2 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-repix-500"
+                />
+              </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            {/* Filter */}
-            <div className="relative">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="gap-2"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <Filter size={16} />
-                {trans.assets.filter}
-                <ChevronDown size={14} />
-              </Button>
+              {/* Actions */}
+              <div className="flex items-center gap-2">
+                {/* Filter */}
+                <div className="relative">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2"
+                    onClick={() => setShowFilters(!showFilters)}
+                  >
+                    <Filter size={16} />
+                    {trans.assets.filter}
+                    <ChevronDown size={14} />
+                  </Button>
               
               {showFilters && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 p-2 z-50">
@@ -273,8 +353,8 @@ export const AssetLibrary: React.FC = () => {
               </button>
             </div>
 
-            {/* Upload */}
-            <Button className="gap-2">
+            {/* Upload/Import */}
+            <Button className="gap-2" onClick={() => setShowImportManager(true)}>
               <Upload size={16} />
               {trans.assets.upload}
             </Button>
@@ -451,7 +531,31 @@ export const AssetLibrary: React.FC = () => {
             </div>
           )}
         </div>
+          </>
+        )}
       </main>
+
+      {/* Storage Upgrade Modal */}
+      <StorageUpgradeModal
+        isOpen={showStorageModal}
+        onClose={() => setShowStorageModal(false)}
+        currentUsed={storageUsed}
+        currentTotal={storageTotal}
+        onUpgrade={handleStorageUpgrade}
+      />
+
+      {/* Import Manager Modal */}
+      <ImportManager
+        isOpen={showImportManager}
+        onClose={() => setShowImportManager(false)}
+        onImportComplete={handleImportComplete}
+      />
+
+      {/* Phone Sync Modal */}
+      <PhoneSyncModal
+        isOpen={showPhoneSyncModal}
+        onClose={() => setShowPhoneSyncModal(false)}
+      />
     </div>
   );
 };

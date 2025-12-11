@@ -354,6 +354,8 @@ export const translations = {
       assets: "Assets",
       board: "Kanban Board",
       brief: "Creative Brief",
+      ideas: "Ideas",
+      members: "Members",
       settings: "Settings",
       upload: "Upload Assets",
       newAsset: "Generate New",
@@ -361,7 +363,13 @@ export const translations = {
       inProgress: "In Progress",
       done: "Done",
       files: "Files",
-      openEditor: "Open in Editor"
+      openEditor: "Open in Editor",
+      addIdea: "Add Idea",
+      noIdeas: "No ideas yet. Be the first to share!",
+      ideaPlaceholder: "Share your idea with the team...",
+      inviteMember: "Invite",
+      removeMember: "Remove",
+      changeRole: "Change Role"
     },
     profile: {
       editProfile: "Edit Profile",
@@ -647,11 +655,15 @@ export const translations = {
       batch: "Batch",
       uploaded: "Uploaded",
       allAssets: "All Assets",
+      imports: "Imports",
       exports: "Exports",
       generated: "AI Generated",
       batchProcessed: "Batch Processed",
       noAssets: "No assets yet",
-      noAssetsDesc: "Upload or generate your first asset to get started"
+      noAssetsDesc: "Upload or generate your first asset to get started",
+      syncPhone: "Sync from Phone",
+      syncPhoneDesc: "Sync photos from your phone with just one click!",
+      syncNow: "Sync Now"
     }
   },
   vi: {
@@ -1008,6 +1020,8 @@ export const translations = {
       assets: "Tài nguyên",
       board: "Bảng Kanban",
       brief: "Mô tả sáng tạo",
+      ideas: "Ý tưởng",
+      members: "Thành viên",
       settings: "Cài đặt",
       upload: "Tải lên",
       newAsset: "Tạo mới (AI)",
@@ -1015,7 +1029,13 @@ export const translations = {
       inProgress: "Đang xử lý",
       done: "Hoàn thành",
       files: "Tệp tin",
-      openEditor: "Mở Editor"
+      openEditor: "Mở Editor",
+      addIdea: "Thêm ý tưởng",
+      noIdeas: "Chưa có ý tưởng nào. Hãy là người đầu tiên chia sẻ!",
+      ideaPlaceholder: "Chia sẻ ý tưởng của bạn với nhóm...",
+      inviteMember: "Mời",
+      removeMember: "Xóa",
+      changeRole: "Đổi vai trò"
     },
     profile: {
       editProfile: "Sửa hồ sơ",
@@ -1301,11 +1321,15 @@ export const translations = {
       batch: "Xử lý hàng loạt",
       uploaded: "Đã tải lên",
       allAssets: "Tất cả tài nguyên",
+      imports: "Đã nhập",
       exports: "Đã xuất",
       generated: "AI Tạo",
       batchProcessed: "Xử lý hàng loạt",
       noAssets: "Chưa có tài nguyên",
-      noAssetsDesc: "Tải lên hoặc tạo tài nguyên đầu tiên để bắt đầu"
+      noAssetsDesc: "Tải lên hoặc tạo tài nguyên đầu tiên để bắt đầu",
+      syncPhone: "Đồng bộ từ điện thoại",
+      syncPhoneDesc: "Đồng bộ ảnh từ điện thoại chỉ với một cú click!",
+      syncNow: "Đồng bộ ngay"
     }
   }
 };

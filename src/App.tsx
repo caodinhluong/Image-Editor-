@@ -575,13 +575,39 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
 
             {/* --- SECTION 4: INSPIRATION (Community) --- */}
             <div className="mb-20">
-               <div className="flex items-center justify-between mb-6">
+               <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                     <Sparkles size={20} className="text-pink-500" /> {trans.home.inspiration}
                   </h2>
                   <Button variant="ghost" size="sm" onClick={() => setActiveTab(activeTab === 'trending' ? 'recent' : 'trending')}>
                     {activeTab === 'trending' ? trans.home.recent : trans.home.trending} <ArrowRight size={14} className="ml-1" />
                   </Button>
+               </div>
+
+               {/* Filter Tabs */}
+               <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+                 {[
+                   { id: 'all', label: language === 'vi' ? 'Tất cả' : 'All', icon: null },
+                   { id: 'product', label: language === 'vi' ? 'Sản phẩm' : 'Product', icon: ShoppingBag },
+                   { id: 'portrait', label: language === 'vi' ? 'Chân dung' : 'Portrait', icon: Camera },
+                   { id: 'fashion', label: language === 'vi' ? 'Thời trang' : 'Fashion', icon: Briefcase },
+                   { id: 'food', label: language === 'vi' ? 'Ẩm thực' : 'Food', icon: null },
+                   { id: 'nature', label: language === 'vi' ? 'Thiên nhiên' : 'Nature', icon: null },
+                   { id: 'art', label: language === 'vi' ? 'Nghệ thuật' : 'Art', icon: Sparkles },
+                 ].map((filter) => (
+                   <button
+                     key={filter.id}
+                     onClick={() => setActiveTab(filter.id as any)}
+                     className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                       activeTab === filter.id || (filter.id === 'all' && (activeTab === 'trending' || activeTab === 'recent'))
+                         ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
+                         : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                     }`}
+                   >
+                     {filter.icon && <filter.icon size={14} />}
+                     {filter.label}
+                   </button>
+                 ))}
                </div>
                
                <div className="columns-2 md:columns-4 gap-4 space-y-4">
