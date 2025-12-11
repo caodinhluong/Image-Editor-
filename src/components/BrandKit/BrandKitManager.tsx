@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Palette, Plus, Edit, Trash2, Check, Lock, Crown, Sparkles, Eye, Copy, Star, ArrowRight } from 'lucide-react';
+import { Palette, Plus, Edit, Trash2, Check, Lock, Crown, Sparkles, Eye, Copy, Star, ArrowRight, X } from 'lucide-react';
 import { Button, Card, Badge } from '../ui/UIComponents';
 import { useBrandKit } from '../../contexts/BrandKitContext';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -246,11 +246,11 @@ const DemoDetailModal: React.FC<{
       onClick={onClose}
     >
       <div 
-        className="bg-white dark:bg-zinc-900 rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-zinc-900 rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Preview */}
-        <div className="relative h-56">
+        <div className="relative h-48 shrink-0">
           <img src={demo.preview} alt={demo.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
           
@@ -259,7 +259,7 @@ const DemoDetailModal: React.FC<{
             onClick={onClose}
             className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
           >
-            <Trash2 size={18} />
+            <X size={18} />
           </button>
 
           {/* Brand info */}
