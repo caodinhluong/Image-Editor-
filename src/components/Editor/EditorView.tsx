@@ -76,8 +76,8 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRat
   
   // Toolstrip collapse state
   const [isToolstripCollapsed, setIsToolstripCollapsed] = useState(false);
-  // Right panel collapse state
-  const [isRightPanelCollapsed, setIsRightPanelCollapsed] = useState(false);
+  // Right panel collapse state - default to collapsed
+  const [isRightPanelCollapsed, setIsRightPanelCollapsed] = useState(true);
   // Tool Demo Panel state
   const [showToolDemo, setShowToolDemo] = useState<string | null>(null);
   // Check if tool demos are disabled
