@@ -1,11 +1,12 @@
 import React, { useState, useRef, useCallback } from 'react';
 import {
-  X, Upload, Image, FileImage, Link2, Cloud, FolderUp, CheckCircle2,
-  AlertCircle, Loader2, Trash2, Eye, RotateCcw, ChevronRight, Globe,
-  HardDrive, Smartphone, Camera, Instagram, Figma, CloudCog
+  X, Upload, Image, Link2, Cloud, FolderUp, CheckCircle2,
+  AlertCircle, Loader2, Trash2, RotateCcw, ChevronRight, Globe,
+  HardDrive, Smartphone, Camera, CloudCog
 } from 'lucide-react';
 import { Button, Badge } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { GoogleDrivePicker } from './GoogleDrivePicker';
 
 interface ImportManagerProps {
   isOpen: boolean;
@@ -46,12 +47,13 @@ export const ImportManager: React.FC<ImportManagerProps> = ({
   const [urlInput, setUrlInput] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showGoogleDrivePicker, setShowGoogleDrivePicker] = useState(false);
 
   const cloudSources: ImportSource[] = [
     { id: 'google-drive', name: 'Google Drive', nameVi: 'Google Drive', icon: Cloud, color: 'text-blue-500', connected: true },
     { id: 'dropbox', name: 'Dropbox', nameVi: 'Dropbox', icon: CloudCog, color: 'text-blue-600', connected: false },
-    { id: 'figma', name: 'Figma', nameVi: 'Figma', icon: Figma, color: 'text-purple-500', connected: true },
-    { id: 'instagram', name: 'Instagram', nameVi: 'Instagram', icon: Instagram, color: 'text-pink-500', connected: false },
+    { id: 'figma', name: 'Figma', nameVi: 'Figma', icon: () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z"/><path d="M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z"/><path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z"/><path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z"/><path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z"/></svg>, color: 'text-purple-500', connected: true },
+    { id: 'instagram', name: 'Instagram', nameVi: 'Instagram', icon: () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, color: 'text-pink-500', connected: false },
   ];
 
   const addFiles = useCallback((newFiles: File[]) => {
@@ -317,14 +319,19 @@ export const ImportManager: React.FC<ImportManagerProps> = ({
               {cloudSources.map(source => (
                 <button
                   key={source.id}
+                  onClick={() => {
+                    if (source.id === 'google-drive' && source.connected) {
+                      setShowGoogleDrivePicker(true);
+                    }
+                  }}
                   className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
                     source.connected
-                      ? 'border-zinc-200 dark:border-zinc-700 hover:border-repix-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
-                      : 'border-zinc-200 dark:border-zinc-700 opacity-60'
+                      ? 'border-zinc-200 dark:border-zinc-700 hover:border-repix-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer'
+                      : 'border-zinc-200 dark:border-zinc-700 opacity-60 cursor-not-allowed'
                   }`}
                 >
                   <div className={`p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 ${source.color}`}>
-                    <source.icon size={20} />
+                    {typeof source.icon === 'function' ? <source.icon /> : <source.icon size={20} />}
                   </div>
                   <div className="flex-1 text-left">
                     <p className="text-sm font-medium text-zinc-900 dark:text-white">
@@ -471,6 +478,26 @@ export const ImportManager: React.FC<ImportManagerProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Google Drive Picker Modal */}
+      <GoogleDrivePicker
+        isOpen={showGoogleDrivePicker}
+        onClose={() => setShowGoogleDrivePicker(false)}
+        onSelect={(driveFiles) => {
+          const importedFiles: ImportedFile[] = driveFiles.map(file => ({
+            id: `drive-${file.id}`,
+            name: file.name,
+            size: file.size || 0,
+            type: file.mimeType,
+            thumbnail: file.thumbnailUrl || '',
+            status: 'pending' as const,
+            progress: 0,
+            source: 'cloud' as const,
+          }));
+          setFiles(prev => [...prev, ...importedFiles]);
+          setShowGoogleDrivePicker(false);
+        }}
+      />
     </div>
   );
 };

@@ -14,6 +14,7 @@ import { ScrollReveal } from './ScrollReveal';
 import LogoLoop, { LogoItem } from './LogoLoop';
 import ClickSpark from './ClickSpark';
 import { PLANS, PlanType } from '../../types/subscription';
+import RotatingImageCarousel from './RotatingImageCarousel';
 
 // Partner company logos as SVG nodes for professional look
 const partnerLogos: LogoItem[] = [
@@ -583,112 +584,140 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
               </div>
             </ScrollReveal>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(300px,auto)]">
-               
-               {/* Card 1: Large (Span 2) - Generative Fill - New Layout */}
-               <ScrollReveal delay={0} className="md:col-span-2 md:row-span-2">
-                 <div className="h-full p-8 rounded-3xl bg-gradient-to-br from-slate-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-950 border border-zinc-200/50 dark:border-zinc-800/50">
-                    <div className="flex flex-col lg:flex-row gap-8 h-full">
-                       {/* Left side - Text content */}
-                       <div className="lg:w-2/5 flex flex-col justify-center">
-                          <h3 className="text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white mb-4">
-                             {trans.landing.genFillTitle}
-                          </h3>
-                          <p className="text-zinc-500 dark:text-zinc-400 mb-8 leading-relaxed">
-                             {trans.landing.genFillDesc}
-                          </p>
-                          
-                          {/* Feature list */}
-                          <div className="space-y-5">
-                             <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-repix-500 to-violet-500 flex items-center justify-center flex-shrink-0">
-                                   <Sparkles size={18} className="text-white" />
-                                </div>
-                                <div>
-                                   <h4 className="font-semibold text-zinc-900 dark:text-white mb-1">
-                                      {language === 'vi' ? 'Ảnh chất lượng cao' : 'High quality images'}
-                                   </h4>
-                                   <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                                      {language === 'vi' ? 'Tạo ảnh chất lượng cao trong vài giây - chỉ cần nhập prompt và nhấn Generate.' : 'Create high quality images in seconds - just type a prompt and hit Generate.'}
-                                   </p>
-                                </div>
-                             </div>
-                             
-                             <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                                   <Zap size={18} className="text-white" />
-                                </div>
-                                <div>
-                                   <h4 className="font-semibold text-zinc-900 dark:text-white mb-1">
-                                      {language === 'vi' ? 'GPU tăng tốc xử lý' : 'GPU enabled and fast'}
-                                   </h4>
-                                   <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                                      {language === 'vi' ? 'Xử lý nhanh chóng với GPU mạnh mẽ, nhận kết quả trong tích tắc.' : 'Fast processing with powerful GPU, get results back rapidly.'}
-                                   </p>
-                                </div>
-                             </div>
-                          </div>
-                       </div>
-                       
-                       {/* Right side - Image grid */}
-                       <div className="lg:w-3/5 relative">
-                          <div className="grid grid-cols-3 gap-3 h-full">
-                             {/* Column 1 */}
-                             <div className="flex flex-col gap-3">
-                                <div className="flex-1 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-                                   <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=400&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Portrait" />
-                                </div>
-                                <div className="h-32 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-                                   <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&h=200&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Abstract" />
-                                </div>
-                             </div>
-                             
-                             {/* Column 2 */}
-                             <div className="flex flex-col gap-3 pt-6">
-                                <div className="h-28 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-                                   <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Face" />
-                                </div>
-                                <div className="flex-1 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-                                   <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=400&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Woman" />
-                                </div>
-                                <div className="h-24 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-                                   <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=150&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Man" />
-                                </div>
-                             </div>
-                             
-                             {/* Column 3 */}
-                             <div className="flex flex-col gap-3 pt-3">
-                                <div className="h-36 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-                                   <img src="https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=300&h=250&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Landscape" />
-                                </div>
-                                <div className="flex-1 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-                                   <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=350&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Girl" />
-                                </div>
-                                <div className="h-28 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group bg-gradient-to-br from-repix-500 to-pink-500 flex items-center justify-center">
-                                   <div className="text-center text-white p-3">
-                                      <Wand2 size={24} className="mx-auto mb-2" />
-                                      <span className="text-xs font-medium">+1000 more</span>
-                                   </div>
-                                </div>
-                             </div>
-                          </div>
-                          
-                          {/* Decorative glow */}
-                          <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-gradient-to-br from-repix-500/20 to-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
-                       </div>
+            {/* Generative Fill 2.0 - Full Width with 3D Carousel */}
+            <ScrollReveal delay={0} className="mb-12">
+              <div className="w-full p-6 md:p-10 lg:p-12 rounded-3xl bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border border-white/10 backdrop-blur-sm overflow-hidden relative">
+                {/* Background decorative elements */}
+                <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute bottom-0 right-0 w-80 h-80 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none" />
+                
+                <div className="grid grid-cols-1 xl:grid-cols-5 gap-8 lg:gap-6 items-center relative z-10">
+                  {/* Left side - Text content (2/5 width on xl) */}
+                  <div className="xl:col-span-2 flex flex-col justify-center order-2 xl:order-1">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 mb-6 w-fit">
+                      <Sparkles size={16} className="text-pink-400" />
+                      <span className="text-sm text-pink-300 font-semibold">AI Powered</span>
                     </div>
-                 </div>
+                    
+                    <h3 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-6 leading-tight">
+                      {trans.landing.genFillTitle}
+                    </h3>
+                    <p className="text-zinc-400 mb-10 leading-relaxed text-base lg:text-lg">
+                      {trans.landing.genFillDesc}
+                    </p>
+                    
+                    {/* Feature list - More compact */}
+                    <div className="space-y-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-repix-500 to-violet-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-repix-500/30">
+                          <Sparkles size={18} className="text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white mb-1 text-base">
+                            {language === 'vi' ? 'Ảnh chất lượng cao' : 'High quality images'}
+                          </h4>
+                          <p className="text-sm text-zinc-400 leading-relaxed">
+                            {language === 'vi' ? 'Tạo ảnh chất lượng cao trong vài giây.' : 'Create high quality images in seconds.'}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-4">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/30">
+                          <Zap size={18} className="text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white mb-1 text-base">
+                            {language === 'vi' ? 'GPU tăng tốc xử lý' : 'GPU enabled and fast'}
+                          </h4>
+                          <p className="text-sm text-zinc-400 leading-relaxed">
+                            {language === 'vi' ? 'Xử lý nhanh với GPU mạnh mẽ.' : 'Fast processing with powerful GPU.'}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-4">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/30">
+                          <Wand2 size={18} className="text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white mb-1 text-base">
+                            {language === 'vi' ? 'Xóa nền thông minh' : 'Smart background removal'}
+                          </h4>
+                          <p className="text-sm text-zinc-400 leading-relaxed">
+                            {language === 'vi' ? 'AI xóa nền chính xác từng pixel.' : 'AI removes backgrounds with pixel-perfect accuracy.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* CTA Button */}
+                    <Button 
+                      onClick={onTryRepix}
+                      className="mt-10 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-pink-500/30 w-fit"
+                    >
+                      {language === 'vi' ? 'Thử ngay miễn phí' : 'Try Free Now'} <ArrowRight size={18} className="ml-2" />
+                    </Button>
+                  </div>
+                  
+                  {/* Right side - 3D Rotating Image Carousel (3/5 width on xl) */}
+                  <div className="xl:col-span-3 relative min-h-[450px] lg:min-h-[550px] order-1 xl:order-2">
+                    <RotatingImageCarousel
+                      images={[
+                        { src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&q=90', alt: 'AI Portrait 1' },
+                        { src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&q=90', alt: 'AI Portrait 2' },
+                        { src: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop&q=90', alt: 'AI Portrait 3' },
+                        { src: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop&q=90', alt: 'AI Portrait 4' },
+                        { src: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&q=90', alt: 'AI Portrait 5' },
+                        { src: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=400&h=600&fit=crop&q=90', alt: 'AI Landscape' },
+                        { src: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=600&fit=crop&q=90', alt: 'AI Abstract' },
+                        { src: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop&q=90', alt: 'AI Portrait 6' },
+                      ]}
+                      autoRotate={true}
+                      rotationSpeed={25}
+                      radius={280}
+                      imageWidth={160}
+                      imageHeight={240}
+                    />
+                    
+                    {/* Center glow effect */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-r from-pink-500/30 to-purple-500/30 rounded-full blur-[80px] pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+            
+            {/* Bento Grid for other features */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(280px,auto)]">
+               {/* Card 1: Standard - Global Edge Network */}
+               <ScrollReveal delay={100}>
+                 <BentoCard 
+                    title={trans.landing.edgeNetworkTitle}
+                    desc={trans.landing.edgeNetworkDesc}
+                    icon={Globe}
+                    className="h-full"
+                 />
                </ScrollReveal>
 
-               {/* Card 2: Tall (Span 1) */}
-               <ScrollReveal delay={100} className="md:col-span-1 md:row-span-2">
+               {/* Card 2: Standard - Asset Marketplace */}
+               <ScrollReveal delay={200}>
+                 <BentoCard 
+                    title={trans.landing.marketplaceTitle}
+                    desc={trans.landing.marketplaceDesc}
+                    icon={ShoppingBag}
+                    className="h-full"
+                 />
+               </ScrollReveal>
+
+               {/* Card 3: Real-time Sync - Moved down */}
+               <ScrollReveal delay={300}>
                  <BentoCard 
                     title={trans.landing.realtimeSyncTitle}
                     desc={trans.landing.realtimeSyncDesc}
                     icon={Users}
                     className="h-full"
                     graphic={
-                       <div className="relative h-full min-h-[200px] w-full mt-4 flex items-center justify-center">
+                       <div className="relative h-full min-h-[120px] w-full mt-4 flex items-center justify-center">
                           <div className="absolute w-32 h-32 bg-repix-500/20 rounded-full blur-3xl animate-pulse"></div>
                           <div className="relative z-10 grid grid-cols-2 gap-2">
                              {[1,2,3,4].map(n => (
@@ -702,27 +731,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
                  />
                </ScrollReveal>
 
-               {/* Card 3: Standard - Global Edge Network */}
-               <ScrollReveal delay={200}>
-                 <BentoCard 
-                    title={trans.landing.edgeNetworkTitle}
-                    desc={trans.landing.edgeNetworkDesc}
-                    icon={Globe}
-                    className="h-full"
-                 />
-               </ScrollReveal>
-
-               {/* Card 4: Standard - Asset Marketplace */}
-               <ScrollReveal delay={300}>
-                 <BentoCard 
-                    title={trans.landing.marketplaceTitle}
-                    desc={trans.landing.marketplaceDesc}
-                    icon={ShoppingBag}
-                    className="h-full"
-                 />
-               </ScrollReveal>
-
-               {/* Card 5: Wide - Enterprise Security */}
+               {/* Card 4: Wide - Enterprise Security */}
                <ScrollReveal delay={400} className="md:col-span-3">
                  <BentoCard 
                     title={trans.landing.securityTitle}

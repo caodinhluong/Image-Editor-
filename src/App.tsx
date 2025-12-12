@@ -27,7 +27,7 @@ import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import { UpgradeModal } from './components/Subscription/UpgradeModal';
 
 // --- Modern Home Dashboard View ---
-const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onStartEditing }) => {
+const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => void }> = ({ onStartEditing }) => {
   const { trans, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'trending' | 'recent'>('trending');
   const [prompt, setPrompt] = useState('');
@@ -181,7 +181,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
 
   const handleConfirmEdit = () => {
     if (selectedImage === null) return;
-    onStartEditing(generatedImages[selectedImage]);
+    onStartEditing(generatedImages[selectedImage], selectedRatio);
     setShowGenerateModal(false);
     setShowEditConfirm(false);
     setGeneratedImages([]);
@@ -1392,6 +1392,7 @@ const AppContent: React.FC = () => {
   const [view, setView] = useState<ViewState>('landing');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [initialEditorImage, setInitialEditorImage] = useState<string | undefined>(undefined);
+  const [initialEditorRatio, setInitialEditorRatio] = useState<string | undefined>(undefined);
 
   // Save authentication state to localStorage
   useEffect(() => {
@@ -1428,9 +1429,12 @@ const AppContent: React.FC = () => {
     setView('landing');
   };
 
-  const handleStartEditing = (image?: string) => {
+  const handleStartEditing = (image?: string, ratio?: string) => {
     if (image) {
       setInitialEditorImage(image);
+    }
+    if (ratio) {
+      setInitialEditorRatio(ratio);
     }
     setView('editor');
   };
@@ -1495,7 +1499,7 @@ const AppContent: React.FC = () => {
   return (
     <Layout currentView={view} onChangeView={setView} onSignOut={handleSignOut} onGoToLanding={handleGoToLanding}>
       {view === 'home' && <HomeView onStartEditing={handleStartEditing} />}
-      {view === 'editor' && <EditorView initialImage={initialEditorImage} />}
+      {view === 'editor' && <EditorView initialImage={initialEditorImage} initialRatio={initialEditorRatio} />}
       {view === 'assets' && <AssetLibrary />}
       {view === 'brandkit' && <BrandKitView />}
       {view === 'marketplace' && <MarketplaceView />}

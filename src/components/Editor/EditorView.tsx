@@ -26,9 +26,10 @@ import { AssetPickerModal } from './AssetPickerModal';
 
 interface EditorViewProps {
   initialImage?: string;
+  initialRatio?: string;
 }
 
-export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
+export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRatio }) => {
   const { trans } = useLanguage();
   const { currentPlan } = useSubscription();
   
@@ -54,6 +55,7 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
   const [selectedGeneratedImage, setSelectedGeneratedImage] = useState<number | null>(null);
   const [generateProgress, setGenerateProgress] = useState(0);
   const [currentCanvasImage, setCurrentCanvasImage] = useState(initialImage || 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&h=1000&fit=crop');
+  const [canvasRatio, setCanvasRatio] = useState(initialRatio || '4:5');
   
   // Prompt Upload States
   const [uploadedImages, setUploadedImages] = useState<{ id: string; file: File; preview: string }[]>([]);
@@ -577,19 +579,18 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage }) => {
           onMouseLeave={() => setIsPanning(false)}
         >
           <div 
-            className={`relative shadow-2xl shadow-black/20 dark:shadow-black/50 ${isPanning ? '' : 'transition-transform duration-200'}`}
+            className={`relative shadow-2xl shadow-black/20 dark:shadow-black/50 rounded-lg overflow-hidden ${isPanning ? '' : 'transition-transform duration-200'}`}
             style={{ 
-              width: '100%', 
-              maxWidth: '500px',
-              aspectRatio: '4/5',
+              maxWidth: '80%',
+              maxHeight: '80%',
               transform: `scale(${zoom / 100}) translate(${panPosition.x / (zoom / 100)}px, ${panPosition.y / (zoom / 100)}px)`
             }}
           >
-             {/* Canvas Image with Style Filter */}
+             {/* Canvas Image with Style Filter - keeps original aspect ratio */}
             <img 
               src={currentCanvasImage} 
               alt="Canvas" 
-              className="w-full h-full object-cover rounded-lg transition-all duration-500"
+              className="max-w-full max-h-[70vh] object-contain rounded-lg transition-all duration-500"
               style={{ 
                 filter: appliedStyle 
                   ? stylePresets.find(p => p.id === appliedStyle)?.filter 
