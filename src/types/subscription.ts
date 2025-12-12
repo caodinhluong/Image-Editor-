@@ -70,7 +70,8 @@ export type FeatureKey =
   | 'styleTransfer'
   | 'magicErase'
   | 'advancedAI'
-  | 'unlimitedProjects';
+  | 'unlimitedProjects'
+  | 'creatorStudio';
 
 // Plan definitions - ChatGPT style
 export const PLANS: Record<PlanType, Plan> = {
@@ -236,4 +237,5 @@ export const FEATURE_REQUIREMENTS: Record<FeatureKey, PlanType> = {
   styleTransfer: 'plus',
   advancedAI: 'plus',
   unlimitedProjects: 'plus',
+  creatorStudio: 'pro',
 };

@@ -107,7 +107,7 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white dark:bg-dark-bg overflow-hidden animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] bg-white dark:bg-dark-bg overflow-hidden animate-in fade-in duration-200">
       {/* Header */}
       <div className="h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-dark-surface flex items-center justify-between px-6">
         <div className="flex items-center gap-3">

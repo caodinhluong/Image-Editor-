@@ -108,8 +108,8 @@ export const CreditTopUpModal: React.FC<CreditTopUpModalProps> = ({ isOpen, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full max-h-[85vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full max-h-[85vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col relative z-[9999]">
         
         {/* Header - Compact */}
         <div className="relative p-4 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-r from-amber-500/10 to-orange-500/10 flex-shrink-0">

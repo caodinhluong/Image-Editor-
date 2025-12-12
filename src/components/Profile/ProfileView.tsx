@@ -3,11 +3,12 @@ import {
   User, Settings, CreditCard, Heart, Image as ImageIcon, 
   Share2, Edit2, Zap, Clock, Bell, Key, Download, MoreHorizontal,
   Shield, Crown, Grid, Award, DollarSign, TrendingUp, ShoppingCart,
-  Star, Package, Upload, Wallet, Eye
+  Star, Package, Upload, Wallet, Eye, Lock
 } from 'lucide-react';
 import { Button, Card, Badge, Input } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useSubscription } from '../../contexts/SubscriptionContext';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer
@@ -16,7 +17,11 @@ import {
 export const ProfileView: React.FC = () => {
   const { trans, toggleLanguage, language } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { canAccess, triggerUpgradeModal } = useSubscription();
   const [activeTab, setActiveTab] = useState<'portfolio' | 'creator' | 'templates' | 'likes' | 'billing' | 'settings'>('portfolio');
+  
+  // Check Creator Studio access (Pro or higher)
+  const hasCreatorAccess = canAccess('creatorStudio');
 
   // Mock User Data
   const user = {
@@ -236,6 +241,37 @@ export const ProfileView: React.FC = () => {
                {/* CREATOR STUDIO TAB */}
                {activeTab === 'creator' && (
                   <div className="space-y-6">
+                     {/* Pro Access Required */}
+                     {!hasCreatorAccess ? (
+                        <div className="text-center py-12">
+                           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                              <Lock className="text-white" size={36} />
+                           </div>
+                           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">
+                              {language === 'vi' ? 'Creator Studio' : 'Creator Studio'}
+                           </h2>
+                           <p className="text-zinc-500 dark:text-zinc-400 mb-6 max-w-md mx-auto">
+                              {language === 'vi' 
+                                 ? 'Tính năng Creator Studio chỉ dành cho người dùng Pro trở lên. Nâng cấp để bán template và kiếm tiền.'
+                                 : 'Creator Studio is available for Pro users and above. Upgrade to sell templates and earn money.'}
+                           </p>
+                           <div className="bg-zinc-100 dark:bg-zinc-800 rounded-xl p-5 mb-6 max-w-md mx-auto text-left">
+                              <h4 className="font-bold text-zinc-900 dark:text-white mb-3 text-sm">
+                                 {language === 'vi' ? 'Với Creator Studio:' : 'With Creator Studio:'}
+                              </h4>
+                              <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                 <li className="flex items-center gap-2"><Upload size={14} className="text-repix-500" /> {language === 'vi' ? 'Tải lên và bán template' : 'Upload and sell templates'}</li>
+                                 <li className="flex items-center gap-2"><DollarSign size={14} className="text-emerald-500" /> {language === 'vi' ? 'Kiếm tiền từ sáng tạo' : 'Earn from your creations'}</li>
+                                 <li className="flex items-center gap-2"><TrendingUp size={14} className="text-blue-500" /> {language === 'vi' ? 'Theo dõi doanh số' : 'Track sales analytics'}</li>
+                              </ul>
+                           </div>
+                           <Button onClick={() => triggerUpgradeModal('creatorStudio')} className="gap-2">
+                              <Crown size={18} />
+                              {language === 'vi' ? 'Nâng cấp lên Pro' : 'Upgrade to Pro'}
+                           </Button>
+                        </div>
+                     ) : (
+                     <>
                      {/* Creator Stats Grid */}
                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <Card className="p-4">
@@ -372,6 +408,8 @@ export const ProfileView: React.FC = () => {
                            </Button>
                         </div>
                      </Card>
+                     </>
+                     )}
                   </div>
                )}
 

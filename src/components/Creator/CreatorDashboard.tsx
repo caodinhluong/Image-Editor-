@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import {
   DollarSign, TrendingUp, Download, Star, Eye, ShoppingCart,
   Upload, Edit3, Trash2, MoreVertical, Calendar, ArrowUpRight,
-  ArrowDownRight, Package, Award, Target, Wallet
+  ArrowDownRight, Package, Award, Target, Wallet, Crown
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useSubscription } from '../../contexts/SubscriptionContext';
 import { Button, Card, Badge } from '../ui/UIComponents';
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -48,9 +49,64 @@ interface Review {
 }
 
 export const CreatorDashboard: React.FC = () => {
-  const { trans } = useLanguage();
+  const { trans, language } = useLanguage();
+  const { canAccess, triggerUpgradeModal } = useSubscription();
   const [activeTab, setActiveTab] = useState<'overview' | 'templates' | 'earnings' | 'reviews' | 'payout' | 'analytics'>('overview');
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
+
+  // Check if user has access to Creator Studio (Pro or higher)
+  const hasCreatorAccess = canAccess('creatorStudio');
+
+  // If no access, show upgrade prompt
+  if (!hasCreatorAccess) {
+    return (
+      <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto">
+        <div className="max-w-2xl mx-auto px-6 py-16 text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+            <Crown className="text-white" size={40} />
+          </div>
+          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-4">
+            {language === 'vi' ? 'Creator Studio' : 'Creator Studio'}
+          </h1>
+          <p className="text-lg text-zinc-500 dark:text-zinc-400 mb-8">
+            {language === 'vi' 
+              ? 'Tính năng Creator Studio chỉ dành cho người dùng Pro trở lên. Nâng cấp để bán template, theo dõi doanh thu và xây dựng thương hiệu của bạn.'
+              : 'Creator Studio is available for Pro users and above. Upgrade to sell templates, track earnings, and build your brand.'}
+          </p>
+          <div className="bg-zinc-100 dark:bg-zinc-800 rounded-xl p-6 mb-8 text-left">
+            <h3 className="font-bold text-zinc-900 dark:text-white mb-4">
+              {language === 'vi' ? 'Với Creator Studio, bạn có thể:' : 'With Creator Studio, you can:'}
+            </h3>
+            <ul className="space-y-3 text-zinc-600 dark:text-zinc-400">
+              <li className="flex items-center gap-3">
+                <Upload size={18} className="text-repix-500" />
+                {language === 'vi' ? 'Tải lên và bán template của bạn' : 'Upload and sell your templates'}
+              </li>
+              <li className="flex items-center gap-3">
+                <DollarSign size={18} className="text-emerald-500" />
+                {language === 'vi' ? 'Kiếm tiền từ sáng tạo của bạn' : 'Earn money from your creations'}
+              </li>
+              <li className="flex items-center gap-3">
+                <TrendingUp size={18} className="text-blue-500" />
+                {language === 'vi' ? 'Theo dõi doanh số và phân tích' : 'Track sales and analytics'}
+              </li>
+              <li className="flex items-center gap-3">
+                <Star size={18} className="text-amber-500" />
+                {language === 'vi' ? 'Nhận đánh giá từ người dùng' : 'Get reviews from users'}
+              </li>
+            </ul>
+          </div>
+          <Button 
+            onClick={() => triggerUpgradeModal('creatorStudio')}
+            className="gap-2 px-8 py-3 text-lg"
+          >
+            <Crown size={20} />
+            {language === 'vi' ? 'Nâng cấp lên Pro' : 'Upgrade to Pro'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Mock data
   const stats = {

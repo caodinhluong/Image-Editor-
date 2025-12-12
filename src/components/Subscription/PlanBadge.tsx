@@ -66,17 +66,17 @@ export const PlanBadge: React.FC<PlanBadgeProps> = ({
 
   return (
     <>
-      <div className={`flex items-center gap-2 ${className}`}>
-        {/* Plan badge - Click to upgrade */}
+      <div className={`space-y-2 ${className}`}>
+        {/* Plan badge row - Click to upgrade */}
         <div
-          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 cursor-pointer hover:bg-zinc-700/50 transition-colors flex-1"
+          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 cursor-pointer hover:bg-zinc-700/50 transition-colors"
           onClick={handleClick}
         >
           <div
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r ${config.gradient} ${config.textColor} shadow-lg`}
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gradient-to-r ${config.gradient} ${config.textColor} shadow-lg`}
           >
-            <Icon size={14} />
-            <span className="text-xs font-bold whitespace-nowrap">
+            <Icon size={12} />
+            <span className="text-[10px] font-bold whitespace-nowrap">
               {plan.name}
             </span>
           </div>
@@ -86,11 +86,11 @@ export const PlanBadge: React.FC<PlanBadgeProps> = ({
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <div className="flex items-center gap-1">
                 <Sparkles
-                  size={12}
+                  size={10}
                   className={isLow ? 'text-red-500' : 'text-amber-500'}
                 />
                 <span
-                  className={`text-sm font-bold ${isLow ? 'text-red-500' : 'text-white'}`}
+                  className={`text-xs font-bold ${isLow ? 'text-red-500' : 'text-white'}`}
                 >
                   {currentPlan === 'team' ? '∞' : credits}
                 </span>
@@ -98,7 +98,7 @@ export const PlanBadge: React.FC<PlanBadgeProps> = ({
 
               {/* Mini progress bar */}
               {currentPlan !== 'team' && (
-                <div className="flex-1 h-1.5 bg-zinc-600 rounded-full overflow-hidden min-w-[40px]">
+                <div className="flex-1 h-1 bg-zinc-600 rounded-full overflow-hidden min-w-[30px]">
                   <div
                     className={`h-full rounded-full transition-all ${isLow ? 'bg-red-500' : 'bg-gradient-to-r from-amber-400 to-orange-500'}`}
                     style={{ width: `${Math.min(percentage, 100)}%` }}
@@ -109,17 +109,18 @@ export const PlanBadge: React.FC<PlanBadgeProps> = ({
           )}
         </div>
 
-        {/* Top Up Button - Only show for non-team plans */}
+        {/* Top Up Button - Full width below */}
         {currentPlan !== 'team' && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               setShowTopUpModal(true);
             }}
-            className="p-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 transition-colors shadow-lg shadow-amber-500/20"
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 transition-colors shadow-lg shadow-amber-500/20 text-xs font-bold"
             title={language === 'vi' ? 'Nạp thêm credit' : 'Top up credits'}
           >
-            <Plus size={16} />
+            <Plus size={14} />
+            <span>{language === 'vi' ? 'Nạp thêm Credit' : 'Top Up Credits'}</span>
           </button>
         )}
       </div>

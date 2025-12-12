@@ -55,6 +55,9 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
   const [selectedExample, setSelectedExample] = useState<{ title: string; src: string; prompt: string } | null>(null);
   const [showMoreExamples, setShowMoreExamples] = useState(false);
   
+  // Full screen preview state
+  const [previewImage, setPreviewImage] = useState<{ url: string; index: number } | null>(null);
+  
   // Options Data
   const modelOptions = [
     { id: 'standard', label: 'Standard', labelVi: 'Tiêu chuẩn' },
@@ -141,17 +144,33 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
       });
     }, 300);
 
-    // Simulate AI Generation
+    // Simulate AI Generation with correct ratio and count
     setTimeout(() => {
       clearInterval(progressInterval);
       setGenerateProgress(100);
       setIsGenerating(false);
-      setGeneratedImages([
-        'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=750&fit=crop',
-        'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=600&h=750&fit=crop',
-        'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&h=750&fit=crop',
-        'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&h=750&fit=crop',
-      ]);
+      
+      // Get ratio dimensions for image URLs
+      const currentRatio = ratioOptions.find(r => r.id === selectedRatio) || ratioOptions[0];
+      const baseWidth = 600;
+      const baseHeight = Math.round(baseWidth * currentRatio.height / currentRatio.width);
+      
+      // Sample images pool
+      const sampleImages = [
+        'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
+        'https://images.unsplash.com/photo-1560343090-f0409e92791a',
+        'https://images.unsplash.com/photo-1549298916-b41d501d3772',
+        'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a',
+        'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa',
+        'https://images.unsplash.com/photo-1584917865442-de89df76afd3',
+      ];
+      
+      // Generate correct number of images with correct ratio
+      const generatedUrls = sampleImages
+        .slice(0, imageCount)
+        .map(url => `${url}?w=${baseWidth}&h=${baseHeight}&fit=crop&q=90`);
+      
+      setGeneratedImages(generatedUrls);
     }, 3000);
   };
 
@@ -463,7 +482,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                                {ratioOptions.map(ratio => (
                                  <button
                                    key={ratio.id}
-                                   onClick={() => setSelectedRatio(ratio.id)}
+                                   onClick={() => { setSelectedRatio(ratio.id); setShowRatioDropdown(false); }}
                                    className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
                                      selectedRatio === ratio.id 
                                        ? 'bg-blue-500 text-white' 
@@ -490,7 +509,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                                {countOptions.map(count => (
                                  <button
                                    key={count}
-                                   onClick={() => setImageCount(count)}
+                                   onClick={() => { setImageCount(count); setShowRatioDropdown(false); }}
                                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                                      imageCount === count 
                                        ? 'bg-blue-500 text-white' 
@@ -836,11 +855,11 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
             {/* Generate Preview Modal */}
             {showGenerateModal && (
               <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-                  {/* Header */}
-                  <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800">
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl max-w-4xl w-full max-h-[90vh] shadow-2xl flex flex-col">
+                  {/* Header - Fixed */}
+                  <div className="flex items-center justify-between p-5 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-pink-500 to-repix-600 rounded-xl">
+                      <div className="p-2.5 bg-gradient-to-br from-pink-500 to-repix-600 rounded-xl shadow-lg shadow-repix-500/20">
                         <Sparkles size={20} className="text-white" />
                       </div>
                       <div>
@@ -848,16 +867,24 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                         <p className="text-zinc-500 text-sm truncate max-w-[300px]">"{prompt}"</p>
                       </div>
                     </div>
-                    <button 
-                      onClick={handleCloseModal}
-                      className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
-                    >
-                      <ArrowRight size={20} className="rotate-45 text-zinc-500" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {/* Info badge */}
+                      <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full text-xs text-zinc-600 dark:text-zinc-400">
+                        <span>{selectedRatio}</span>
+                        <span className="w-1 h-1 rounded-full bg-zinc-400"></span>
+                        <span>{imageCount} {imageCount === 1 ? 'image' : 'images'}</span>
+                      </div>
+                      <button 
+                        onClick={handleCloseModal}
+                        className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+                      >
+                        <ArrowRight size={20} className="rotate-45 text-zinc-500" />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Content */}
-                  <div className="p-6">
+                  {/* Content - Scrollable */}
+                  <div className="p-6 overflow-y-auto flex-1 min-h-0">
                     {isGenerating ? (
                       <div className="text-center py-16 space-y-6">
                         <div className="relative w-24 h-24 mx-auto">
@@ -868,83 +895,164 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                           </div>
                         </div>
                         <div>
-                          <p className="font-semibold text-zinc-900 dark:text-white mb-2">Generating variations...</p>
-                          <p className="text-zinc-500 text-sm mb-4">Creating 4 unique options for you</p>
+                          <p className="font-semibold text-zinc-900 dark:text-white mb-2">
+                            {language === 'vi' ? 'Đang tạo ảnh...' : 'Generating variations...'}
+                          </p>
+                          <p className="text-zinc-500 text-sm mb-4">
+                            {language === 'vi' 
+                              ? `Đang tạo ${imageCount} ${imageCount === 1 ? 'ảnh' : 'ảnh'} với tỷ lệ ${selectedRatio}` 
+                              : `Creating ${imageCount} unique ${imageCount === 1 ? 'image' : 'images'} at ${selectedRatio}`}
+                          </p>
                           <div className="w-48 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden mx-auto">
                             <div 
                               className="h-full bg-gradient-to-r from-pink-500 to-repix-500 rounded-full transition-all duration-300"
                               style={{ width: `${Math.min(generateProgress, 100)}%` }}
                             ></div>
                           </div>
+                          <p className="text-zinc-400 text-xs mt-3">{Math.round(Math.min(generateProgress, 100))}%</p>
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-6">
-                        <p className="text-center text-zinc-500 text-sm">Select your favorite variation to edit</p>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          {generatedImages.map((img, index) => (
-                            <div
-                              key={index}
-                              className={`relative aspect-[4/5] rounded-xl overflow-hidden group transition-all duration-300 ${
-                                selectedImage === index 
-                                  ? 'ring-4 ring-repix-500 scale-[1.02]' 
-                                  : 'ring-2 ring-zinc-200 dark:ring-zinc-700 hover:ring-zinc-400'
-                              }`}
-                            >
-                              <button
+                      <div className="space-y-4">
+                        <p className="text-center text-zinc-500 text-sm">
+                          {language === 'vi' ? 'Chọn phiên bản yêu thích để chỉnh sửa' : 'Select your favorite variation to edit'}
+                        </p>
+                        {/* Dynamic grid based on image count - optimized for different ratios */}
+                        <div className={`grid gap-3 sm:gap-4 ${
+                          generatedImages.length === 1 
+                            ? 'grid-cols-1 max-w-sm mx-auto' 
+                            : generatedImages.length === 2 
+                              ? 'grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto' 
+                              : 'grid-cols-2 lg:grid-cols-4'
+                        }`}>
+                          {generatedImages.map((img, index) => {
+                            // Get current ratio for aspect ratio styling
+                            const currentRatio = ratioOptions.find(r => r.id === selectedRatio) || ratioOptions[0];
+                            const aspectRatioStyle = `${currentRatio.width}/${currentRatio.height}`;
+                            // Limit max height for tall ratios
+                            const isPortrait = currentRatio.height > currentRatio.width;
+                            const maxHeightClass = isPortrait ? 'max-h-[300px] sm:max-h-[400px]' : '';
+                            
+                            return (
+                              <div
+                                key={index}
+                                className={`relative rounded-2xl overflow-hidden group transition-all duration-300 cursor-pointer ${maxHeightClass} ${
+                                  selectedImage === index 
+                                    ? 'ring-4 ring-repix-500 shadow-xl shadow-repix-500/20 scale-[1.02]' 
+                                    : 'ring-2 ring-zinc-200 dark:ring-zinc-700 hover:ring-repix-300 hover:shadow-lg'
+                                }`}
+                                style={{ aspectRatio: aspectRatioStyle }}
                                 onClick={() => setSelectedImage(index)}
-                                className="w-full h-full"
                               >
-                                <img src={img} alt={`Variation ${index + 1}`} className="w-full h-full object-cover" />
-                                <div className={`absolute inset-0 transition-opacity ${selectedImage === index ? 'bg-repix-500/20' : 'bg-black/0 group-hover:bg-black/20'}`}></div>
-                              </button>
-                              <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-bold ${
-                                selectedImage === index ? 'bg-repix-500 text-white' : 'bg-black/50 text-white'
-                              }`}>
-                                {selectedImage === index ? '✓ Selected' : `V${index + 1}`}
+                                <img 
+                                  src={img} 
+                                  alt={`Variation ${index + 1}`} 
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                />
+                                {/* Overlay */}
+                                <div className={`absolute inset-0 transition-all duration-300 ${
+                                  selectedImage === index 
+                                    ? 'bg-gradient-to-t from-repix-600/40 via-transparent to-transparent' 
+                                    : 'bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100'
+                                }`}></div>
+                                
+                                {/* Top badges */}
+                                <div className="absolute top-2 left-2 right-2 flex items-center justify-between">
+                                  <div className={`px-2.5 py-1 rounded-lg text-xs font-bold backdrop-blur-md transition-all ${
+                                    selectedImage === index 
+                                      ? 'bg-repix-500 text-white shadow-lg' 
+                                      : 'bg-black/40 text-white'
+                                  }`}>
+                                    {selectedImage === index ? '✓ Selected' : `V${index + 1}`}
+                                  </div>
+                                  <div className="px-2 py-1 rounded-lg bg-black/40 backdrop-blur-md text-white text-[10px] font-medium">
+                                    {selectedRatio}
+                                  </div>
+                                </div>
+                                
+                                {/* Bottom info */}
+                                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                  <div className="px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md text-white text-xs font-medium">
+                                    {['Best Match', 'Creative', 'Vibrant', 'Minimal'][index] || `Style ${index + 1}`}
+                                  </div>
+                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                                    {/* Preview Button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setPreviewImage({ url: img, index });
+                                      }}
+                                      className="p-2 rounded-lg bg-white/90 hover:bg-white text-zinc-700 hover:text-repix-600 transition-all shadow-lg backdrop-blur-md"
+                                      title={language === 'vi' ? 'Xem toàn màn hình' : 'View fullscreen'}
+                                    >
+                                      <Maximize2 size={14} />
+                                    </button>
+                                    {/* Download Button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDownloadImage(img, index);
+                                      }}
+                                      className="p-2 rounded-lg bg-white/90 hover:bg-white text-zinc-700 hover:text-repix-600 transition-all shadow-lg backdrop-blur-md"
+                                      title="Download"
+                                    >
+                                      <Download size={14} />
+                                    </button>
+                                  </div>
+                                </div>
+                                
+                                {/* Selection indicator */}
+                                {selectedImage === index && (
+                                  <div className="absolute inset-0 pointer-events-none">
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-repix-500/20 animate-ping"></div>
+                                  </div>
+                                )}
                               </div>
-                              <div className="absolute bottom-2 left-2 px-2 py-1 rounded-full bg-black/50 text-white text-xs">
-                                {['Best Match', 'Creative', 'Vibrant', 'Minimal'][index]}
-                              </div>
-                              {/* Download Button */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDownloadImage(img, index);
-                                }}
-                                className="absolute bottom-2 right-2 p-2 rounded-full bg-white/90 hover:bg-white text-zinc-700 hover:text-repix-600 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
-                                title="Download"
-                              >
-                                <Download size={14} />
-                              </button>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
+                        
+                        {/* Selection hint */}
+                        {selectedImage === null && (
+                          <p className="text-center text-zinc-400 text-xs animate-pulse">
+                            {language === 'vi' ? '👆 Nhấn vào ảnh để chọn' : '👆 Click on an image to select'}
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
 
-                  {/* Footer */}
+                  {/* Footer - Fixed */}
                   {!isGenerating && generatedImages.length > 0 && (
-                    <div className="flex items-center justify-between p-6 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
-                      <Button variant="outline" onClick={handleCloseModal}>Cancel</Button>
-                      <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-5 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 flex-shrink-0">
+                      <Button variant="outline" onClick={handleCloseModal} className="w-full sm:w-auto">
+                        {language === 'vi' ? 'Hủy' : 'Cancel'}
+                      </Button>
+                      <div className="flex flex-wrap justify-center sm:justify-end gap-2 w-full sm:w-auto">
                         <Button 
                           variant="outline" 
                           onClick={handleDownloadSelected}
                           disabled={selectedImage === null}
+                          size="sm"
+                          className="flex-1 sm:flex-none"
                         >
-                          <Download size={16} className="mr-2" /> Download
+                          <Download size={14} className="mr-1.5" /> 
+                          <span className="hidden sm:inline">Download</span>
+                          <span className="sm:hidden">Save</span>
                         </Button>
-                        <Button variant="outline" onClick={handleGenerate}>
-                          <Sparkles size={16} className="mr-2" /> Regenerate
+                        <Button variant="outline" onClick={handleGenerate} size="sm" className="flex-1 sm:flex-none">
+                          <Sparkles size={14} className="mr-1.5" /> 
+                          <span className="hidden sm:inline">Regenerate</span>
+                          <span className="sm:hidden">Redo</span>
                         </Button>
                         <Button 
                           disabled={selectedImage === null}
                           onClick={handleApplyAndEdit}
-                          className="bg-gradient-to-r from-pink-500 to-repix-600"
+                          size="sm"
+                          className="bg-gradient-to-r from-pink-500 to-repix-600 flex-1 sm:flex-none min-w-[120px]"
                         >
-                          <Wand2 size={16} className="mr-2" /> Edit in Studio
+                          <Wand2 size={14} className="mr-1.5" /> 
+                          {language === 'vi' ? 'Chỉnh sửa' : 'Edit in Studio'}
                         </Button>
                       </div>
                     </div>
@@ -983,6 +1091,98 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
                           <Wand2 size={16} className="mr-2" />
                           {language === 'vi' ? 'Vào Studio' : 'Open Studio'}
                         </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Full Screen Preview Modal */}
+                {previewImage && (
+                  <div 
+                    className="fixed inset-0 bg-black/95 backdrop-blur-md z-[70] flex items-center justify-center animate-in fade-in duration-200"
+                    onClick={() => setPreviewImage(null)}
+                  >
+                    {/* Close button */}
+                    <button
+                      onClick={() => setPreviewImage(null)}
+                      className="absolute top-4 right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
+                    >
+                      <X size={24} />
+                    </button>
+
+                    {/* Navigation arrows */}
+                    {generatedImages.length > 1 && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const newIndex = previewImage.index === 0 ? generatedImages.length - 1 : previewImage.index - 1;
+                            setPreviewImage({ url: generatedImages[newIndex], index: newIndex });
+                          }}
+                          className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
+                        >
+                          <ArrowRight size={24} className="rotate-180" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const newIndex = previewImage.index === generatedImages.length - 1 ? 0 : previewImage.index + 1;
+                            setPreviewImage({ url: generatedImages[newIndex], index: newIndex });
+                          }}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
+                        >
+                          <ArrowRight size={24} />
+                        </button>
+                      </>
+                    )}
+
+                    {/* Image */}
+                    <div 
+                      className="relative max-w-[90vw] max-h-[85vh] animate-in zoom-in-95 duration-300"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <img 
+                        src={previewImage.url} 
+                        alt={`Preview ${previewImage.index + 1}`}
+                        className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                      />
+                      
+                      {/* Bottom toolbar */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent rounded-b-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="px-3 py-1.5 rounded-full bg-white/20 text-white text-sm font-medium backdrop-blur-md">
+                              V{previewImage.index + 1} • {['Best Match', 'Creative', 'Vibrant', 'Minimal'][previewImage.index] || `Style ${previewImage.index + 1}`}
+                            </span>
+                            <span className="px-3 py-1.5 rounded-full bg-white/20 text-white text-sm font-medium backdrop-blur-md">
+                              {selectedRatio}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedImage(previewImage.index);
+                                setPreviewImage(null);
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-full bg-repix-500 hover:bg-repix-600 text-white text-sm font-medium transition-colors"
+                            >
+                              <Check size={16} />
+                              {language === 'vi' ? 'Chọn ảnh này' : 'Select this'}
+                            </button>
+                            <button
+                              onClick={() => handleDownloadImage(previewImage.url, previewImage.index)}
+                              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 text-white text-sm font-medium backdrop-blur-md transition-colors"
+                            >
+                              <Download size={16} />
+                              {language === 'vi' ? 'Tải xuống' : 'Download'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Image counter */}
+                      <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm font-medium backdrop-blur-md">
+                        {previewImage.index + 1} / {generatedImages.length}
                       </div>
                     </div>
                   </div>
@@ -1184,10 +1384,19 @@ const HomeView: React.FC<{ onStartEditing: (image?: string) => void }> = ({ onSt
 }
 
 const AppContent: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Load authentication state from localStorage
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const saved = localStorage.getItem('repix_authenticated');
+    return saved === 'true';
+  });
   const [view, setView] = useState<ViewState>('landing');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [initialEditorImage, setInitialEditorImage] = useState<string | undefined>(undefined);
+
+  // Save authentication state to localStorage
+  useEffect(() => {
+    localStorage.setItem('repix_authenticated', isAuthenticated ? 'true' : 'false');
+  }, [isAuthenticated]);
 
   // Check if user has completed onboarding (using localStorage)
   useEffect(() => {
@@ -1209,6 +1418,13 @@ const AppContent: React.FC = () => {
 
   const handleSignOut = () => {
     setIsAuthenticated(false);
+    localStorage.removeItem('repix_authenticated');
+    localStorage.removeItem('repix_onboarding_completed');
+    setView('landing');
+  };
+
+  // Navigate to landing page (for logo click)
+  const handleGoToLanding = () => {
     setView('landing');
   };
 
@@ -1230,29 +1446,54 @@ const AppContent: React.FC = () => {
   }
 
   // Handle Authentication Flow
-  if (!isAuthenticated) {
-    if (view === 'auth') {
-      return (
-        <AuthPage 
-          onBack={() => setView('landing')} 
-          onLoginSuccess={() => {
-            setIsAuthenticated(true);
-            setView('home');
-          }} 
-        />
-      );
-    }
+  if (view === 'auth') {
     return (
-      <LandingPage 
-        onLogin={() => setView('auth')} 
-        onSignup={() => setView('auth')} 
+      <AuthPage 
+        onBack={() => setView('landing')} 
+        onLoginSuccess={() => {
+          setIsAuthenticated(true);
+          setView('home');
+        }} 
       />
     );
   }
 
-  // Wrap Main App in Layout
+  // Show Landing Page (both authenticated and non-authenticated)
+  if (view === 'landing') {
+    return (
+      <LandingPage 
+        onLogin={() => setView('auth')} 
+        onSignup={() => setView('auth')}
+        isAuthenticated={isAuthenticated}
+        onTryRepix={() => {
+          if (!isAuthenticated) {
+            setIsAuthenticated(true); // Auto login for Try Repix
+          }
+          setView('home');
+        }}
+        onGoToApp={() => setView('home')}
+      />
+    );
+  }
+
+  // Wrap Main App in Layout (only for authenticated users in app views)
+  if (!isAuthenticated) {
+    return (
+      <LandingPage 
+        onLogin={() => setView('auth')} 
+        onSignup={() => setView('auth')}
+        isAuthenticated={false}
+        onTryRepix={() => {
+          setIsAuthenticated(true);
+          setView('home');
+        }}
+        onGoToApp={() => setView('home')}
+      />
+    );
+  }
+
   return (
-    <Layout currentView={view} onChangeView={setView} onSignOut={handleSignOut}>
+    <Layout currentView={view} onChangeView={setView} onSignOut={handleSignOut} onGoToLanding={handleGoToLanding}>
       {view === 'home' && <HomeView onStartEditing={handleStartEditing} />}
       {view === 'editor' && <EditorView initialImage={initialEditorImage} />}
       {view === 'assets' && <AssetLibrary />}

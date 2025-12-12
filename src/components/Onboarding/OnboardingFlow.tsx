@@ -120,6 +120,13 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
       desc: language === 'vi' ? 'Chỉnh sửa ảnh cá nhân' : 'Personal photo editing',
       icon: '✨',
       color: 'from-emerald-500 to-teal-500'
+    },
+    {
+      id: 'designer',
+      title: language === 'vi' ? 'Designer' : 'Designer',
+      desc: language === 'vi' ? 'UI/UX, đồ họa, branding' : 'UI/UX, graphics, branding',
+      icon: '🎨',
+      color: 'from-violet-500 to-fuchsia-500'
     }
   ];
 
@@ -162,10 +169,10 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
       </button>
 
       {/* Main Content */}
-      <div className="relative w-full max-w-4xl">
+      <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col">
         
         {/* Progress Bar */}
-        <div className="mb-8">
+        <div className="mb-4 flex-shrink-0">
           <div className="h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
             <div 
               className={`h-full bg-gradient-to-r ${currentStepData.bgGradient} transition-all duration-500 ease-out`}
@@ -179,36 +186,36 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
         </div>
 
         {/* Content Card */}
-        <div className="bg-white dark:bg-dark-surface rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="bg-white dark:bg-dark-surface rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col flex-1 min-h-0">
           
-          {/* Step Content */}
-          <div className="p-8 md:p-12">
+          {/* Step Content - Scrollable */}
+          <div className="p-6 md:p-10 overflow-y-auto flex-1">
             
             {/* Icon */}
-            <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${currentStepData.bgGradient} mb-6`}>
-              <currentStepData.icon className="text-white" size={32} />
+            <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${currentStepData.bgGradient} mb-4`}>
+              <currentStepData.icon className="text-white" size={28} />
             </div>
 
             {/* Title & Description */}
-            <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white mb-2">
               {currentStepData.title}
             </h1>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8">
+            <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6">
               {currentStepData.description}
             </p>
 
             {/* Step-specific Content */}
             {currentStep === 0 && currentStepData.features && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div className="grid grid-cols-2 gap-3 mb-6">
                 {currentStepData.features.map((feature, idx) => (
                   <div 
                     key={idx}
-                    className="flex items-center gap-3 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800"
+                    className="flex items-center gap-2 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-repix-500 to-pink-500 flex items-center justify-center shrink-0">
-                      <Check className="text-white" size={16} />
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-repix-500 to-pink-500 flex items-center justify-center shrink-0">
+                      <Check className="text-white" size={14} />
                     </div>
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{feature}</span>
+                    <span className="text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">{feature}</span>
                   </div>
                 ))}
               </div>
@@ -216,13 +223,13 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
 
             {/* Persona Selection */}
             {currentStep === 1 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 {personas.map((persona) => (
                   <button
                     key={persona.id}
                     onClick={() => setSelectedPersona(persona.id)}
                     className={`
-                      relative p-6 rounded-2xl border-2 transition-all text-left group
+                      relative p-4 sm:p-5 rounded-2xl border-2 transition-all text-left group
                       ${selectedPersona === persona.id
                         ? 'border-repix-500 bg-repix-50 dark:bg-repix-500/10 shadow-lg shadow-repix-500/20'
                         : 'border-zinc-200 dark:border-zinc-800 hover:border-repix-500/50 hover:shadow-md'
@@ -230,16 +237,16 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
                     `}
                   >
                     {selectedPersona === persona.id && (
-                      <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-repix-500 flex items-center justify-center">
-                        <Check className="text-white" size={14} />
+                      <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-repix-500 flex items-center justify-center">
+                        <Check className="text-white" size={12} />
                       </div>
                     )}
                     
-                    <div className="text-4xl mb-3">{persona.icon}</div>
-                    <h3 className="font-bold text-lg text-zinc-900 dark:text-white mb-1">
+                    <div className="text-2xl sm:text-3xl mb-2">{persona.icon}</div>
+                    <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-white mb-0.5 sm:mb-1">
                       {persona.title}
                     </h3>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
                       {persona.desc}
                     </p>
                   </button>
@@ -249,17 +256,16 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
 
             {/* Tools Preview */}
             {currentStep === 2 && currentStepData.features && (
-              <div className="space-y-3 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 {currentStepData.features.map((feature, idx) => (
                   <div 
                     key={idx}
-                    className="flex items-center gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-repix-500/50 transition-all group"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-repix-500/50 transition-all group"
                   >
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${currentStepData.bgGradient} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
-                      <Zap className="text-white" size={20} />
+                    <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${currentStepData.bgGradient} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                      <Zap className="text-white" size={16} />
                     </div>
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 flex-1">{feature}</span>
-                    <ChevronRight className="text-zinc-400 group-hover:text-repix-500 transition-colors" size={20} />
+                    <span className="text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 flex-1">{feature}</span>
                   </div>
                 ))}
               </div>
@@ -267,14 +273,14 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
 
             {/* Final Step */}
             {currentStep === 3 && (
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mb-6">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mb-4">
                   <Check size={16} />
                   <span className="text-sm font-medium">
                     {language === 'vi' ? 'Thiết lập hoàn tất!' : 'Setup Complete!'}
                   </span>
                 </div>
-                <p className="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
                   {language === 'vi' 
                     ? 'Bạn đã sẵn sàng khám phá sức mạnh của AI. Hãy bắt đầu tạo tác phẩm đầu tiên!'
                     : "You're ready to explore the power of AI. Let's create your first masterpiece!"
@@ -284,8 +290,8 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
             )}
           </div>
 
-          {/* Navigation */}
-          <div className="flex items-center justify-between p-6 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30">
+          {/* Navigation - Fixed at bottom */}
+          <div className="flex items-center justify-between p-4 md:p-6 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 flex-shrink-0">
             <Button
               variant="ghost"
               onClick={handleBack}

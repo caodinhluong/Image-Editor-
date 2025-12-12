@@ -8,6 +8,7 @@ import {
 import { Button, Badge } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useSubscription } from '../../contexts/SubscriptionContext';
 import Galaxy from './Galaxy';
 import { ScrollReveal } from './ScrollReveal';
 import LogoLoop, { LogoItem } from './LogoLoop';
@@ -186,6 +187,9 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
 interface LandingPageProps {
   onLogin: () => void;
   onSignup: () => void;
+  isAuthenticated?: boolean;
+  onTryRepix?: () => void;
+  onGoToApp?: () => void;
 }
 
 // --- SUB-COMPONENTS FOR MODERN UI ---
@@ -218,9 +222,10 @@ const BentoCard: React.FC<{
 
 // --- MAIN LANDING PAGE ---
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isAuthenticated = false, onTryRepix, onGoToApp }) => {
   const { trans, toggleLanguage, language } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { credits } = useSubscription();
 
   return (
     <ClickSpark
@@ -325,14 +330,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
                <span className="text-sm font-bold">{language === 'vi' ? 'VI' : 'EN'}</span>
              </button>
              <div className="h-6 w-px bg-zinc-300 dark:bg-white/10"></div>
-             <Button 
-                onClick={onLogin} 
-                variant="primary"
-                size="lg" 
-                className="animated-border rounded-full px-10 h-12 text-lg font-extrabold shadow-xl shadow-repix-500/30 hover:shadow-repix-500/50 transition-all"
-             >
-               {trans.nav.getStarted}
-             </Button>
+             
+             {isAuthenticated ? (
+               <>
+                 {/* Credits display for authenticated users */}
+                 <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900/80 backdrop-blur-md rounded-full border border-zinc-700">
+                   <Sparkles size={16} className="text-amber-400" />
+                   <span className="text-sm font-bold text-white">{credits.toLocaleString()}</span>
+                   <span className="text-xs text-zinc-400">credits</span>
+                 </div>
+                 <Button 
+                    onClick={onGoToApp} 
+                    variant="primary"
+                    size="lg" 
+                    className="animated-border rounded-full px-8 h-12 text-lg font-extrabold shadow-xl shadow-repix-500/30 hover:shadow-repix-500/50 transition-all"
+                 >
+                   Get Started
+                 </Button>
+               </>
+             ) : (
+               <Button 
+                  onClick={onLogin} 
+                  variant="primary"
+                  size="lg" 
+                  className="animated-border rounded-full px-10 h-12 text-lg font-extrabold shadow-xl shadow-repix-500/30 hover:shadow-repix-500/50 transition-all"
+               >
+                 {trans.nav.getStarted}
+               </Button>
+             )}
           </div>
         </div>
       </nav>
@@ -537,7 +562,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
                     </div>
                     
                     <Button 
-                      onClick={onSignup}
+                      onClick={onTryRepix}
                       className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-emerald-500/30"
                     >
                       {language === 'vi' ? 'Thử ngay miễn phí' : 'Try Free Now'} <ArrowRight size={18} className="ml-2" />
@@ -560,24 +585,99 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup }) =
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(300px,auto)]">
                
-               {/* Card 1: Large (Span 2) */}
+               {/* Card 1: Large (Span 2) - Generative Fill - New Layout */}
                <ScrollReveal delay={0} className="md:col-span-2 md:row-span-2">
-                 <BentoCard 
-                    title={trans.landing.genFillTitle}
-                    desc={trans.landing.genFillDesc}
-                    icon={Wand2}
-                    className="h-full bg-zinc-100 dark:bg-zinc-900"
-                    graphic={
-                       <div className="relative h-64 w-full rounded-xl overflow-hidden mt-4 border border-black/5 dark:border-white/5 shadow-lg group">
-                          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=400&fit=crop" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                             <div className="bg-white/90 dark:bg-black/80 backdrop-blur-md px-4 py-2 rounded-full text-sm font-mono border border-black/5 dark:border-white/10 shadow-xl translate-y-4 group-hover:translate-y-0 transition-transform">
-                                {trans.landing.genFillPrompt}
+                 <div className="h-full p-8 rounded-3xl bg-gradient-to-br from-slate-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-950 border border-zinc-200/50 dark:border-zinc-800/50">
+                    <div className="flex flex-col lg:flex-row gap-8 h-full">
+                       {/* Left side - Text content */}
+                       <div className="lg:w-2/5 flex flex-col justify-center">
+                          <h3 className="text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white mb-4">
+                             {trans.landing.genFillTitle}
+                          </h3>
+                          <p className="text-zinc-500 dark:text-zinc-400 mb-8 leading-relaxed">
+                             {trans.landing.genFillDesc}
+                          </p>
+                          
+                          {/* Feature list */}
+                          <div className="space-y-5">
+                             <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-repix-500 to-violet-500 flex items-center justify-center flex-shrink-0">
+                                   <Sparkles size={18} className="text-white" />
+                                </div>
+                                <div>
+                                   <h4 className="font-semibold text-zinc-900 dark:text-white mb-1">
+                                      {language === 'vi' ? 'Ảnh chất lượng cao' : 'High quality images'}
+                                   </h4>
+                                   <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                      {language === 'vi' ? 'Tạo ảnh chất lượng cao trong vài giây - chỉ cần nhập prompt và nhấn Generate.' : 'Create high quality images in seconds - just type a prompt and hit Generate.'}
+                                   </p>
+                                </div>
+                             </div>
+                             
+                             <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                                   <Zap size={18} className="text-white" />
+                                </div>
+                                <div>
+                                   <h4 className="font-semibold text-zinc-900 dark:text-white mb-1">
+                                      {language === 'vi' ? 'GPU tăng tốc xử lý' : 'GPU enabled and fast'}
+                                   </h4>
+                                   <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                      {language === 'vi' ? 'Xử lý nhanh chóng với GPU mạnh mẽ, nhận kết quả trong tích tắc.' : 'Fast processing with powerful GPU, get results back rapidly.'}
+                                   </p>
+                                </div>
                              </div>
                           </div>
                        </div>
-                    }
-                 />
+                       
+                       {/* Right side - Image grid */}
+                       <div className="lg:w-3/5 relative">
+                          <div className="grid grid-cols-3 gap-3 h-full">
+                             {/* Column 1 */}
+                             <div className="flex flex-col gap-3">
+                                <div className="flex-1 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
+                                   <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=400&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Portrait" />
+                                </div>
+                                <div className="h-32 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
+                                   <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&h=200&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Abstract" />
+                                </div>
+                             </div>
+                             
+                             {/* Column 2 */}
+                             <div className="flex flex-col gap-3 pt-6">
+                                <div className="h-28 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
+                                   <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Face" />
+                                </div>
+                                <div className="flex-1 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
+                                   <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=400&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Woman" />
+                                </div>
+                                <div className="h-24 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
+                                   <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=150&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Man" />
+                                </div>
+                             </div>
+                             
+                             {/* Column 3 */}
+                             <div className="flex flex-col gap-3 pt-3">
+                                <div className="h-36 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
+                                   <img src="https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=300&h=250&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Landscape" />
+                                </div>
+                                <div className="flex-1 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
+                                   <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=350&fit=crop&q=90" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="AI Girl" />
+                                </div>
+                                <div className="h-28 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group bg-gradient-to-br from-repix-500 to-pink-500 flex items-center justify-center">
+                                   <div className="text-center text-white p-3">
+                                      <Wand2 size={24} className="mx-auto mb-2" />
+                                      <span className="text-xs font-medium">+1000 more</span>
+                                   </div>
+                                </div>
+                             </div>
+                          </div>
+                          
+                          {/* Decorative glow */}
+                          <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-gradient-to-br from-repix-500/20 to-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                       </div>
+                    </div>
+                 </div>
                </ScrollReveal>
 
                {/* Card 2: Tall (Span 1) */}

@@ -924,7 +924,7 @@ export const MarketplaceView: React.FC = () => {
       <div className="flex-1 flex flex-col overflow-y-auto">
         
         {/* Top Header & Search */}
-        <div className="sticky top-0 z-20 bg-light-bg/95 dark:bg-dark-bg/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 md:px-8 py-4">
+        <div className="sticky top-0 z-10 bg-light-bg/95 dark:bg-dark-bg/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 md:px-8 py-4">
            <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
               <div>
                  <h1 className="text-2xl font-bold">{trans.marketplace.title}</h1>

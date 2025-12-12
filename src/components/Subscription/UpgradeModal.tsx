@@ -109,7 +109,7 @@ export const UpgradeModal: React.FC = () => {
   const allPlans: PlanType[] = ['free', 'plus', 'pro', 'team'];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-b from-zinc-900 to-black rounded-3xl shadow-2xl border border-zinc-800">
         {/* Close button */}
         <button

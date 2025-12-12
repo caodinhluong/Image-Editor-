@@ -13,10 +13,11 @@ interface LayoutProps {
   currentView: ViewState;
   onChangeView: (view: ViewState) => void;
   onSignOut?: () => void;
+  onGoToLanding?: () => void;
   children: React.ReactNode;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSignOut, children }) => {
+export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSignOut, onGoToLanding, children }) => {
   const { trans, language, toggleLanguage } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -37,24 +38,24 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
   return (
     <div className="flex h-screen w-screen bg-light-bg dark:bg-dark-bg text-zinc-900 dark:text-white overflow-hidden transition-colors duration-300">
       
+      {/* Collapse Toggle Button - Outside sidebar for proper z-index */}
+      <button
+        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        className={`hidden md:flex fixed ${isSidebarCollapsed ? 'left-[52px]' : 'left-[244px]'} top-20 z-[9999] w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 items-center justify-center text-zinc-500 hover:text-repix-500 hover:border-repix-500 transition-all duration-300 shadow-md hover:shadow-lg`}
+        title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      >
+        {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+      </button>
+
       {/* Desktop Sidebar - Hidden on Mobile */}
       <aside className={`hidden md:flex ${isSidebarCollapsed ? 'w-16' : 'w-64'} border-r border-zinc-200 dark:border-dark-border bg-white dark:bg-dark-surface flex-col z-20 transition-all duration-300 relative`}>
-        
-        {/* Collapse Toggle Button */}
-        <button
-          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          className="absolute -right-3 top-20 z-30 w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-500 hover:text-repix-500 hover:border-repix-500 transition-colors shadow-sm"
-          title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
         
         {/* Brand & Toggles */}
         <div className={`h-16 flex items-center ${isSidebarCollapsed ? 'justify-center px-2' : 'justify-between px-4'} border-b border-zinc-200 dark:border-dark-border`}>
            <div 
              className="flex items-center cursor-pointer group select-none"
-             onClick={() => onChangeView('home')}
-             title="Go to Home"
+             onClick={() => onGoToLanding?.()}
+             title="Go to Landing Page"
            >
              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center shadow-lg shadow-repix-500/20 group-hover:shadow-repix-500/40 transition-shadow">
                <Sun size={18} className="text-white fill-white" />
