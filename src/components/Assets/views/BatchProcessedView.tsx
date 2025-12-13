@@ -48,41 +48,27 @@ export const BatchProcessedView: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <Layers size={24} className="text-pink-500" />
-              {language === 'vi' ? 'Xử lý hàng loạt' : 'Batch Processed'}
-            </h2>
-            <p className="text-sm text-zinc-500 mt-1">
-              {language === 'vi' ? 'Lịch sử các batch đã xử lý' : 'History of batch processing jobs'}
-            </p>
-          </div>
-          <Button size="sm" className="gap-2 bg-gradient-to-r from-pink-500 to-purple-500">
-            <Layers size={16} />
-            {language === 'vi' ? 'Batch mới' : 'New Batch'}
-          </Button>
-        </div>
-
+      {/* Action Bar */}
+      <div className="px-6 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0 flex items-center justify-between">
         {/* Quick Stats */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="flex items-center gap-3">
           {[
-            { label: language === 'vi' ? 'Tổng batch' : 'Total Batches', value: '34', icon: Layers, color: 'text-pink-500' },
-            { label: language === 'vi' ? 'Ảnh đã xử lý' : 'Images Processed', value: totalProcessed.toString(), icon: Image, color: 'text-blue-500' },
+            { label: 'Batches', value: '34', icon: Layers, color: 'text-pink-500' },
+            { label: language === 'vi' ? 'Ảnh' : 'Images', value: totalProcessed.toString(), icon: Image, color: 'text-blue-500' },
             { label: language === 'vi' ? 'Đang chạy' : 'Running', value: '1', icon: Loader2, color: 'text-amber-500' },
-            { label: language === 'vi' ? 'Credits dùng' : 'Credits Used', value: totalCredits.toString(), icon: Zap, color: 'text-green-500' },
+            { label: 'Credits', value: totalCredits.toString(), icon: Zap, color: 'text-green-500' },
           ].map((stat, idx) => (
-            <div key={idx} className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <stat.icon size={16} className={stat.color} />
-                <span className="text-xs text-zinc-500">{stat.label}</span>
-              </div>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white">{stat.value}</p>
+            <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+              <stat.icon size={12} className={stat.color} />
+              <span className={`text-sm font-bold ${stat.color}`}>{stat.value}</span>
+              <span className="text-xs text-zinc-500">{stat.label}</span>
             </div>
           ))}
         </div>
+        <Button size="sm" className="gap-2 bg-gradient-to-r from-pink-500 to-purple-500">
+          <Layers size={16} />
+          {language === 'vi' ? 'Batch mới' : 'New Batch'}
+        </Button>
       </div>
 
       {/* Content */}

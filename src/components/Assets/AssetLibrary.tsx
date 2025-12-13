@@ -10,11 +10,10 @@ import { Button, Badge } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { StorageUpgradeModal } from './StorageUpgradeModal';
 import { ImportManager } from './ImportManager';
-import { PhoneSyncModal } from './PhoneSyncModal';
+import { PhoneSyncView } from './PhoneSyncView';
 import {
   ImportsView,
   ExportsView,
-  ProjectsView,
   AIGeneratedView,
   TemplatesView,
   BatchProcessedView,
@@ -44,7 +43,7 @@ interface Folder {
 }
 
 export const AssetLibrary: React.FC = () => {
-  const { trans } = useLanguage();
+  const { trans, language } = useLanguage();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
@@ -54,12 +53,43 @@ export const AssetLibrary: React.FC = () => {
   const [filterType, setFilterType] = useState<'all' | 'image' | 'project' | 'template'>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [showStorageModal, setShowStorageModal] = useState(false);
-  const [showImportManager, setShowImportManager] = useState(false);
-  const [showPhoneSyncModal, setShowPhoneSyncModal] = useState(false);
+  const [showImportView, setShowImportView] = useState(false);
+  const [showPhoneSyncView, setShowPhoneSyncView] = useState(false);
   const [storageTotal, setStorageTotal] = useState(10); // GB
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+  
+  // Phone sync state from localStorage
+  const [phoneSyncData, setPhoneSyncData] = useState<{
+    synced: boolean;
+    deviceName: string;
+    lastSync: string;
+    photosCount: number;
+  } | null>(() => {
+    const saved = localStorage.getItem('repix_phone_sync');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   // Mock storage data
   const storageUsed = 2.4; // GB
+
+  // Handle phone sync complete
+  const handlePhoneSyncComplete = (deviceName: string, photosCount: number) => {
+    const syncData = {
+      synced: true,
+      deviceName,
+      lastSync: new Date().toLocaleString('vi-VN'),
+      photosCount,
+    };
+    setPhoneSyncData(syncData);
+    localStorage.setItem('repix_phone_sync', JSON.stringify(syncData));
+  };
+
+  // Handle phone disconnect
+  const handlePhoneDisconnect = () => {
+    setShowDisconnectConfirm(false);
+    setPhoneSyncData(null);
+    localStorage.removeItem('repix_phone_sync');
+  };
 
   // Handle storage upgrade
   const handleStorageUpgrade = (newTotal: number) => {
@@ -77,7 +107,6 @@ export const AssetLibrary: React.FC = () => {
     { id: 'all', name: trans.assets.allAssets, count: 156, color: 'bg-zinc-500' },
     { id: 'imports', name: trans.assets.imports || 'Imports', count: 28, color: 'bg-cyan-500' },
     { id: 'exports', name: trans.assets.exports, count: 48, color: 'bg-green-500' },
-    { id: 'projects', name: trans.assets.projects, count: 23, color: 'bg-blue-500' },
     { id: 'generated', name: trans.assets.generated, count: 67, color: 'bg-purple-500' },
     { id: 'templates', name: trans.assets.templates, count: 12, color: 'bg-amber-500' },
     { id: 'batch', name: trans.assets.batchProcessed, count: 34, color: 'bg-pink-500' },
@@ -211,9 +240,13 @@ export const AssetLibrary: React.FC = () => {
           {folders.map(folder => (
             <button
               key={folder.id}
-              onClick={() => setSelectedFolder(folder.id === 'all' ? null : folder.id)}
+              onClick={() => {
+                setSelectedFolder(folder.id === 'all' ? null : folder.id);
+                setShowImportView(false);
+                setShowPhoneSyncView(false);
+              }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                (selectedFolder === folder.id || (folder.id === 'all' && !selectedFolder))
+                (selectedFolder === folder.id || (folder.id === 'all' && !selectedFolder)) && !showImportView && !showPhoneSyncView
                   ? 'bg-repix-50 dark:bg-repix-900/20 text-repix-600 dark:text-repix-400'
                   : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
               }`}
@@ -225,28 +258,117 @@ export const AssetLibrary: React.FC = () => {
           ))}
         </nav>
 
-        {/* Phone Sync CTA */}
-        <div className="mx-3 mb-3 p-3 bg-gradient-to-br from-repix-500/10 to-pink-500/10 dark:from-repix-900/30 dark:to-pink-900/30 rounded-xl border border-repix-200 dark:border-repix-800/50">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 bg-gradient-to-br from-repix-500 to-pink-500 rounded-lg">
-              <Smartphone size={14} className="text-white" />
+        {/* Phone Sync Section */}
+        {phoneSyncData ? (
+          /* Synced State */
+          <div className="mx-3 mb-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-green-500 rounded-lg">
+                  <Smartphone size={12} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-zinc-900 dark:text-white">{phoneSyncData.deviceName}</p>
+                  <p className="text-[10px] text-green-600 dark:text-green-400 flex items-center gap-1">
+                    <CheckCircle2 size={8} />
+                    {trans.assets?.connected || 'Connected'}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowPhoneSyncView(true)}
+                className="p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+              >
+                <MoreHorizontal size={14} className="text-zinc-500" />
+              </button>
             </div>
-            <span className="text-xs font-semibold text-zinc-900 dark:text-white">
-              {trans.assets.syncPhone || 'Sync from Phone'}
-            </span>
+            
+            <div className="flex items-center justify-between text-[10px] text-zinc-500 mb-2">
+              <span className="flex items-center gap-1">
+                <Clock size={10} />
+                {phoneSyncData.lastSync}
+              </span>
+              <span>{phoneSyncData.photosCount} {trans.assets?.photos || 'photos'}</span>
+            </div>
+            
+            <div className="flex gap-1.5">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1 h-7 text-[10px] gap-1"
+                onClick={() => setShowPhoneSyncView(true)}
+              >
+                <RefreshCw size={10} />
+                Sync
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-7 text-[10px] text-zinc-500"
+                onClick={() => setShowDisconnectConfirm(true)}
+              >
+                {trans.assets?.disconnect || 'Disconnect'}
+              </Button>
+            </div>
+
+            {/* Disconnect Confirmation Modal */}
+            {showDisconnectConfirm && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 w-full max-w-sm p-6">
+                  <div className="flex items-center justify-center w-14 h-14 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30">
+                    <Smartphone size={28} className="text-red-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white text-center mb-2">
+                    {language === 'vi' ? 'Ngắt kết nối thiết bị?' : 'Disconnect Device?'}
+                  </h3>
+                  <p className="text-sm text-zinc-500 text-center mb-6">
+                    {language === 'vi' 
+                      ? `Bạn có chắc muốn ngắt kết nối ${phoneSyncData?.deviceName}? Bạn sẽ cần quét mã QR lại để kết nối.`
+                      : `Are you sure you want to disconnect ${phoneSyncData?.deviceName}? You'll need to scan QR code again to reconnect.`}
+                  </p>
+                  <div className="flex gap-3">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => setShowDisconnectConfirm(false)}
+                    >
+                      {language === 'vi' ? 'Hủy' : 'Cancel'}
+                    </Button>
+                    <Button 
+                      className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+                      onClick={handlePhoneDisconnect}
+                    >
+                      {language === 'vi' ? 'Ngắt kết nối' : 'Disconnect'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-          <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mb-3 leading-relaxed">
-            {trans.assets.syncPhoneDesc || 'Sync photos from your phone with just one click!'}
-          </p>
-          <Button 
-            size="sm" 
-            className="w-full h-8 text-xs bg-gradient-to-r from-repix-500 to-pink-500 hover:from-repix-600 hover:to-pink-600 gap-1.5"
-            onClick={() => setShowPhoneSyncModal(true)}
-          >
-            <RefreshCw size={12} />
-            {trans.assets.syncNow || 'Sync Now'}
-          </Button>
-        </div>
+        ) : (
+          /* Not Synced State */
+          <div className="mx-3 mb-3 p-3 bg-gradient-to-br from-repix-500/10 to-pink-500/10 dark:from-repix-900/30 dark:to-pink-900/30 rounded-xl border border-repix-200 dark:border-repix-800/50">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 bg-gradient-to-br from-repix-500 to-pink-500 rounded-lg">
+                <Smartphone size={14} className="text-white" />
+              </div>
+              <span className="text-xs font-semibold text-zinc-900 dark:text-white">
+                {trans.assets.syncPhone || 'Sync from Phone'}
+              </span>
+            </div>
+            <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mb-3 leading-relaxed">
+              {trans.assets.syncPhoneDesc || 'Sync photos from your phone with just one click!'}
+            </p>
+            <Button 
+              size="sm" 
+              className="w-full h-8 text-xs bg-gradient-to-r from-repix-500 to-pink-500 hover:from-repix-600 hover:to-pink-600 gap-1.5"
+              onClick={() => setShowPhoneSyncView(true)}
+            >
+              <RefreshCw size={12} />
+              {trans.assets.syncNow || 'Sync Now'}
+            </Button>
+          </div>
+        )}
 
         {/* Create Folder */}
         <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
@@ -259,16 +381,98 @@ export const AssetLibrary: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-dark-surface">
-        {/* Render specific view based on selected folder */}
-        {selectedFolder === 'imports' ? (
+        {/* Global Header Bar with Cloud + Actions */}
+        {!showImportView && !showPhoneSyncView && (
+          <div className="px-6 py-2.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-900/30">
+            {/* Cloud Services */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                <Cloud size={14} />
+                <span>Cloud:</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {/* Google Drive */}
+                <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                  <svg viewBox="0 0 87.3 78" className="w-4 h-4">
+                    <path fill="#0066DA" d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H1c0 1.55.4 3.1 1.2 4.5l4.4 9.35z"/>
+                    <path fill="#00AC47" d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3L1.2 52.35c-.8 1.4-1.2 2.95-1.2 4.5h27.5L43.65 25z"/>
+                    <path fill="#EA4335" d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.85L73.55 76.8z"/>
+                    <path fill="#00832D" d="M43.65 25L57.4 1.2c-1.35-.8-2.9-1.2-4.5-1.2H34.4c-1.6 0-3.15.45-4.5 1.2L43.65 25z"/>
+                    <path fill="#2684FC" d="M59.85 53H27.5l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2L59.85 53z"/>
+                    <path fill="#FFBA00" d="M73.4 26.5L60.1 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.2 28h27.45c0-1.55-.4-3.1-1.2-4.5l-12.7-22z"/>
+                  </svg>
+                  <span className="hidden lg:inline text-zinc-600 dark:text-zinc-400">Drive</span>
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                </button>
+                
+                {/* Dropbox */}
+                <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-zinc-100 dark:bg-zinc-800/50 border border-transparent opacity-50 hover:opacity-75">
+                  <svg viewBox="0 0 24 24" className="w-4 h-4">
+                    <path fill="#0061FF" d="M6 2l6 3.6-6 3.6-6-3.6L6 2zm12 0l6 3.6-6 3.6-6-3.6 6-3.6zM0 12.8l6-3.6 6 3.6-6 3.6-6-3.6zm18-3.6l6 3.6-6 3.6-6-3.6 6-3.6zM6 17.6l6-3.6 6 3.6-6 3.6-6-3.6z"/>
+                  </svg>
+                  <span className="hidden lg:inline text-zinc-600 dark:text-zinc-400">Dropbox</span>
+                </button>
+                
+                {/* OneDrive */}
+                <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                  <svg viewBox="0 0 24 24" className="w-4 h-4">
+                    <path fill="#0364B8" d="M14.5 6c-1.61 0-3.09.53-4.3 1.42C9.5 6.53 8.3 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6h12c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96C18.44 6.81 16.61 6 14.5 6z"/>
+                    <path fill="#0078D4" d="M9.5 8c-2.49 0-4.5 2.01-4.5 4.5S7.01 17 9.5 17H19c1.93 0 3.5-1.57 3.5-3.5S20.93 10 19 10c-.17 0-.33.01-.5.03C17.93 8.24 16.36 7 14.5 7c-1.29 0-2.44.59-3.22 1.5-.5-.31-1.08-.5-1.78-.5z"/>
+                  </svg>
+                  <span className="hidden lg:inline text-zinc-600 dark:text-zinc-400">OneDrive</span>
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                </button>
+                
+                {/* iCloud */}
+                <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-zinc-100 dark:bg-zinc-800/50 border border-transparent opacity-50 hover:opacity-75">
+                  <svg viewBox="0 0 24 24" className="w-4 h-4">
+                    <path fill="#3693F3" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+                  </svg>
+                  <span className="hidden lg:inline text-zinc-600 dark:text-zinc-400">iCloud</span>
+                </button>
+              </div>
+              <Badge className="bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 text-[10px]">2/4</Badge>
+              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-zinc-500">
+                <RefreshCw size={12} />
+                Manage
+              </Button>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="gap-2 h-8" onClick={() => setShowPhoneSyncView(true)}>
+                <Smartphone size={14} />
+                {trans.assets.syncPhone || 'From Phone'}
+              </Button>
+              <Button size="sm" className="gap-2 h-8" onClick={() => setShowImportView(true)}>
+                <Upload size={14} />
+                {trans.assets.upload || 'New Import'}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Render Views */}
+        {showPhoneSyncView ? (
+          <PhoneSyncView
+            onBack={() => setShowPhoneSyncView(false)}
+            onSyncComplete={handlePhoneSyncComplete}
+          />
+        ) : showImportView ? (
+          <ImportManager 
+            onBack={() => setShowImportView(false)}
+            onImportComplete={(files) => {
+              handleImportComplete(files);
+              setShowImportView(false);
+            }}
+          />
+        ) : selectedFolder === 'imports' ? (
           <ImportsView 
-            onOpenImportManager={() => setShowImportManager(true)}
-            onOpenPhoneSync={() => setShowPhoneSyncModal(true)}
+            onOpenImportManager={() => setShowImportView(true)}
+            onOpenPhoneSync={() => setShowPhoneSyncView(true)}
           />
         ) : selectedFolder === 'exports' ? (
           <ExportsView />
-        ) : selectedFolder === 'projects' ? (
-          <ProjectsView />
         ) : selectedFolder === 'generated' ? (
           <AIGeneratedView />
         ) : selectedFolder === 'templates' ? (
@@ -542,19 +746,6 @@ export const AssetLibrary: React.FC = () => {
         currentUsed={storageUsed}
         currentTotal={storageTotal}
         onUpgrade={handleStorageUpgrade}
-      />
-
-      {/* Import Manager Modal */}
-      <ImportManager
-        isOpen={showImportManager}
-        onClose={() => setShowImportManager(false)}
-        onImportComplete={handleImportComplete}
-      />
-
-      {/* Phone Sync Modal */}
-      <PhoneSyncModal
-        isOpen={showPhoneSyncModal}
-        onClose={() => setShowPhoneSyncModal(false)}
       />
     </div>
   );

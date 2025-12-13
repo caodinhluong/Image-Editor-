@@ -15,7 +15,7 @@ import { ViewState } from './types';
 import { 
   Sparkles, ArrowRight, Image as ImageIcon, Scissors, Layers, Maximize2, Wand2, Search, Play,
   ShoppingBag, Camera, Briefcase, Zap, Crown, Check, ShieldCheck, Building2, Star,
-  Paperclip, X, ImagePlus, Download
+  Paperclip, X, ImagePlus, Download, Upload
 } from 'lucide-react';
 import { Button, Card, Badge } from './components/ui/UIComponents';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -25,6 +25,7 @@ import { BrandKitView } from './components/BrandKit/BrandKitView';
 import { AssetLibrary } from './components/Assets/AssetLibrary';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import { UpgradeModal } from './components/Subscription/UpgradeModal';
+import { AssetPickerModal } from './components/Editor/AssetPickerModal';
 
 // --- Modern Home Dashboard View ---
 const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => void }> = ({ onStartEditing }) => {
@@ -39,7 +40,9 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   const [showEditConfirm, setShowEditConfirm] = useState(false);
   
   // Image Upload States
+  const MAX_PROMPT_IMAGES = 5;
   const [uploadedImages, setUploadedImages] = useState<{ id: string; file: File; preview: string }[]>([]);
+  const [showMaxImagesWarning, setShowMaxImagesWarning] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Generation Options States
@@ -50,6 +53,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [showStyleDropdown, setShowStyleDropdown] = useState(false);
   const [showRatioDropdown, setShowRatioDropdown] = useState(false);
+  const [showAssetPicker, setShowAssetPicker] = useState(false);
   
   // Example Preview Modal State
   const [selectedExample, setSelectedExample] = useState<{ title: string; src: string; prompt: string } | null>(null);
@@ -58,12 +62,15 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   // Full screen preview state
   const [previewImage, setPreviewImage] = useState<{ url: string; index: number } | null>(null);
   
-  // Options Data
+  // Options Data - Real AI Models
   const modelOptions = [
-    { id: 'standard', label: 'Standard', labelVi: 'Tiêu chuẩn' },
-    { id: 'creative', label: 'Creative', labelVi: 'Sáng tạo' },
-    { id: 'realistic', label: 'Realistic', labelVi: 'Chân thực' },
-    { id: 'anime', label: 'Anime', labelVi: 'Anime' },
+    { id: 'flux-schnell', label: 'Flux Schnell', labelVi: 'Flux Nhanh', tier: 'free' },
+    { id: 'sdxl', label: 'SDXL', labelVi: 'SDXL', tier: 'free' },
+    { id: 'flux-pro', label: 'Flux Pro', labelVi: 'Flux Pro', tier: 'plus' },
+    { id: 'dalle3', label: 'DALL-E 3', labelVi: 'DALL-E 3', tier: 'plus' },
+    { id: 'midjourney', label: 'Midjourney v6', labelVi: 'Midjourney v6', tier: 'pro' },
+    { id: 'imagen3', label: 'Imagen 3', labelVi: 'Imagen 3', tier: 'pro' },
+    { id: 'gemini-pro', label: 'Gemini 2.0', labelVi: 'Gemini 2.0', tier: 'pro' },
   ];
   
   const styleOptions = [
@@ -90,12 +97,22 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files) as File[];
-    const newImages = files.slice(0, 4 - uploadedImages.length).map((file: File, idx: number) => ({
+    const remainingSlots = MAX_PROMPT_IMAGES - uploadedImages.length;
+    
+    if (files.length > remainingSlots) {
+      setShowMaxImagesWarning(true);
+      setTimeout(() => setShowMaxImagesWarning(false), 3000);
+    }
+    
+    const newImages = files.slice(0, remainingSlots).map((file: File, idx: number) => ({
       id: `upload-${Date.now()}-${idx}`,
       file,
       preview: URL.createObjectURL(file)
     }));
-    setUploadedImages(prev => [...prev, ...newImages].slice(0, 4));
+    
+    if (newImages.length > 0) {
+      setUploadedImages(prev => [...prev, ...newImages].slice(0, MAX_PROMPT_IMAGES));
+    }
   };
 
   // Remove uploaded image
@@ -113,13 +130,18 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf('image') !== -1) {
         const file = items[i].getAsFile();
-        if (file && uploadedImages.length < 4) {
-          const newImage = {
-            id: `paste-${Date.now()}`,
-            file,
-            preview: URL.createObjectURL(file)
-          };
-          setUploadedImages(prev => [...prev, newImage].slice(0, 4));
+        if (file) {
+          if (uploadedImages.length >= MAX_PROMPT_IMAGES) {
+            setShowMaxImagesWarning(true);
+            setTimeout(() => setShowMaxImagesWarning(false), 3000);
+          } else {
+            const newImage = {
+              id: `paste-${Date.now()}`,
+              file,
+              preview: URL.createObjectURL(file)
+            };
+            setUploadedImages(prev => [...prev, newImage].slice(0, MAX_PROMPT_IMAGES));
+          }
         }
         break;
       }
@@ -354,7 +376,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                            </div>
                          </div>
                        ))}
-                       {uploadedImages.length < 4 && (
+                       {uploadedImages.length < MAX_PROMPT_IMAGES && (
                          <button
                            onClick={() => fileInputRef.current?.click()}
                            className="w-16 h-16 md:w-20 md:h-20 border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl flex flex-col items-center justify-center text-zinc-400 hover:text-repix-500 hover:border-repix-400 transition-colors"
@@ -406,33 +428,70 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                          className="hidden"
                        />
                        
-                       {/* Reference Image Button */}
-                       <button
-                         onClick={() => fileInputRef.current?.click()}
-                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors"
-                       >
-                         <ImagePlus size={14} />
-                         {language === 'vi' ? 'Ảnh tham chiếu' : 'Reference image'}
-                       </button>
+                       {/* Reference Image Button with Dropdown */}
+                       <div className="relative group">
+                         <button
+                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors"
+                         >
+                           <ImagePlus size={14} />
+                           {language === 'vi' ? 'Ảnh tham chiếu' : 'Reference image'}
+                         </button>
+                         {/* Dropdown Menu */}
+                         <div className="absolute top-full left-0 mt-1 py-1 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 min-w-[180px]">
+                           <button
+                             onClick={() => fileInputRef.current?.click()}
+                             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                           >
+                             <Upload size={16} />
+                             {language === 'vi' ? 'Tải lên từ thiết bị' : 'Upload from device'}
+                           </button>
+                           <button
+                             onClick={() => setShowAssetPicker(true)}
+                             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                           >
+                             <Paperclip size={16} />
+                             {language === 'vi' ? 'Từ My Assets' : 'From My Assets'}
+                           </button>
+                         </div>
+                       </div>
 
                        {/* Model Dropdown */}
                        <div className="relative">
                          <button 
                            onClick={() => { setShowModelDropdown(!showModelDropdown); setShowStyleDropdown(false); setShowRatioDropdown(false); }}
-                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                          >
                            Model: {modelOptions.find(m => m.id === selectedModel)?.[language === 'vi' ? 'labelVi' : 'label']}
+                           {modelOptions.find(m => m.id === selectedModel)?.tier === 'plus' && (
+                             <Crown size={10} className="text-purple-500" />
+                           )}
+                           {modelOptions.find(m => m.id === selectedModel)?.tier === 'pro' && (
+                             <Crown size={10} className="text-amber-500" />
+                           )}
                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                          </button>
                          {showModelDropdown && (
-                           <div className="absolute top-full left-0 mt-1 py-1 bg-white dark:bg-zinc-800 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[140px]">
+                           <div className="absolute top-full left-0 mt-1 py-2 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[200px]">
+                             <p className="px-3 py-1 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                               {language === 'vi' ? 'Chọn Model AI' : 'Select AI Model'}
+                             </p>
                              {modelOptions.map(opt => (
                                <button
                                  key={opt.id}
                                  onClick={() => { setSelectedModel(opt.id); setShowModelDropdown(false); }}
-                                 className={`w-full px-3 py-1.5 text-left text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${selectedModel === opt.id ? 'text-repix-500 font-medium' : 'text-zinc-600 dark:text-zinc-400'}`}
+                                 className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${selectedModel === opt.id ? 'text-repix-500 font-medium bg-repix-50 dark:bg-repix-900/20' : 'text-zinc-600 dark:text-zinc-400'}`}
                                >
-                                 {language === 'vi' ? opt.labelVi : opt.label}
+                                 <span>{language === 'vi' ? opt.labelVi : opt.label}</span>
+                                 {opt.tier === 'plus' && (
+                                   <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[9px] font-bold">
+                                     <Crown size={8} /> PLUS
+                                   </span>
+                                 )}
+                                 {opt.tier === 'pro' && (
+                                   <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[9px] font-bold">
+                                     <Crown size={8} /> PRO
+                                   </span>
+                                 )}
                                </button>
                              ))}
                            </div>
@@ -539,20 +598,29 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                      </div>
                      
                      {/* Generate Button */}
-                     <Button 
-                       size="sm" 
-                       className="rounded-lg px-5 shadow-lg shadow-repix-500/20 shrink-0 gap-1.5" 
-                       onClick={handleGenerate} 
-                       disabled={!prompt.trim() && uploadedImages.length === 0}
-                     >
-                       <Sparkles size={14} />
-                       {trans.home.generate}
-                     </Button>
-                   </div>
+                       <Button 
+                         size="sm" 
+                         className="rounded-lg px-5 shadow-lg shadow-repix-500/20 shrink-0 gap-1.5" 
+                         onClick={handleGenerate} 
+                         disabled={!prompt.trim() && uploadedImages.length === 0}
+                       >
+                         <Sparkles size={14} />
+                         {trans.home.generate}
+                       </Button>
+                     </div>
+                     
+                     {/* Max Images Warning */}
+                     {showMaxImagesWarning && (
+                       <div className="flex items-center justify-center gap-2 mt-2 px-3 py-1.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                         <span className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                           {language === 'vi' ? `Tối đa ${MAX_PROMPT_IMAGES} ảnh được phép` : `Maximum ${MAX_PROMPT_IMAGES} images allowed`}
+                         </span>
+                       </div>
+                     )}
+                  </div>
                 </div>
-              </div>
 
-            </div>
+              </div>
 
             {/* --- TRY AN EXAMPLE SECTION --- */}
             <div className="mb-16">
@@ -1379,6 +1447,45 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
 
           </div>
        </div>
+       
+       {/* Asset Picker Modal */}
+       {showAssetPicker && (
+         <AssetPickerModal
+           isOpen={showAssetPicker}
+           onClose={() => setShowAssetPicker(false)}
+           maxSelection={MAX_PROMPT_IMAGES - uploadedImages.length}
+           onSelectMultiple={(assets) => {
+             const remainingSlots = MAX_PROMPT_IMAGES - uploadedImages.length;
+             if (assets.length > remainingSlots) {
+               setShowMaxImagesWarning(true);
+               setTimeout(() => setShowMaxImagesWarning(false), 3000);
+             }
+             const newImages = assets.slice(0, remainingSlots).map((asset, idx) => ({
+               id: `asset-${Date.now()}-${idx}`,
+               file: new File([], asset.name),
+               preview: asset.src,
+             }));
+             if (newImages.length > 0) {
+               setUploadedImages(prev => [...prev, ...newImages].slice(0, MAX_PROMPT_IMAGES));
+             }
+             setShowAssetPicker(false);
+           }}
+           onSelectAsset={(asset) => {
+             if (uploadedImages.length >= MAX_PROMPT_IMAGES) {
+               setShowMaxImagesWarning(true);
+               setTimeout(() => setShowMaxImagesWarning(false), 3000);
+               return;
+             }
+             const newImage = {
+               id: `asset-${Date.now()}`,
+               file: new File([], asset.name),
+               preview: asset.src,
+             };
+             setUploadedImages(prev => [...prev, newImage].slice(0, MAX_PROMPT_IMAGES));
+             setShowAssetPicker(false);
+           }}
+         />
+       )}
     </div>
   )
 }

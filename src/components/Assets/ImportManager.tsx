@@ -1,20 +1,35 @@
 import React, { useState, useRef, useCallback } from 'react';
 import {
-  X, Upload, Image, Link2, Cloud, FolderUp, CheckCircle2,
-  AlertCircle, Loader2, Trash2, RotateCcw, ChevronRight, Globe,
-  HardDrive, Smartphone, Camera, CloudCog
+  Upload,
+  Image,
+  Link2,
+  FolderUp,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Trash2,
+  RotateCcw,
+  Globe,
+  HardDrive,
+  Smartphone,
+  Camera,
+  ShoppingBag,
+  Package,
+  Sparkles,
+  ArrowRight,
+  ArrowLeft,
+  Check,
+  ImagePlus,
 } from 'lucide-react';
 import { Button, Badge } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { GoogleDrivePicker } from './GoogleDrivePicker';
 
 interface ImportManagerProps {
-  isOpen: boolean;
-  onClose: () => void;
+  onBack: () => void;
   onImportComplete?: (files: ImportedFile[]) => void;
 }
 
-interface ImportedFile {
+export interface ImportedFile {
   id: string;
   name: string;
   size: number;
@@ -23,41 +38,61 @@ interface ImportedFile {
   status: 'pending' | 'uploading' | 'success' | 'error';
   progress: number;
   error?: string;
-  source: 'local' | 'url' | 'cloud';
+  source: 'local' | 'url' | 'ecommerce';
+  productInfo?: {
+    platform: string;
+    productName: string;
+    price?: string;
+  };
 }
 
-interface ImportSource {
+interface EcommercePlatform {
   id: string;
   name: string;
-  nameVi: string;
-  icon: React.ElementType;
+  domain: string[];
+  icon: string;
   color: string;
-  connected?: boolean;
 }
 
-export const ImportManager: React.FC<ImportManagerProps> = ({
-  isOpen,
-  onClose,
-  onImportComplete,
-}) => {
+const ecommercePlatforms: EcommercePlatform[] = [
+  { id: 'shopee', name: 'Shopee', domain: ['shopee.vn', 'shopee.com'], icon: '🛒', color: 'bg-orange-500' },
+  { id: 'lazada', name: 'Lazada', domain: ['lazada.vn', 'lazada.com'], icon: '🛍️', color: 'bg-blue-600' },
+  { id: 'tiki', name: 'Tiki', domain: ['tiki.vn'], icon: '📦', color: 'bg-blue-500' },
+  { id: 'amazon', name: 'Amazon', domain: ['amazon.com', 'amazon.co'], icon: '📦', color: 'bg-amber-500' },
+  { id: 'alibaba', name: 'Alibaba', domain: ['alibaba.com', '1688.com'], icon: '🏭', color: 'bg-orange-600' },
+  { id: 'taobao', name: 'Taobao', domain: ['taobao.com', 'tmall.com'], icon: '🛒', color: 'bg-red-500' },
+];
+
+export const ImportManager: React.FC<ImportManagerProps> = ({ onBack, onImportComplete }) => {
   const { language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeTab, setActiveTab] = useState<'upload' | 'url' | 'cloud'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'url'>('upload');
   const [files, setFiles] = useState<ImportedFile[]>([]);
   const [urlInput, setUrlInput] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [showGoogleDrivePicker, setShowGoogleDrivePicker] = useState(false);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [isAnalyzingUrl, setIsAnalyzingUrl] = useState(false);
+  const [detectedPlatform, setDetectedPlatform] = useState<EcommercePlatform | null>(null);
 
-  const cloudSources: ImportSource[] = [
-    { id: 'google-drive', name: 'Google Drive', nameVi: 'Google Drive', icon: Cloud, color: 'text-blue-500', connected: true },
-    { id: 'dropbox', name: 'Dropbox', nameVi: 'Dropbox', icon: CloudCog, color: 'text-blue-600', connected: false },
-    { id: 'figma', name: 'Figma', nameVi: 'Figma', icon: () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z"/><path d="M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z"/><path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z"/><path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z"/><path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z"/></svg>, color: 'text-purple-500', connected: true },
-    { id: 'instagram', name: 'Instagram', nameVi: 'Instagram', icon: () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, color: 'text-pink-500', connected: false },
-  ];
+
+  const detectPlatform = (url: string): EcommercePlatform | null => {
+    try {
+      const urlObj = new URL(url);
+      const hostname = urlObj.hostname.toLowerCase();
+      return ecommercePlatforms.find((p) => p.domain.some((d) => hostname.includes(d))) || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const handleUrlChange = (value: string) => {
+    setUrlInput(value);
+    setDetectedPlatform(detectPlatform(value));
+  };
 
   const addFiles = useCallback((newFiles: File[]) => {
-    const importedFiles: ImportedFile[] = newFiles.map(file => ({
+    const importedFiles: ImportedFile[] = newFiles.map((file) => ({
       id: `file-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       name: file.name,
       size: file.size,
@@ -67,7 +102,7 @@ export const ImportManager: React.FC<ImportManagerProps> = ({
       progress: 0,
       source: 'local' as const,
     }));
-    setFiles(prev => [...prev, ...importedFiles]);
+    setFiles((prev) => [...prev, ...importedFiles]);
   }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -80,52 +115,72 @@ export const ImportManager: React.FC<ImportManagerProps> = ({
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const droppedFiles = Array.from(e.dataTransfer.files).filter(
-      file => file.type.startsWith('image/')
-    );
-    addFiles(droppedFiles);
-  }, [addFiles]);
-
-  if (!isOpen) return null;
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const droppedFiles = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith('image/'));
+      addFiles(droppedFiles);
+    },
+    [addFiles]
+  );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files).filter(
-        file => file.type.startsWith('image/')
-      );
+      const selectedFiles = Array.from(e.target.files).filter((file) => file.type.startsWith('image/'));
       addFiles(selectedFiles);
     }
   };
 
-  const handleUrlImport = () => {
+  const handleUrlImport = async () => {
     if (!urlInput.trim()) return;
-    
-    const newFile: ImportedFile = {
-      id: `url-${Date.now()}`,
-      name: urlInput.split('/').pop() || 'imported-image',
-      size: 0,
-      type: 'image/jpeg',
-      thumbnail: urlInput,
-      status: 'pending',
-      progress: 0,
-      source: 'url',
-    };
-    setFiles(prev => [...prev, newFile]);
+
+    const platform = detectPlatform(urlInput);
+
+    if (platform) {
+      setIsAnalyzingUrl(true);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      const mockImages = [
+        { name: 'product_main.jpg', thumbnail: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400' },
+        { name: 'product_angle_1.jpg', thumbnail: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400' },
+        { name: 'product_angle_2.jpg', thumbnail: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400' },
+        { name: 'product_detail.jpg', thumbnail: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400' },
+      ];
+
+      const newFiles: ImportedFile[] = mockImages.map((img, idx) => ({
+        id: `ecom-${Date.now()}-${idx}`,
+        name: img.name,
+        size: Math.floor(Math.random() * 3000000) + 500000,
+        type: 'image/jpeg',
+        thumbnail: img.thumbnail,
+        status: 'pending',
+        progress: 0,
+        source: 'ecommerce',
+        productInfo: { platform: platform.name, productName: 'Nike Air Max 270', price: '2,500,000₫' },
+      }));
+
+      setFiles((prev) => [...prev, ...newFiles]);
+      setIsAnalyzingUrl(false);
+    } else {
+      const newFile: ImportedFile = {
+        id: `url-${Date.now()}`,
+        name: urlInput.split('/').pop() || 'imported-image',
+        size: 0,
+        type: 'image/jpeg',
+        thumbnail: urlInput,
+        status: 'pending',
+        progress: 0,
+        source: 'url',
+      };
+      setFiles((prev) => [...prev, newFile]);
+    }
     setUrlInput('');
+    setDetectedPlatform(null);
   };
 
-  const removeFile = (id: string) => {
-    setFiles(prev => prev.filter(f => f.id !== id));
-  };
-
-  const retryFile = (id: string) => {
-    setFiles(prev => prev.map(f => 
-      f.id === id ? { ...f, status: 'pending', progress: 0, error: undefined } : f
-    ));
-  };
+  const removeFile = (id: string) => setFiles((prev) => prev.filter((f) => f.id !== id));
+  const retryFile = (id: string) => setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, status: 'pending', progress: 0, error: undefined } : f)));
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return 'Unknown';
@@ -137,367 +192,374 @@ export const ImportManager: React.FC<ImportManagerProps> = ({
 
   const handleStartUpload = async () => {
     setIsUploading(true);
-    
-    // Simulate upload for each file
     for (const file of files) {
       if (file.status !== 'pending') continue;
-      
-      setFiles(prev => prev.map(f => 
-        f.id === file.id ? { ...f, status: 'uploading' } : f
-      ));
-
-      // Simulate progress
+      setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, status: 'uploading' } : f)));
       for (let progress = 0; progress <= 100; progress += 10) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        setFiles(prev => prev.map(f => 
-          f.id === file.id ? { ...f, progress } : f
-        ));
+        await new Promise((resolve) => setTimeout(resolve, 80));
+        setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress } : f)));
       }
-
-      // Random success/error for demo
-      const success = Math.random() > 0.1;
-      setFiles(prev => prev.map(f => 
-        f.id === file.id 
-          ? { ...f, status: success ? 'success' : 'error', error: success ? undefined : 'Upload failed' } 
-          : f
-      ));
+      const success = Math.random() > 0.05;
+      setFiles((prev) =>
+        prev.map((f) => (f.id === file.id ? { ...f, status: success ? 'success' : 'error', error: success ? undefined : 'Upload failed' } : f))
+      );
     }
-
     setIsUploading(false);
+    setShowSuccessScreen(true);
   };
 
   const handleComplete = () => {
-    const successFiles = files.filter(f => f.status === 'success');
+    const successFiles = files.filter((f) => f.status === 'success');
     onImportComplete?.(successFiles);
     setFiles([]);
-    onClose();
+    setShowSuccessScreen(false);
+    onBack();
   };
 
-  const pendingCount = files.filter(f => f.status === 'pending').length;
-  const successCount = files.filter(f => f.status === 'success').length;
-  const errorCount = files.filter(f => f.status === 'error').length;
+  const pendingCount = files.filter((f) => f.status === 'pending').length;
+  const successCount = files.filter((f) => f.status === 'success').length;
+  const errorCount = files.filter((f) => f.status === 'error').length;
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-repix-500 to-pink-500">
-              <Upload size={20} className="text-white" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                {language === 'vi' ? 'Import ảnh' : 'Import Images'}
-              </h2>
-              <p className="text-xs text-zinc-500">
-                {language === 'vi' ? 'Tải lên ảnh từ máy tính hoặc nguồn khác' : 'Upload images from your computer or other sources'}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-          >
-            <X size={20} className="text-zinc-500" />
+
+  // Success Screen
+  if (showSuccessScreen && successCount > 0) {
+    return (
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header with Back */}
+        <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0">
+          <button onClick={onBack} className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 mb-4">
+            <ArrowLeft size={16} />
+            {language === 'vi' ? 'Quay lại' : 'Back'}
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-zinc-200 dark:border-zinc-800">
-          {[
-            { id: 'upload', icon: HardDrive, label: language === 'vi' ? 'Từ máy tính' : 'From Computer' },
-            { id: 'url', icon: Link2, label: language === 'vi' ? 'Từ URL' : 'From URL' },
-            { id: 'cloud', icon: Cloud, label: language === 'vi' ? 'Từ Cloud' : 'From Cloud' },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === tab.id
-                  ? 'text-repix-600 dark:text-repix-400'
-                  : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
-              }`}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-repix-500" />
-              )}
-            </button>
-          ))}
-        </div>
+        {/* Success Content */}
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-lg w-full text-center">
+            {/* Success Icon */}
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 mb-6 shadow-lg shadow-green-500/30">
+              <CheckCircle2 size={48} className="text-white" />
+            </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {activeTab === 'upload' && (
-            <div className="space-y-4">
-              {/* Drop Zone */}
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-                  isDragging
-                    ? 'border-repix-500 bg-repix-50 dark:bg-repix-900/20'
-                    : 'border-zinc-300 dark:border-zinc-700 hover:border-repix-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
-                }`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-                <div className="flex flex-col items-center gap-3">
-                  <div className={`p-4 rounded-full ${isDragging ? 'bg-repix-100 dark:bg-repix-900/30' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
-                    <FolderUp size={32} className={isDragging ? 'text-repix-500' : 'text-zinc-400'} />
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
+              {language === 'vi' ? 'Upload thành công!' : 'Upload Successful!'}
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 mb-8">
+              {language === 'vi' ? `${successCount} ảnh đã được tải lên thành công` : `${successCount} images have been uploaded successfully`}
+            </p>
+
+            {/* Preview Grid */}
+            <div className="grid grid-cols-4 gap-3 mb-8">
+              {files
+                .filter((f) => f.status === 'success')
+                .slice(0, 8)
+                .map((file, idx) => (
+                  <div key={file.id} className="relative">
+                    <div className="aspect-square rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 ring-2 ring-green-500/30">
+                      <img src={file.thumbnail} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                      <Check size={12} className="text-white" />
+                    </div>
+                    {idx === 7 && successCount > 8 && (
+                      <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center">
+                        <span className="text-white font-bold">+{successCount - 8}</span>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                      {language === 'vi' ? 'Kéo thả ảnh vào đây' : 'Drag and drop images here'}
-                    </p>
-                    <p className="text-xs text-zinc-500 mt-1">
-                      {language === 'vi' ? 'hoặc click để chọn file' : 'or click to select files'}
-                    </p>
-                  </div>
-                  <p className="text-xs text-zinc-400">
-                    PNG, JPG, WEBP, GIF • Max 50MB
-                  </p>
-                </div>
+                ))}
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl mb-8">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-500">{successCount}</p>
+                <p className="text-xs text-zinc-500">{language === 'vi' ? 'Thành công' : 'Successful'}</p>
               </div>
-
-              {/* Quick Actions */}
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => fileInputRef.current?.click()}>
-                  <Image size={14} />
-                  {language === 'vi' ? 'Chọn ảnh' : 'Select Images'}
-                </Button>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Camera size={14} />
-                  {language === 'vi' ? 'Chụp màn hình' : 'Screenshot'}
-                </Button>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Smartphone size={14} />
-                  {language === 'vi' ? 'Từ điện thoại' : 'From Phone'}
-                </Button>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  {(files.filter((f) => f.status === 'success').reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(1)} MB
+                </p>
+                <p className="text-xs text-zinc-500">{language === 'vi' ? 'Tổng dung lượng' : 'Total Size'}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-red-500">{errorCount}</p>
+                <p className="text-xs text-zinc-500">{language === 'vi' ? 'Thất bại' : 'Failed'}</p>
               </div>
             </div>
-          )}
 
-          {activeTab === 'url' && (
-            <div className="space-y-4">
+            {/* Actions */}
+            <div className="flex items-center justify-center gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSuccessScreen(false);
+                  setFiles([]);
+                }}
+                className="gap-2"
+              >
+                <ImagePlus size={16} />
+                {language === 'vi' ? 'Upload thêm' : 'Upload More'}
+              </Button>
+              <Button onClick={handleComplete} className="gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+                {language === 'vi' ? 'Hoàn tất' : 'Done'}
+                <ArrowRight size={16} />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0">
+        <button onClick={onBack} className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 mb-4">
+          <ArrowLeft size={16} />
+          {language === 'vi' ? 'Quay lại' : 'Back'}
+        </button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+              <Upload size={24} className="text-repix-500" />
+              {language === 'vi' ? 'Import ảnh mới' : 'Import New Images'}
+            </h2>
+            <p className="text-sm text-zinc-500 mt-1">
+              {language === 'vi' ? 'Tải lên ảnh từ máy tính hoặc link sản phẩm' : 'Upload images from computer or product links'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-zinc-200 dark:border-zinc-800 px-6">
+        {[
+          { id: 'upload', icon: HardDrive, label: language === 'vi' ? 'Từ máy tính' : 'From Computer' },
+          { id: 'url', icon: Link2, label: language === 'vi' ? 'Từ Link / URL' : 'From Link / URL' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as 'upload' | 'url')}
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative ${
+              activeTab === tab.id ? 'text-repix-600 dark:text-repix-400' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+            }`}
+          >
+            <tab.icon size={16} />
+            {tab.label}
+            {activeTab === tab.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-repix-500" />}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {activeTab === 'upload' && (
+          <div className="space-y-4">
+            {/* Drop Zone */}
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`relative border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
+                isDragging
+                  ? 'border-repix-500 bg-repix-50 dark:bg-repix-900/20'
+                  : 'border-zinc-300 dark:border-zinc-700 hover:border-repix-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+              }`}
+            >
+              <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
+              <div className="flex flex-col items-center gap-4">
+                <div className={`p-5 rounded-full ${isDragging ? 'bg-repix-100 dark:bg-repix-900/30' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
+                  <FolderUp size={40} className={isDragging ? 'text-repix-500' : 'text-zinc-400'} />
+                </div>
+                <div>
+                  <p className="text-base font-medium text-zinc-900 dark:text-white">
+                    {language === 'vi' ? 'Kéo thả ảnh vào đây' : 'Drag and drop images here'}
+                  </p>
+                  <p className="text-sm text-zinc-500 mt-1">{language === 'vi' ? 'hoặc click để chọn file' : 'or click to select files'}</p>
+                </div>
+                <p className="text-xs text-zinc-400">PNG, JPG, WEBP, GIF • Max 50MB</p>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => fileInputRef.current?.click()}>
+                <Image size={14} />
+                {language === 'vi' ? 'Chọn ảnh' : 'Select Images'}
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Camera size={14} />
+                {language === 'vi' ? 'Chụp màn hình' : 'Screenshot'}
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Smartphone size={14} />
+                {language === 'vi' ? 'Từ điện thoại' : 'From Phone'}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'url' && (
+          <div className="space-y-4">
+            {/* URL Input */}
+            <div className="space-y-3">
               <div className="flex gap-2">
                 <div className="flex-1 relative">
                   <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                   <input
                     type="url"
                     value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    placeholder={language === 'vi' ? 'Dán URL ảnh vào đây...' : 'Paste image URL here...'}
-                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-repix-500"
+                    onChange={(e) => handleUrlChange(e.target.value)}
+                    placeholder={language === 'vi' ? 'Dán link sản phẩm hoặc URL ảnh...' : 'Paste product link or image URL...'}
+                    className="w-full pl-10 pr-4 py-3 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-repix-500"
                     onKeyDown={(e) => e.key === 'Enter' && handleUrlImport()}
                   />
                 </div>
-                <Button onClick={handleUrlImport} disabled={!urlInput.trim()}>
-                  {language === 'vi' ? 'Thêm' : 'Add'}
+                <Button onClick={handleUrlImport} disabled={!urlInput.trim() || isAnalyzingUrl} className="px-6">
+                  {isAnalyzingUrl ? <Loader2 size={16} className="animate-spin" /> : language === 'vi' ? 'Thêm' : 'Add'}
                 </Button>
               </div>
-              <p className="text-xs text-zinc-500">
-                {language === 'vi' 
-                  ? 'Hỗ trợ URL trực tiếp đến file ảnh (PNG, JPG, WEBP, GIF)'
-                  : 'Supports direct URLs to image files (PNG, JPG, WEBP, GIF)'}
+
+              {/* Platform Detection */}
+              {detectedPlatform && (
+                <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl animate-in slide-in-from-top-2">
+                  <div className={`w-8 h-8 ${detectedPlatform.color} rounded-lg flex items-center justify-center text-white text-lg`}>
+                    {detectedPlatform.icon}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                      {language === 'vi' ? `Phát hiện link ${detectedPlatform.name}` : `${detectedPlatform.name} link detected`}
+                    </p>
+                    <p className="text-xs text-green-600 dark:text-green-500">
+                      {language === 'vi' ? 'Sẽ tự động lấy tất cả ảnh sản phẩm' : 'Will automatically fetch all product images'}
+                    </p>
+                  </div>
+                  <Sparkles size={16} className="text-green-500" />
+                </div>
+              )}
+            </div>
+
+            {/* Supported Platforms */}
+            <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl">
+              <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-3 flex items-center gap-2">
+                <ShoppingBag size={14} />
+                {language === 'vi' ? 'Hỗ trợ lấy ảnh từ các sàn TMĐT:' : 'Supported e-commerce platforms:'}
               </p>
-            </div>
-          )}
-
-          {activeTab === 'cloud' && (
-            <div className="grid grid-cols-2 gap-3">
-              {cloudSources.map(source => (
-                <button
-                  key={source.id}
-                  onClick={() => {
-                    if (source.id === 'google-drive' && source.connected) {
-                      setShowGoogleDrivePicker(true);
-                    }
-                  }}
-                  className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
-                    source.connected
-                      ? 'border-zinc-200 dark:border-zinc-700 hover:border-repix-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer'
-                      : 'border-zinc-200 dark:border-zinc-700 opacity-60 cursor-not-allowed'
-                  }`}
-                >
-                  <div className={`p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 ${source.color}`}>
-                    {typeof source.icon === 'function' ? <source.icon /> : <source.icon size={20} />}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                      {language === 'vi' ? source.nameVi : source.name}
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                      {source.connected 
-                        ? (language === 'vi' ? 'Đã kết nối' : 'Connected')
-                        : (language === 'vi' ? 'Chưa kết nối' : 'Not connected')
-                      }
-                    </p>
-                  </div>
-                  <ChevronRight size={16} className="text-zinc-400" />
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* File List */}
-          {files.length > 0 && (
-            <div className="mt-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
-                  {language === 'vi' ? 'Danh sách file' : 'File List'} ({files.length})
-                </h3>
-                {files.length > 0 && (
-                  <button 
-                    onClick={() => setFiles([])}
-                    className="text-xs text-red-500 hover:text-red-600"
-                  >
-                    {language === 'vi' ? 'Xóa tất cả' : 'Clear all'}
-                  </button>
-                )}
-              </div>
-              
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {files.map(file => (
+              <div className="flex flex-wrap gap-2">
+                {ecommercePlatforms.map((platform) => (
                   <div
-                    key={file.id}
-                    className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl"
+                    key={platform.id}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white dark:bg-zinc-700 rounded-lg border border-zinc-200 dark:border-zinc-600"
                   >
-                    {/* Thumbnail */}
-                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-700 flex-shrink-0">
-                      <img src={file.thumbnail} alt="" className="w-full h-full object-cover" />
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
-                        {file.name}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-zinc-500">{formatFileSize(file.size)}</span>
-                        {file.status === 'uploading' && (
-                          <div className="flex-1 h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-repix-500 rounded-full transition-all"
-                              style={{ width: `${file.progress}%` }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Status */}
-                    <div className="flex items-center gap-2">
-                      {file.status === 'pending' && (
-                        <Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400 text-[10px]">
-                          {language === 'vi' ? 'Chờ' : 'Pending'}
-                        </Badge>
-                      )}
-                      {file.status === 'uploading' && (
-                        <Loader2 size={16} className="text-repix-500 animate-spin" />
-                      )}
-                      {file.status === 'success' && (
-                        <CheckCircle2 size={16} className="text-green-500" />
-                      )}
-                      {file.status === 'error' && (
-                        <div className="flex items-center gap-1">
-                          <AlertCircle size={16} className="text-red-500" />
-                          <button onClick={() => retryFile(file.id)} className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded">
-                            <RotateCcw size={14} className="text-zinc-500" />
-                          </button>
-                        </div>
-                      )}
-                      <button 
-                        onClick={() => removeFile(file.id)}
-                        className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded"
-                      >
-                        <Trash2 size={14} className="text-zinc-400 hover:text-red-500" />
-                      </button>
-                    </div>
+                    <span>{platform.icon}</span>
+                    <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{platform.name}</span>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 text-xs text-zinc-500">
-              {files.length > 0 && (
-                <>
-                  <span>{pendingCount} {language === 'vi' ? 'chờ xử lý' : 'pending'}</span>
-                  {successCount > 0 && (
-                    <span className="text-green-500">{successCount} {language === 'vi' ? 'thành công' : 'success'}</span>
-                  )}
-                  {errorCount > 0 && (
-                    <span className="text-red-500">{errorCount} {language === 'vi' ? 'lỗi' : 'failed'}</span>
-                  )}
-                </>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={onClose}>
-                {language === 'vi' ? 'Hủy' : 'Cancel'}
-              </Button>
-              {successCount > 0 && !isUploading ? (
-                <Button onClick={handleComplete} className="bg-gradient-to-r from-repix-500 to-pink-500">
-                  {language === 'vi' ? `Hoàn tất (${successCount})` : `Done (${successCount})`}
-                </Button>
-              ) : (
-                <Button 
-                  onClick={handleStartUpload}
-                  disabled={pendingCount === 0 || isUploading}
-                  className="bg-gradient-to-r from-repix-500 to-pink-500"
-                >
-                  {isUploading ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 size={16} className="animate-spin" />
-                      {language === 'vi' ? 'Đang tải...' : 'Uploading...'}
-                    </span>
-                  ) : (
-                    <>
-                      <Upload size={16} className="mr-2" />
-                      {language === 'vi' ? `Tải lên (${pendingCount})` : `Upload (${pendingCount})`}
-                    </>
-                  )}
-                </Button>
-              )}
+              <p className="text-[11px] text-zinc-500 mt-3">
+                {language === 'vi'
+                  ? '💡 Dán link sản phẩm để tự động lấy tất cả ảnh. Hoặc dán trực tiếp URL ảnh (PNG, JPG, WEBP, GIF)'
+                  : '💡 Paste product link to auto-fetch all images. Or paste direct image URL (PNG, JPG, WEBP, GIF)'}
+              </p>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* File List */}
+        {files.length > 0 && (
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
+                {language === 'vi' ? 'Danh sách file' : 'File List'} ({files.length})
+              </h3>
+              <button onClick={() => setFiles([])} className="text-xs text-red-500 hover:text-red-600">
+                {language === 'vi' ? 'Xóa tất cả' : 'Clear all'}
+              </button>
+            </div>
+
+            <div className="space-y-2 max-h-80 overflow-y-auto">
+              {files.map((file) => (
+                <div key={file.id} className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-700 flex-shrink-0 relative">
+                    <img src={file.thumbnail} alt="" className="w-full h-full object-cover" />
+                    {file.source === 'ecommerce' && (
+                      <div className="absolute bottom-0 right-0 w-4 h-4 bg-orange-500 rounded-tl-lg flex items-center justify-center">
+                        <Package size={10} className="text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{file.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-zinc-500">{formatFileSize(file.size)}</span>
+                      {file.productInfo && (
+                        <Badge className="bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 text-[10px]">
+                          {file.productInfo.platform}
+                        </Badge>
+                      )}
+                      {file.status === 'uploading' && (
+                        <div className="flex-1 h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-repix-500 rounded-full transition-all" style={{ width: `${file.progress}%` }} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {file.status === 'pending' && (
+                      <Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400 text-[10px]">
+                        {language === 'vi' ? 'Chờ' : 'Pending'}
+                      </Badge>
+                    )}
+                    {file.status === 'uploading' && <Loader2 size={16} className="text-repix-500 animate-spin" />}
+                    {file.status === 'success' && <CheckCircle2 size={16} className="text-green-500" />}
+                    {file.status === 'error' && (
+                      <div className="flex items-center gap-1">
+                        <AlertCircle size={16} className="text-red-500" />
+                        <button onClick={() => retryFile(file.id)} className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded">
+                          <RotateCcw size={14} className="text-zinc-500" />
+                        </button>
+                      </div>
+                    )}
+                    <button onClick={() => removeFile(file.id)} className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded">
+                      <Trash2 size={14} className="text-zinc-400 hover:text-red-500" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Google Drive Picker Modal */}
-      <GoogleDrivePicker
-        isOpen={showGoogleDrivePicker}
-        onClose={() => setShowGoogleDrivePicker(false)}
-        onSelect={(driveFiles) => {
-          const importedFiles: ImportedFile[] = driveFiles.map(file => ({
-            id: `drive-${file.id}`,
-            name: file.name,
-            size: file.size || 0,
-            type: file.mimeType,
-            thumbnail: file.thumbnailUrl || '',
-            status: 'pending' as const,
-            progress: 0,
-            source: 'cloud' as const,
-          }));
-          setFiles(prev => [...prev, ...importedFiles]);
-          setShowGoogleDrivePicker(false);
-        }}
-      />
+      {/* Footer */}
+      {files.length > 0 && (
+        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 text-xs text-zinc-500">
+              <span>{pendingCount} {language === 'vi' ? 'chờ xử lý' : 'pending'}</span>
+              {successCount > 0 && <span className="text-green-500">{successCount} {language === 'vi' ? 'thành công' : 'success'}</span>}
+              {errorCount > 0 && <span className="text-red-500">{errorCount} {language === 'vi' ? 'lỗi' : 'failed'}</span>}
+            </div>
+            <Button onClick={handleStartUpload} disabled={pendingCount === 0 || isUploading} className="bg-gradient-to-r from-repix-500 to-pink-500">
+              {isUploading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 size={16} className="animate-spin" />
+                  {language === 'vi' ? 'Đang tải...' : 'Uploading...'}
+                </span>
+              ) : (
+                <>
+                  <Upload size={16} className="mr-2" />
+                  {language === 'vi' ? `Tải lên (${pendingCount})` : `Upload (${pendingCount})`}
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

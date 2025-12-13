@@ -38,38 +38,26 @@ export const ExportsView: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <Download size={24} className="text-green-500" />
-              {language === 'vi' ? 'Ảnh đã xuất' : 'Exported Images'}
-            </h2>
-            <p className="text-sm text-zinc-500 mt-1">
-              {language === 'vi' ? 'Lịch sử các file đã xuất ra' : 'History of exported files'}
-            </p>
-          </div>
-          <Button size="sm" className="gap-2">
-            <Download size={16} />
-            {language === 'vi' ? 'Tải tất cả' : 'Download All'}
-          </Button>
-        </div>
-
+      {/* Action Bar */}
+      <div className="px-6 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0 flex items-center justify-between">
         {/* Quick Stats */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="flex items-center gap-3">
           {[
             { label: 'PNG', value: '18', color: 'text-blue-500' },
             { label: 'JPG', value: '15', color: 'text-green-500' },
             { label: 'WEBP', value: '10', color: 'text-purple-500' },
             { label: 'PDF', value: '5', color: 'text-red-500' },
           ].map((stat, idx) => (
-            <div key={idx} className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4 text-center">
-              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+            <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+              <span className={`text-sm font-bold ${stat.color}`}>{stat.value}</span>
               <span className="text-xs text-zinc-500">{stat.label}</span>
             </div>
           ))}
         </div>
+        <Button size="sm" className="gap-2">
+          <Download size={16} />
+          {language === 'vi' ? 'Tải tất cả' : 'Download All'}
+        </Button>
       </div>
 
       {/* Content - Table View */}

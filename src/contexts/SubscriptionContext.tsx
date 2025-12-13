@@ -13,6 +13,7 @@ interface SubscriptionContextType {
   subscription: SubscriptionState;
   currentPlan: PlanType;
   credits: number;
+  teamCredits: number;
   
   // Plan checks
   isPlus: boolean;
@@ -30,13 +31,16 @@ interface SubscriptionContextType {
   
   // Credits
   useCredits: (operation: string, amount?: number) => boolean;
+  useTeamCredits: (operation: string, amount?: number) => boolean;
   hasEnoughCredits: (operation: string, amount?: number) => boolean;
+  hasEnoughTeamCredits: (operation: string, amount?: number) => boolean;
   getCreditCost: (operation: string) => number;
   
   // Actions
   upgradePlan: (plan: PlanType) => void;
   resetCredits: () => void;
   addCredits: (amount: number) => void;
+  addTeamCredits: (amount: number) => void;
   
   // UI
   showUpgradeModal: boolean;
@@ -68,7 +72,10 @@ const getInitialState = (): SubscriptionState => {
     maxCredits: 50,
     usedCredits: 0,
     renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    isActive: true
+    isActive: true,
+    teamCredits: 0,
+    maxTeamCredits: 0,
+    usedTeamCredits: 0
   };
 };
 
@@ -84,6 +91,7 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   const currentPlan = subscription.currentPlan;
   const credits = subscription.credits;
+  const teamCredits = subscription.teamCredits || 0;
 
   // Plan level checks
   const planLevel = (plan: PlanType): number => {
@@ -125,11 +133,19 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   const hasEnoughCredits = (operation: string, amount: number = 1): boolean => {
     const cost = getCreditCost(operation) * amount;
+    // Team plan has unlimited personal credits
     return subscription.credits >= cost || currentPlan === 'team';
   };
 
+  const hasEnoughTeamCredits = (operation: string, amount: number = 1): boolean => {
+    if (currentPlan !== 'team') return false;
+    const cost = getCreditCost(operation) * amount;
+    return (subscription.teamCredits || 0) >= cost;
+  };
+
   const useCredits = (operation: string, amount: number = 1): boolean => {
-    if (currentPlan === 'team') return true; // Unlimited
+    // Team plan has unlimited personal credits
+    if (currentPlan === 'team') return true;
     
     const cost = getCreditCost(operation) * amount;
     if (subscription.credits < cost) return false;
@@ -142,15 +158,36 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
     return true;
   };
 
+  const useTeamCredits = (operation: string, amount: number = 1): boolean => {
+    if (currentPlan !== 'team') return false;
+    
+    const cost = getCreditCost(operation) * amount;
+    if ((subscription.teamCredits || 0) < cost) return false;
+
+    setSubscription(prev => ({
+      ...prev,
+      teamCredits: (prev.teamCredits || 0) - cost,
+      usedTeamCredits: (prev.usedTeamCredits || 0) + cost
+    }));
+    return true;
+  };
+
   // Actions
   const upgradePlan = (plan: PlanType) => {
     const newPlan = PLANS[plan];
+    const isTeamPlan = plan === 'team';
+    
     setSubscription(prev => ({
       ...prev,
       currentPlan: plan,
+      // Personal credits: unlimited for team plan
       credits: newPlan.credits === -1 ? 999999 : newPlan.credits,
       maxCredits: newPlan.credits === -1 ? 999999 : newPlan.credits,
       usedCredits: 0,
+      // Team credits: 2000 for team plan
+      teamCredits: isTeamPlan ? (newPlan.teamCredits || 2000) : 0,
+      maxTeamCredits: isTeamPlan ? (newPlan.teamCredits || 2000) : 0,
+      usedTeamCredits: 0,
       renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       isActive: true
     }));
@@ -159,10 +196,14 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   const resetCredits = () => {
     const plan = PLANS[currentPlan];
+    const isTeamPlan = currentPlan === 'team';
+    
     setSubscription(prev => ({
       ...prev,
       credits: plan.credits === -1 ? 999999 : plan.credits,
-      usedCredits: 0
+      usedCredits: 0,
+      teamCredits: isTeamPlan ? (plan.teamCredits || 2000) : 0,
+      usedTeamCredits: 0
     }));
   };
 
@@ -171,6 +212,15 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
       ...prev,
       credits: prev.credits + amount,
       maxCredits: prev.maxCredits + amount
+    }));
+  };
+
+  const addTeamCredits = (amount: number) => {
+    if (currentPlan !== 'team') return;
+    setSubscription(prev => ({
+      ...prev,
+      teamCredits: (prev.teamCredits || 0) + amount,
+      maxTeamCredits: (prev.maxTeamCredits || 0) + amount
     }));
   };
 
@@ -184,6 +234,7 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
     subscription,
     currentPlan,
     credits,
+    teamCredits,
     isPlus,
     isPro,
     isTeam,
@@ -193,11 +244,14 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
     getBatchLimit,
     hasWatermark,
     useCredits,
+    useTeamCredits,
     hasEnoughCredits,
+    hasEnoughTeamCredits,
     getCreditCost,
     upgradePlan,
     resetCredits,
     addCredits,
+    addTeamCredits,
     showUpgradeModal,
     setShowUpgradeModal,
     upgradeModalFeature,

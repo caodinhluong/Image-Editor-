@@ -50,36 +50,20 @@ export const TemplatesView: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <Layout size={24} className="text-amber-500" />
-              {language === 'vi' ? 'Templates' : 'Templates'}
-            </h2>
-            <p className="text-sm text-zinc-500 mt-1">
-              {language === 'vi' ? 'Các mẫu thiết kế có sẵn và đã lưu' : 'Pre-made and saved design templates'}
-            </p>
-          </div>
-          <Button size="sm" className="gap-2">
-            <Plus size={16} />
-            {language === 'vi' ? 'Tạo template' : 'Create Template'}
-          </Button>
-        </div>
-
+      {/* Action Bar */}
+      <div className="px-6 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0 flex items-center justify-between">
         {/* Category Tabs */}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           {[
             { key: 'all', label: language === 'vi' ? 'Tất cả' : 'All' },
-            { key: 'social', label: 'Social Media' },
+            { key: 'social', label: 'Social' },
             { key: 'web', label: 'Web' },
             { key: 'print', label: 'Print' },
             { key: 'video', label: 'Video' },
           ].map(tab => (
             <button
               key={tab.key}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 tab.key === 'all'
                   ? 'bg-repix-500 text-white'
                   : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
@@ -89,6 +73,10 @@ export const TemplatesView: React.FC = () => {
             </button>
           ))}
         </div>
+        <Button size="sm" className="gap-2">
+          <Plus size={16} />
+          {language === 'vi' ? 'Tạo template' : 'Create Template'}
+        </Button>
       </div>
 
       {/* Content */}

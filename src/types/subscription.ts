@@ -12,6 +12,7 @@ export interface Plan {
   tagline: string;
   taglineVi: string;
   credits: number;
+  teamCredits?: number; // Shared team credits (only for team plan)
   features: PlanFeature[];
   limits: PlanLimits;
   isPopular?: boolean;
@@ -44,6 +45,10 @@ export interface SubscriptionState {
   usedCredits: number;
   renewalDate: Date;
   isActive: boolean;
+  // Team credits (only for team plan)
+  teamCredits?: number;
+  maxTeamCredits?: number;
+  usedTeamCredits?: number;
 }
 
 export interface CreditCost {
@@ -179,9 +184,11 @@ export const PLANS: Record<PlanType, Plan> = {
     priceLabel: 'Custom',
     tagline: 'Get more work done with AI for teams',
     taglineVi: 'Làm việc nhóm hiệu quả với AI',
-    credits: -1,
+    credits: -1, // Unlimited personal credits
+    teamCredits: 2000, // Shared team credits
     features: [
-      { icon: 'infinity', text: 'Unlimited everything', textVi: 'Mọi thứ không giới hạn' },
+      { icon: 'infinity', text: 'Unlimited personal credits', textVi: 'Credit cá nhân không giới hạn' },
+      { icon: 'users', text: '2,000 shared team credits/month', textVi: '2.000 credit team/tháng' },
       { icon: 'users', text: 'Team workspace & collaboration', textVi: 'Không gian làm việc nhóm' },
       { icon: 'shield', text: 'SSO, MFA & enterprise security', textVi: 'SSO, MFA & bảo mật doanh nghiệp' },
       { icon: 'lock', text: 'Data privacy guarantee', textVi: 'Cam kết bảo mật dữ liệu' },

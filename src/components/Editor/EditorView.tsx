@@ -6,7 +6,7 @@ import {
   ScanFace, Palette, BrainCircuit, Upload, Command, Zap,
   X, SlidersHorizontal, ChevronLeft, ChevronRight, ArrowRight, History,
   MessageSquare, Bell, Activity, ZoomIn, ZoomOut, Maximize2,
-  ImagePlus, Paperclip, Trash2, Lock
+  ImagePlus, Paperclip, Trash2, Lock, Crown
 } from 'lucide-react';
 import { Button, Slider, Badge, Card } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -30,7 +30,7 @@ interface EditorViewProps {
 }
 
 export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRatio }) => {
-  const { trans } = useLanguage();
+  const { trans, language } = useLanguage();
   const { currentPlan } = useSubscription();
   
   // Check if user has Team plan for collaboration features
@@ -63,6 +63,46 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRat
   const [showAssetPicker, setShowAssetPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Generation Options States (same as Dashboard)
+  const [selectedModel, setSelectedModel] = useState('standard');
+  const [selectedStyle, setSelectedStyle] = useState('photograph');
+  const [selectedRatio, setSelectedRatio] = useState('3:2');
+  const [imageCount, setImageCount] = useState(2);
+  const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const [showStyleDropdown, setShowStyleDropdown] = useState(false);
+  const [showRatioDropdown, setShowRatioDropdown] = useState(false);
+  
+  // Options Data - Real AI Models
+  const modelOptions = [
+    { id: 'flux-schnell', label: 'Flux Schnell', labelVi: 'Flux Nhanh', tier: 'free' },
+    { id: 'sdxl', label: 'SDXL', labelVi: 'SDXL', tier: 'free' },
+    { id: 'flux-pro', label: 'Flux Pro', labelVi: 'Flux Pro', tier: 'plus' },
+    { id: 'dalle3', label: 'DALL-E 3', labelVi: 'DALL-E 3', tier: 'plus' },
+    { id: 'midjourney', label: 'Midjourney v6', labelVi: 'Midjourney v6', tier: 'pro' },
+    { id: 'imagen3', label: 'Imagen 3', labelVi: 'Imagen 3', tier: 'pro' },
+    { id: 'gemini-pro', label: 'Gemini 2.0', labelVi: 'Gemini 2.0', tier: 'pro' },
+  ];
+  
+  const styleOptions = [
+    { id: 'photograph', label: 'Photograph', labelVi: 'Ảnh chụp' },
+    { id: 'illustration', label: 'Illustration', labelVi: 'Minh họa' },
+    { id: 'digital-art', label: 'Digital Art', labelVi: 'Nghệ thuật số' },
+    { id: '3d-render', label: '3D Render', labelVi: '3D Render' },
+    { id: 'painting', label: 'Painting', labelVi: 'Tranh vẽ' },
+  ];
+  
+  const ratioOptions = [
+    { id: '1:1', label: '1:1', width: 1, height: 1 },
+    { id: '16:9', label: '16:9', width: 16, height: 9 },
+    { id: '9:16', label: '9:16', width: 9, height: 16 },
+    { id: '3:2', label: '3:2', width: 3, height: 2 },
+    { id: '2:3', label: '2:3', width: 2, height: 3 },
+    { id: '4:3', label: '4:3', width: 4, height: 3 },
+    { id: '3:4', label: '3:4', width: 3, height: 4 },
+  ];
+  
+  const countOptions = [1, 2, 4];
   
   // Mock imported assets from My Assets
   const myImportedAssets = [
@@ -349,17 +389,31 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRat
     setSelectedGeneratedImage(index);
   };
 
+  // Max images constant
+  const MAX_PROMPT_IMAGES = 5;
+  const [showMaxImagesWarning, setShowMaxImagesWarning] = useState(false);
+
   // Handle prompt image upload
   const handlePromptImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files) as File[];
-    const newImages = files.slice(0, 4 - uploadedImages.length).map((file: File, idx: number) => ({
+    const remainingSlots = MAX_PROMPT_IMAGES - uploadedImages.length;
+    
+    if (files.length > remainingSlots) {
+      setShowMaxImagesWarning(true);
+      setTimeout(() => setShowMaxImagesWarning(false), 3000);
+    }
+    
+    const newImages = files.slice(0, remainingSlots).map((file: File, idx: number) => ({
       id: `upload-${Date.now()}-${idx}`,
       file,
       preview: URL.createObjectURL(file)
     }));
-    setUploadedImages(prev => [...prev, ...newImages].slice(0, 4));
-    setIsPromptExpanded(true);
+    
+    if (newImages.length > 0) {
+      setUploadedImages(prev => [...prev, ...newImages].slice(0, MAX_PROMPT_IMAGES));
+      setIsPromptExpanded(true);
+    }
   };
 
   const handleRemoveUploadedImage = (id: string) => {
@@ -376,14 +430,19 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRat
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf('image') !== -1) {
         const file = items[i].getAsFile();
-        if (file && uploadedImages.length < 4) {
-          const newImage = {
-            id: `paste-${Date.now()}`,
-            file,
-            preview: URL.createObjectURL(file)
-          };
-          setUploadedImages(prev => [...prev, newImage].slice(0, 4));
-          setIsPromptExpanded(true);
+        if (file) {
+          if (uploadedImages.length >= MAX_PROMPT_IMAGES) {
+            setShowMaxImagesWarning(true);
+            setTimeout(() => setShowMaxImagesWarning(false), 3000);
+          } else {
+            const newImage = {
+              id: `paste-${Date.now()}`,
+              file,
+              preview: URL.createObjectURL(file)
+            };
+            setUploadedImages(prev => [...prev, newImage].slice(0, MAX_PROMPT_IMAGES));
+            setIsPromptExpanded(true);
+          }
         }
         break;
       }
@@ -958,7 +1017,7 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRat
                     </div>
                   </div>
                 ))}
-                {uploadedImages.length < 4 && (
+                {uploadedImages.length < MAX_PROMPT_IMAGES && (
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     className="w-16 h-16 md:w-20 md:h-20 border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl flex flex-col items-center justify-center text-zinc-400 hover:text-repix-500 hover:border-repix-400 transition-colors"
@@ -1065,17 +1124,153 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRat
                 </span>
               </Button>
             </div>
+            
+            {/* Options Row - Same as Dashboard */}
+            <div className="hidden md:flex items-center gap-1.5 px-2 pt-2 border-t border-zinc-100 dark:border-zinc-800 mt-2 flex-wrap">
+              {/* Model Dropdown */}
+              <div className="relative">
+                <button 
+                  onClick={() => { setShowModelDropdown(!showModelDropdown); setShowStyleDropdown(false); setShowRatioDropdown(false); }}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Model: {modelOptions.find(m => m.id === selectedModel)?.[language === 'vi' ? 'labelVi' : 'label']}
+                  {modelOptions.find(m => m.id === selectedModel)?.tier === 'plus' && (
+                    <Crown size={10} className="text-purple-500" />
+                  )}
+                  {modelOptions.find(m => m.id === selectedModel)?.tier === 'pro' && (
+                    <Crown size={10} className="text-amber-500" />
+                  )}
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                {showModelDropdown && (
+                  <div className="absolute bottom-full left-0 mb-1 py-2 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-30 min-w-[200px]">
+                    <p className="px-3 py-1 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                      {language === 'vi' ? 'Chọn Model AI' : 'Select AI Model'}
+                    </p>
+                    {modelOptions.map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => { setSelectedModel(opt.id); setShowModelDropdown(false); }}
+                        className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${selectedModel === opt.id ? 'text-repix-500 font-medium bg-repix-50 dark:bg-repix-900/20' : 'text-zinc-600 dark:text-zinc-400'}`}
+                      >
+                        <span>{language === 'vi' ? opt.labelVi : opt.label}</span>
+                        {opt.tier === 'plus' && (
+                          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[9px] font-bold">
+                            <Crown size={8} /> PLUS
+                          </span>
+                        )}
+                        {opt.tier === 'pro' && (
+                          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[9px] font-bold">
+                            <Crown size={8} /> PRO
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            {/* Helper Text */}
-            {uploadedImages.length === 0 && (
-              <div className="hidden md:flex items-center justify-center gap-4 mt-2 text-[10px] text-zinc-400">
-                <span className="flex items-center gap-1">
-                  <Paperclip size={10} /> Upload or paste images
+              {/* Style Dropdown */}
+              <div className="relative">
+                <button 
+                  onClick={() => { setShowStyleDropdown(!showStyleDropdown); setShowModelDropdown(false); setShowRatioDropdown(false); }}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Style: {styleOptions.find(s => s.id === selectedStyle)?.[language === 'vi' ? 'labelVi' : 'label']}
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                {showStyleDropdown && (
+                  <div className="absolute bottom-full left-0 mb-1 py-1 bg-white dark:bg-zinc-800 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-700 z-30 min-w-[140px]">
+                    {styleOptions.map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => { setSelectedStyle(opt.id); setShowStyleDropdown(false); }}
+                        className={`w-full px-3 py-1.5 text-left text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${selectedStyle === opt.id ? 'text-repix-500 font-medium' : 'text-zinc-600 dark:text-zinc-400'}`}
+                      >
+                        {language === 'vi' ? opt.labelVi : opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Ratio & Count Dropdown */}
+              <div className="relative">
+                <button 
+                  onClick={() => { setShowRatioDropdown(!showRatioDropdown); setShowModelDropdown(false); setShowStyleDropdown(false); }}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                >
+                  {selectedRatio} · {imageCount} {language === 'vi' ? 'ảnh' : 'img'}
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                {showRatioDropdown && (
+                  <div className="absolute bottom-full right-0 mb-1 p-3 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-30 min-w-[260px]">
+                    {/* Aspect Ratio */}
+                    <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                      {language === 'vi' ? 'Tỷ lệ khung hình' : 'Aspect Ratio'}
+                    </p>
+                    <div className="flex gap-1.5 mb-3 flex-wrap">
+                      {ratioOptions.map(ratio => (
+                        <button
+                          key={ratio.id}
+                          onClick={() => setSelectedRatio(ratio.id)}
+                          className={`flex flex-col items-center gap-0.5 p-1.5 rounded-lg transition-colors ${
+                            selectedRatio === ratio.id 
+                              ? 'bg-blue-500 text-white' 
+                              : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-600'
+                          }`}
+                        >
+                          <div 
+                            className={`border-2 ${selectedRatio === ratio.id ? 'border-white' : 'border-current'}`}
+                            style={{ 
+                              width: `${Math.min(ratio.width / Math.max(ratio.width, ratio.height) * 18, 18)}px`,
+                              height: `${Math.min(ratio.height / Math.max(ratio.width, ratio.height) * 18, 18)}px`
+                            }}
+                          />
+                          <span className="text-[9px] font-medium">{ratio.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* Count */}
+                    <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                      {language === 'vi' ? 'Số lượng' : 'Count'}
+                    </p>
+                    <div className="flex gap-1.5">
+                      {countOptions.map(count => (
+                        <button
+                          key={count}
+                          onClick={() => setImageCount(count)}
+                          className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            imageCount === count 
+                              ? 'bg-blue-500 text-white' 
+                              : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-600'
+                          }`}
+                        >
+                          {count}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <button 
+                      onClick={() => setShowRatioDropdown(false)}
+                      className="w-full mt-2 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
+                    >
+                      {language === 'vi' ? 'Đóng' : 'Close'}
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              
+            </div>
+
+            {/* Max Images Warning */}
+            {showMaxImagesWarning && (
+              <div className="flex items-center justify-center gap-2 mt-2 px-3 py-1.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                <span className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                  {language === 'vi' ? `Tối đa ${MAX_PROMPT_IMAGES} ảnh được phép` : `Maximum ${MAX_PROMPT_IMAGES} images allowed`}
                 </span>
-                <span>•</span>
-                <span>Press Enter to generate</span>
-                <span>•</span>
-                <span>Max 4 images</span>
               </div>
             )}
           </div>
@@ -1539,13 +1734,35 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRat
         <AssetPickerModal
           isOpen={showAssetPicker}
           onClose={() => setShowAssetPicker(false)}
+          maxSelection={MAX_PROMPT_IMAGES - uploadedImages.length}
+          onSelectMultiple={(assets) => {
+            const remainingSlots = MAX_PROMPT_IMAGES - uploadedImages.length;
+            if (assets.length > remainingSlots) {
+              setShowMaxImagesWarning(true);
+              setTimeout(() => setShowMaxImagesWarning(false), 3000);
+            }
+            const newImages = assets.slice(0, remainingSlots).map((asset, idx) => ({
+              id: `asset-${Date.now()}-${idx}`,
+              file: new File([], asset.name),
+              preview: asset.src,
+            }));
+            if (newImages.length > 0) {
+              setUploadedImages(prev => [...prev, ...newImages].slice(0, MAX_PROMPT_IMAGES));
+            }
+            setShowAssetPicker(false);
+          }}
           onSelectAsset={(asset) => {
+            if (uploadedImages.length >= MAX_PROMPT_IMAGES) {
+              setShowMaxImagesWarning(true);
+              setTimeout(() => setShowMaxImagesWarning(false), 3000);
+              return;
+            }
             const newImage = {
               id: `asset-${Date.now()}`,
               file: new File([], asset.name),
               preview: asset.src,
             };
-            setUploadedImages(prev => [...prev, newImage].slice(0, 4));
+            setUploadedImages(prev => [...prev, newImage].slice(0, MAX_PROMPT_IMAGES));
             setShowAssetPicker(false);
           }}
         />
