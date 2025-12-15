@@ -14,7 +14,7 @@ import { ViewState } from './types';
 import { 
   Sparkles, ArrowRight, Image as ImageIcon, Scissors, Layers, Maximize2, Wand2, Search, Play,
   ShoppingBag, Camera, Briefcase, Zap, Crown, Check, ShieldCheck, Building2, Star,
-  Paperclip, X, ImagePlus, Download, Upload, ChevronRight, ChevronDown, RefreshCw, Edit3
+  Paperclip, X, ImagePlus, Download, Upload, ChevronRight, ChevronDown, RefreshCw, Edit3, Heart
 } from 'lucide-react';
 import { Button, Card, Badge } from './components/ui/UIComponents';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -26,6 +26,7 @@ import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import { UpgradeModal } from './components/Subscription/UpgradeModal';
 import { AssetPickerModal } from './components/Editor/AssetPickerModal';
 import { SmartPhotoshootView } from './components/AI/SmartPhotoshootView';
+import { RecreateView } from './components/Marketplace/RecreateView';
 
 import { useSubscription } from './contexts/SubscriptionContext';
 
@@ -62,6 +63,33 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   // Example Preview Modal State
   const [selectedExample, setSelectedExample] = useState<{ title: string; src: string; prompt: string } | null>(null);
   const [showMoreExamples, setShowMoreExamples] = useState(false);
+  const [selectedTool, setSelectedTool] = useState('nano-banana-pro');
+  const [showToolDropdown, setShowToolDropdown] = useState(false);
+  
+  // Tools data for Example Modal
+  const toolOptions = [
+    { id: 'soul-character', name: 'Soul ID Character', desc: 'Create unique character', icon: '😊' },
+    { id: 'inpaint', name: 'Inpaint', desc: 'Select an area, describe the change', icon: '🖌️', isNew: true },
+    { id: 'upscale', name: 'Image Upscale', desc: 'Enhance image quality', icon: '📐' },
+    { id: 'face-swap', name: 'Face Swap', desc: 'Create Realistic Face Swaps', icon: '👥' },
+    { id: 'character-swap', name: 'Character Swap', desc: 'Create Realistic Character Swaps', icon: '🎭' },
+    { id: 'draw-to-edit', name: 'Draw to Edit', desc: 'From sketch to picture', icon: '✏️' },
+    { id: 'instadump', name: 'Instadump', desc: 'Turn a selfie into a full content library', icon: '📷' },
+    { id: 'photodump', name: 'Photodump Studio', desc: 'Generate Your Aesthetic', icon: '🖼️' },
+    { id: 'fashion', name: 'Fashion Factory', desc: 'Create fashion sets', icon: '👗' },
+    { id: 'nano-banana-pro', name: 'Nano Banana Pro', desc: 'Best 4K image model ever', icon: '🍌', isNew: true },
+    { id: 'seedream-45', name: 'Seedream 4.5', desc: 'Next-gen 4K image model', icon: '📊', isNew: true },
+    { id: 'flux-2', name: 'FLUX.2', desc: 'Ultra-fast, detailed images', icon: '⚡', isNew: true },
+    { id: 'z-image', name: 'Z-Image', desc: 'Ultra-fast photorealistic images', icon: '🔷', isNew: true },
+    { id: 'kling-o1', name: 'Kling O1 Image', desc: 'Photorealistic, prompt-accurate', icon: '🎯', isNew: true },
+    { id: 'wan-22', name: 'Wan 2.2 Image', desc: 'Realistic images', icon: '🌊' },
+    { id: 'gpt-image', name: 'GPT Image', desc: 'Advanced OpenAI model', icon: '🤖' },
+    { id: 'topaz', name: 'Topaz', desc: 'High-resolution upscaler', icon: '💎' },
+  ];
+  
+  // Recreate View State
+  const [showRecreateView, setShowRecreateView] = useState(false);
+  const [recreateData, setRecreateData] = useState<{ image: string; prompt: string; model: string; style: string; ratio: string } | null>(null);
   
   // Full screen preview state
   const [previewImage, setPreviewImage] = useState<{ url: string; index: number } | null>(null);
@@ -682,6 +710,32 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
 
               </div>
 
+            {/* --- QUICK ACTIONS SECTION --- */}
+            <div className="mb-16">
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                    <Zap size={20} className="text-amber-500" /> {trans.home.tools}
+                  </h2>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{trans.home.quickActionsDesc}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {tools.map((tool, idx) => (
+                  <button 
+                    key={idx}
+                    onClick={() => onStartEditing()}
+                    className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-repix-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all group shadow-sm hover:shadow-md"
+                  >
+                    <div className={`w-14 h-14 rounded-2xl ${tool.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                       <tool.icon className={tool.color} size={28} />
+                    </div>
+                    <span className="font-semibold text-zinc-700 dark:text-zinc-200">{tool.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* --- TRY AN EXAMPLE SECTION --- */}
             <div className="mb-16">
               <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white text-center mb-8">
@@ -954,7 +1008,55 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                   </div>
 
                   {/* Content */}
-                  <div className="flex-1 overflow-y-auto px-5 pb-5 space-y-5">
+                  <div className="flex-1 overflow-y-auto px-5 pb-5 space-y-4">
+                    {/* Tool Selector Section */}
+                    <div className="bg-zinc-800/50 rounded-2xl p-4">
+                      <div className="flex items-center gap-2 text-xs text-zinc-400 font-medium mb-3">
+                        <Layers size={12} className="text-green-400" />
+                        <span>TOOL</span>
+                      </div>
+                      <div className="relative">
+                        <button
+                          onClick={() => { setShowToolDropdown(!showToolDropdown); setShowModelDropdown(false); setShowStyleDropdown(false); setShowRatioDropdown(false); }}
+                          className="w-full flex items-center gap-3 p-2.5 bg-zinc-700/50 hover:bg-zinc-700 border border-zinc-600/50 rounded-xl transition-colors"
+                        >
+                          <div className="w-9 h-9 rounded-lg bg-zinc-600 flex items-center justify-center text-lg">
+                            {toolOptions.find(t => t.id === selectedTool)?.icon || '🔧'}
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[13px] font-medium text-white">{toolOptions.find(t => t.id === selectedTool)?.name || 'Select Tool'}</span>
+                              {toolOptions.find(t => t.id === selectedTool)?.isNew && <span className="px-1.5 py-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white text-[9px] font-bold rounded">NEW</span>}
+                            </div>
+                            <span className="text-[11px] text-zinc-500">{toolOptions.find(t => t.id === selectedTool)?.desc}</span>
+                          </div>
+                          <ChevronDown size={14} className={`text-zinc-500 transition-transform ${showToolDropdown ? 'rotate-180' : ''}`} />
+                        </button>
+                        {showToolDropdown && (
+                          <div className="absolute top-full left-0 right-0 mt-2 bg-zinc-800 border border-zinc-700 rounded-xl overflow-hidden z-30 shadow-2xl max-h-[280px] overflow-y-auto">
+                            {toolOptions.map(tool => (
+                              <button
+                                key={tool.id}
+                                onClick={() => { setSelectedTool(tool.id); setShowToolDropdown(false); }}
+                                className={`w-full flex items-center gap-3 p-2.5 hover:bg-zinc-700 transition-colors ${selectedTool === tool.id ? 'bg-zinc-700' : ''}`}
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-zinc-600 flex items-center justify-center text-base">
+                                  {tool.icon}
+                                </div>
+                                <div className="flex-1 text-left">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[12px] font-medium text-white">{tool.name}</span>
+                                    {tool.isNew && <span className="px-1.5 py-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white text-[9px] font-bold rounded">NEW</span>}
+                                  </div>
+                                  <span className="text-[10px] text-zinc-500">{tool.desc}</span>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     {/* Prompt Section */}
                     <div className="bg-zinc-800/50 rounded-2xl p-4">
                       <div className="flex items-center justify-between mb-3">
@@ -974,7 +1076,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                       </p>
                     </div>
 
-                    {/* Information Section */}
+                    {/* Information Section - Clickable Options */}
                     <div className="bg-zinc-800/50 rounded-2xl p-4">
                       <div className="flex items-center gap-2 text-xs text-zinc-400 font-medium mb-4">
                         <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -983,23 +1085,90 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                         <span>INFORMATION</span>
                       </div>
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[13px] text-zinc-500">Model</span>
-                          <span className="text-[13px] text-white font-medium bg-zinc-700/80 px-3 py-1 rounded-lg">
-                            {modelOptions.find(m => m.id === selectedModel)?.label || 'Flux Schnell'}
-                          </span>
+                        {/* Model - Clickable with Dropdown */}
+                        <div className="relative">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[13px] text-zinc-500">Model</span>
+                            <button
+                              onClick={() => { setShowModelDropdown(!showModelDropdown); setShowStyleDropdown(false); setShowRatioDropdown(false); setShowToolDropdown(false); }}
+                              className="text-[13px] text-white font-medium bg-zinc-700/80 hover:bg-zinc-600 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
+                            >
+                              {modelOptions.find(m => m.id === selectedModel)?.label || 'Higgsfield Soul'}
+                              <ChevronDown size={12} className={`transition-transform ${showModelDropdown ? 'rotate-180' : ''}`} />
+                            </button>
+                          </div>
+                          {showModelDropdown && (
+                            <div className="absolute top-full right-0 mt-1 w-64 bg-zinc-800 border border-zinc-700 rounded-xl overflow-hidden z-30 shadow-2xl max-h-[200px] overflow-y-auto">
+                              {modelOptions.map(model => (
+                                <button
+                                  key={model.id}
+                                  onClick={() => { setSelectedModel(model.id); setShowModelDropdown(false); }}
+                                  className={`w-full px-3 py-2 text-left hover:bg-zinc-700 transition-colors ${selectedModel === model.id ? 'bg-zinc-700' : ''}`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[12px] text-white">{model.label}</span>
+                                    {model.tier === 'plus' && <Crown size={10} className="text-purple-400" />}
+                                    {model.tier === 'pro' && <Crown size={10} className="text-amber-400" />}
+                                  </div>
+                                  <span className="text-[10px] text-zinc-500">{model.desc}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[13px] text-zinc-500">Style</span>
-                          <span className="text-[13px] text-zinc-300 bg-zinc-700/50 px-3 py-1 rounded-lg">
-                            {language === 'vi' 
-                              ? styleOptions.find(s => s.id === selectedStyle)?.labelVi 
-                              : styleOptions.find(s => s.id === selectedStyle)?.label || 'Photograph'}
-                          </span>
+                        {/* Style - Clickable with Dropdown */}
+                        <div className="relative">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[13px] text-zinc-500">Style</span>
+                            <button
+                              onClick={() => { setShowStyleDropdown(!showStyleDropdown); setShowModelDropdown(false); setShowRatioDropdown(false); setShowToolDropdown(false); }}
+                              className="text-[13px] text-zinc-300 bg-zinc-700/50 hover:bg-zinc-600 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
+                            >
+                              {language === 'vi' 
+                                ? styleOptions.find(s => s.id === selectedStyle)?.labelVi 
+                                : styleOptions.find(s => s.id === selectedStyle)?.label || 'Photograph'}
+                              <ChevronDown size={12} className={`transition-transform ${showStyleDropdown ? 'rotate-180' : ''}`} />
+                            </button>
+                          </div>
+                          {showStyleDropdown && (
+                            <div className="absolute top-full right-0 mt-1 w-48 bg-zinc-800 border border-zinc-700 rounded-xl overflow-hidden z-30 shadow-2xl max-h-[200px] overflow-y-auto">
+                              {styleOptions.map(style => (
+                                <button
+                                  key={style.id}
+                                  onClick={() => { setSelectedStyle(style.id); setShowStyleDropdown(false); }}
+                                  className={`w-full px-3 py-2 text-left text-[12px] hover:bg-zinc-700 transition-colors ${selectedStyle === style.id ? 'bg-zinc-700 text-purple-400' : 'text-white'}`}
+                                >
+                                  {language === 'vi' ? style.labelVi : style.label}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[13px] text-zinc-500">{language === 'vi' ? 'Tỉ lệ' : 'Ratio'}</span>
-                          <span className="text-[13px] text-zinc-300 bg-zinc-700/50 px-3 py-1 rounded-lg">{selectedRatio}</span>
+                        {/* Ratio - Clickable with Dropdown */}
+                        <div className="relative">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[13px] text-zinc-500">{language === 'vi' ? 'Tỉ lệ' : 'Ratio'}</span>
+                            <button
+                              onClick={() => { setShowRatioDropdown(!showRatioDropdown); setShowModelDropdown(false); setShowStyleDropdown(false); setShowToolDropdown(false); }}
+                              className="text-[13px] text-zinc-300 bg-zinc-700/50 hover:bg-zinc-600 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
+                            >
+                              {selectedRatio}
+                              <ChevronDown size={12} className={`transition-transform ${showRatioDropdown ? 'rotate-180' : ''}`} />
+                            </button>
+                          </div>
+                          {showRatioDropdown && (
+                            <div className="absolute top-full right-0 mt-1 w-32 bg-zinc-800 border border-zinc-700 rounded-xl overflow-hidden z-30 shadow-2xl">
+                              {ratioOptions.map(ratio => (
+                                <button
+                                  key={ratio.id}
+                                  onClick={() => { setSelectedRatio(ratio.id); setShowRatioDropdown(false); }}
+                                  className={`w-full px-3 py-2 text-left text-[12px] hover:bg-zinc-700 transition-colors ${selectedRatio === ratio.id ? 'bg-zinc-700 text-purple-400' : 'text-white'}`}
+                                >
+                                  {ratio.label}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1010,10 +1179,16 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                     {/* Primary Action - Recreate with app gradient colors */}
                     <button
                       onClick={() => {
-                        // Copy prompt to dashboard input and close modal
-                        setPrompt(selectedExample.prompt);
+                        // Open RecreateView with example data
+                        setRecreateData({
+                          image: selectedExample.src,
+                          prompt: selectedExample.prompt,
+                          model: modelOptions.find(m => m.id === selectedModel)?.label || 'Higgsfield Soul',
+                          style: styleOptions.find(s => s.id === selectedStyle)?.label || 'Photograph',
+                          ratio: selectedRatio
+                        });
+                        setShowRecreateView(true);
                         setSelectedExample(null);
-                        // User can now edit or generate from dashboard
                       }}
                       className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:from-purple-500 hover:via-pink-400 hover:to-orange-300 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 hover:scale-[1.02]"
                     >
@@ -1391,105 +1566,181 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
               </div>
             )}
 
-            {/* --- SECTION 2: QUICK ACTIONS (Casual / Fast) --- */}
-            <div className="mb-16">
-              <div className="flex items-end justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                    <Zap size={20} className="text-amber-500" /> {trans.home.tools}
-                  </h2>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{trans.home.quickActionsDesc}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {tools.map((tool, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => onStartEditing()}
-                    className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-repix-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all group shadow-sm hover:shadow-md"
-                  >
-                    <div className={`w-14 h-14 rounded-2xl ${tool.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                       <tool.icon className={tool.color} size={28} />
-                    </div>
-                    <span className="font-semibold text-zinc-700 dark:text-zinc-200">{tool.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* --- SECTION 3: WORKFLOWS (Pro / Seller / Agency) --- */}
-            <div className="mb-16">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                  <Briefcase size={20} className="text-repix-500" /> {trans.home.workflows}
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {workflows.map((wf) => (
-                  <div key={wf.id} onClick={() => onStartEditing()} className="cursor-pointer group relative overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 hover:border-repix-500/50 transition-all">
-                    <div className={`absolute top-0 right-0 p-2 bg-gradient-to-bl ${wf.color} opacity-10 group-hover:opacity-20 rounded-bl-3xl transition-opacity w-24 h-24`}></div>
-                    <div className="flex items-start justify-between mb-4">
-                       <div className={`p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 group-hover:text-white group-hover:bg-gradient-to-br ${wf.color} transition-colors`}>
-                          <wf.icon size={24} />
-                       </div>
-                       <Badge className="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 border-0">{wf.persona}</Badge>
-                    </div>
-                    <h3 className="font-bold text-lg text-zinc-900 dark:text-white mb-1">{wf.title}</h3>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">{wf.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* --- SECTION 4: INSPIRATION (Community) --- */}
+            {/* --- SECTION: COMMUNITY FEED --- */}
             <div className="mb-20">
-               <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                    <Sparkles size={20} className="text-pink-500" /> {trans.home.inspiration}
+               <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600">
+                      <Sparkles size={20} className="text-white" />
+                    </div>
+                    {language === 'vi' ? 'Cộng đồng sáng tạo' : 'Community Creations'}
                   </h2>
-                  <Button variant="ghost" size="sm" onClick={() => setActiveTab(activeTab === 'trending' ? 'recent' : 'trending')}>
-                    {activeTab === 'trending' ? trans.home.recent : trans.home.trending} <ArrowRight size={14} className="ml-1" />
-                  </Button>
                </div>
 
-               {/* Filter Tabs */}
-               <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-                 {[
-                   { id: 'all', label: language === 'vi' ? 'Tất cả' : 'All', icon: null },
-                   { id: 'product', label: language === 'vi' ? 'Sản phẩm' : 'Product', icon: ShoppingBag },
-                   { id: 'portrait', label: language === 'vi' ? 'Chân dung' : 'Portrait', icon: Camera },
-                   { id: 'fashion', label: language === 'vi' ? 'Thời trang' : 'Fashion', icon: Briefcase },
-                   { id: 'food', label: language === 'vi' ? 'Ẩm thực' : 'Food', icon: null },
-                   { id: 'nature', label: language === 'vi' ? 'Thiên nhiên' : 'Nature', icon: null },
-                   { id: 'art', label: language === 'vi' ? 'Nghệ thuật' : 'Art', icon: Sparkles },
-                 ].map((filter) => (
-                   <button
-                     key={filter.id}
-                     onClick={() => setActiveTab(filter.id as any)}
-                     className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                       activeTab === filter.id || (filter.id === 'all' && (activeTab === 'trending' || activeTab === 'recent'))
-                         ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
-                         : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                     }`}
-                   >
-                     {filter.icon && <filter.icon size={14} />}
-                     {filter.label}
-                   </button>
-                 ))}
-               </div>
-               
-               <div className="columns-2 md:columns-4 gap-4 space-y-4">
-                  {inspirationImages.map((img) => (
-                     <div key={img.id} className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer" onClick={() => onStartEditing()}>
-                        <img src={img.src} alt={img.prompt} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
-                           <p className="text-white text-sm font-medium line-clamp-2 mb-2">{img.prompt}</p>
-                           <Button size="sm" className="h-7 text-xs px-3 bg-white/20 hover:bg-white/30 backdrop-blur-md border-0 w-full">
-                                 {trans.home.remix}
-                           </Button>
-                        </div>
+               {/* --- SIMPLE IMAGES (Single) --- */}
+               <div className="mb-12">
+                 <div className="flex items-center justify-between mb-6">
+                   <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                       <ImageIcon size={18} className="text-white" />
                      </div>
-                  ))}
+                     <div>
+                       <h3 className="text-lg font-bold text-zinc-900 dark:text-white">
+                         {language === 'vi' ? 'Ảnh đơn' : 'Single Images'}
+                       </h3>
+                       <p className="text-sm text-zinc-500">{language === 'vi' ? 'Tác phẩm nổi bật từ cộng đồng' : 'Featured works from community'}</p>
+                     </div>
+                   </div>
+                   <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+                     {language === 'vi' ? 'Xem tất cả' : 'View all'} <ArrowRight size={14} className="ml-1" />
+                   </Button>
+                 </div>
+                 
+                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                   {[
+                     { id: 1, src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&h=500&q=80', prompt: 'Fashion portrait with natural lighting', author: '@studio_pro', likes: '2.4k' },
+                     { id: 2, src: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&h=400&q=80', prompt: 'Product shot with dramatic shadows', author: '@product_master', likes: '1.8k' },
+                     { id: 3, src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&h=500&q=80', prompt: 'Lifestyle portrait outdoor', author: '@lifestyle_vn', likes: '3.1k' },
+                     { id: 4, src: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&h=400&q=80', prompt: 'Minimalist watch photography', author: '@minimal_shots', likes: '1.5k' },
+                     { id: 5, src: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&h=500&q=80', prompt: 'Beauty portrait studio', author: '@beauty_art', likes: '2.9k' },
+                     { id: 6, src: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=400&h=400&q=80', prompt: 'Sneaker product photography', author: '@kicks_studio', likes: '2.2k' },
+                   ].map((img) => (
+                     <div 
+                       key={img.id} 
+                       className="relative group rounded-2xl overflow-hidden cursor-pointer bg-zinc-100 dark:bg-zinc-800 aspect-[4/5]"
+                       onClick={() => onStartEditing()}
+                     >
+                       <img 
+                         src={img.src} 
+                         alt={img.prompt} 
+                         className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110" 
+                       />
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                         <div className="absolute bottom-0 left-0 right-0 p-3">
+                           <p className="text-white text-xs font-medium line-clamp-2 mb-2">{img.prompt}</p>
+                           <div className="flex items-center justify-between">
+                             <span className="text-white/70 text-[10px]">{img.author}</span>
+                             <span className="flex items-center gap-1 text-white/70 text-[10px]">
+                               <Heart size={10} /> {img.likes}
+                             </span>
+                           </div>
+                         </div>
+                       </div>
+                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button className="p-1.5 rounded-lg bg-white/90 hover:bg-white text-zinc-700 shadow-lg">
+                           <Download size={12} />
+                         </button>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+
+               {/* --- COLLECTIONS (Multiple Images) --- */}
+               <div>
+                 <div className="flex items-center justify-between mb-6">
+                   <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                       <Layers size={18} className="text-white" />
+                     </div>
+                     <div>
+                       <h3 className="text-lg font-bold text-zinc-900 dark:text-white">
+                         {language === 'vi' ? 'Bộ sưu tập' : 'Collections'}
+                       </h3>
+                       <p className="text-sm text-zinc-500">{language === 'vi' ? 'Bộ ảnh theo chủ đề từ creators' : 'Themed photo sets from creators'}</p>
+                     </div>
+                   </div>
+                   <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+                     {language === 'vi' ? 'Xem tất cả' : 'View all'} <ArrowRight size={14} className="ml-1" />
+                   </Button>
+                 </div>
+                 
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                   {[
+                     { 
+                       id: 1, 
+                       title: language === 'vi' ? 'Thời trang mùa hè' : 'Summer Fashion',
+                       author: '@fashion_studio',
+                       count: 12,
+                       images: [
+                         'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=300&h=400&q=80',
+                         'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=300&h=400&q=80',
+                         'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=300&h=400&q=80',
+                         'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=300&h=400&q=80',
+                       ],
+                       likes: '5.2k'
+                     },
+                     { 
+                       id: 2, 
+                       title: language === 'vi' ? 'Sản phẩm công nghệ' : 'Tech Products',
+                       author: '@tech_visuals',
+                       count: 8,
+                       images: [
+                         'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&h=300&q=80',
+                         'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&h=300&q=80',
+                         'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=300&h=300&q=80',
+                         'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=300&h=300&q=80',
+                       ],
+                       likes: '3.8k'
+                     },
+                     { 
+                       id: 3, 
+                       title: language === 'vi' ? 'Chân dung nghệ thuật' : 'Artistic Portraits',
+                       author: '@portrait_art',
+                       count: 15,
+                       images: [
+                         'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&h=400&q=80',
+                         'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&h=400&q=80',
+                         'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=400&q=80',
+                         'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&h=400&q=80',
+                       ],
+                       likes: '7.1k'
+                     },
+                   ].map((collection) => (
+                     <div 
+                       key={collection.id}
+                       className="group relative bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden hover:border-repix-500/50 hover:shadow-xl hover:shadow-repix-500/10 transition-all duration-300 cursor-pointer"
+                       onClick={() => onStartEditing()}
+                     >
+                       {/* Image Grid Preview */}
+                       <div className="grid grid-cols-4 gap-0.5 p-1">
+                         {collection.images.map((img, idx) => (
+                           <div key={idx} className="aspect-square overflow-hidden rounded-lg">
+                             <img 
+                               src={img} 
+                               alt="" 
+                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                             />
+                           </div>
+                         ))}
+                       </div>
+                       
+                       {/* Collection Info */}
+                       <div className="p-4">
+                         <div className="flex items-start justify-between mb-2">
+                           <div>
+                             <h4 className="font-bold text-zinc-900 dark:text-white group-hover:text-repix-500 transition-colors">
+                               {collection.title}
+                             </h4>
+                             <p className="text-sm text-zinc-500">{collection.author}</p>
+                           </div>
+                           <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-600 dark:text-zinc-400">
+                             <Layers size={12} />
+                             {collection.count}
+                           </div>
+                         </div>
+                         <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-1 text-zinc-500 text-sm">
+                             <Heart size={14} /> {collection.likes}
+                           </div>
+                           <Button size="sm" variant="ghost" className="h-7 text-xs px-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                             {language === 'vi' ? 'Xem bộ sưu tập' : 'View collection'} <ArrowRight size={12} className="ml-1" />
+                           </Button>
+                         </div>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
                </div>
             </div>
 
@@ -1616,6 +1867,23 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
              };
              setUploadedImages(prev => [...prev, newImage].slice(0, MAX_PROMPT_IMAGES));
              setShowAssetPicker(false);
+           }}
+         />
+       )}
+
+       {/* Recreate View Modal */}
+       {showRecreateView && recreateData && (
+         <RecreateView
+           onClose={() => {
+             setShowRecreateView(false);
+             setRecreateData(null);
+           }}
+           originalImage={recreateData.image}
+           originalPrompt={recreateData.prompt}
+           generationInfo={{
+             model: recreateData.model,
+             style: recreateData.style,
+             ratio: recreateData.ratio,
            }}
          />
        )}

@@ -12,6 +12,7 @@ import { Template } from '../../types';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { ShareGenerationModal } from './ShareGenerationModal';
+import { RecreateView } from './RecreateView';
 
 interface ExtendedTemplate extends Template {
   downloads: string;
@@ -105,73 +106,68 @@ const getPlatformsByType = (type: string, trans: any) => {
 };
 
 const templates: ExtendedTemplate[] = [
-  // Shopee Templates - with gallery
-  { id: '1', title: 'Shopee Flash Sale Banner', author: 'EcomPro', price: 'Free', tags: ['Shopee', 'Sale', 'Banner'], thumbnail: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '45k', likes: '12k', category: 'Shopee', style: 'Sale', description: "Template banner flash sale chuẩn Shopee với khung giờ vàng, giảm giá sốc.", gallery: [
-    'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1556742111-a301076d9d18?auto=format&fit=crop&w=600&q=80',
+  // Portrait 9:16 Templates - Fashion & Beauty (~80% of templates)
+  { id: '1', title: 'Elegant Fashion Portrait', author: 'ArtistPro', price: 'Free', tags: ['Portrait', 'Fashion', 'Elegant'], thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '45k', likes: '12k', category: 'Instagram', style: 'Portrait', description: "Chân dung thời trang thanh lịch, ánh sáng cinematic" },
+  { id: '2', title: 'Street Style Portrait', author: 'ShopeeKing', price: 'Free', tags: ['Street', 'Fashion', 'Urban'], thumbnail: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '52k', likes: '15k', category: 'TikTok Shop', style: 'Street', description: "Phong cách đường phố hiện đại, năng động", gallery: [
+    'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=400&h=711&q=80',
+    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&h=711&q=80',
+    'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=400&h=711&q=80',
   ]},
-  { id: '2', title: 'Shopee Freeship Extra', author: 'ShopeeKing', price: 'Free', tags: ['Shopee', 'Freeship', 'Promo'], thumbnail: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '52k', likes: '15k', category: 'Shopee', style: 'Promo', description: "Template freeship extra với badge miễn phí vận chuyển nổi bật.", gallery: [
-    'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&q=80',
+  { id: '3', title: 'Glamour Beauty Portrait', author: 'LiveSeller', price: 5, tags: ['Beauty', 'Glamour', 'Portrait'], thumbnail: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '38k', likes: '9.2k', category: 'Instagram', style: 'Beauty', description: "Chân dung làm đẹp quyến rũ, ánh sáng studio chuyên nghiệp", gallery: [
+    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&h=711&q=80',
+    'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?auto=format&fit=crop&w=400&h=711&q=80',
   ]},
-  { id: '3', title: 'Shopee Live Thumbnail', author: 'LiveSeller', price: 5, tags: ['Shopee', 'Live', 'Livestream'], thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '38k', likes: '9.2k', category: 'Shopee', style: 'Live', description: "Thumbnail livestream Shopee Live thu hút người xem, tăng view.", gallery: [
-    'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?auto=format&fit=crop&w=600&q=80',
-  ]},
-  { id: '4', title: 'Shopee Mall Premium', author: 'MallPro', price: 15, tags: ['Shopee', 'Mall', 'Premium'], thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '6.5k', category: 'Shopee', style: 'Premium', description: "Template cao cấp cho Shopee Mall, tăng uy tín thương hiệu.", gallery: [
-    'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=600&q=80',
+  { id: '4', title: 'Casual Lifestyle Model', author: 'MallPro', price: 15, tags: ['Lifestyle', 'Casual', 'Model'], thumbnail: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '22k', likes: '6.5k', category: 'Instagram', style: 'Lifestyle', description: "Phong cách sống tự nhiên, thoải mái", gallery: [
+    'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&h=711&q=80',
+    'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&h=711&q=80',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&h=711&q=80',
   ]},
   
-  // Lazada Templates
-  { id: '5', title: 'Lazada 11.11 Mega Sale', author: 'SalesMaster', price: 'Free', tags: ['Lazada', 'Sale', '11.11'], thumbnail: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '48k', likes: '14k', category: 'Lazada', style: 'Mega Sale', description: "Template siêu sale 11.11 với hiệu ứng nổi bật, tăng tỷ lệ click." },
-  { id: '6', title: 'Lazada LazMall Brand', author: 'BrandVN', price: 12, tags: ['Lazada', 'LazMall', 'Brand'], thumbnail: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '18k', likes: '4.8k', category: 'Lazada', style: 'Brand', description: "Template LazMall chính hãng, tăng độ tin cậy cho khách hàng." },
-  { id: '7', title: 'Lazada Voucher Hunter', author: 'VoucherPro', price: 'Free', tags: ['Lazada', 'Voucher', 'Discount'], thumbnail: 'https://images.unsplash.com/photo-1556742111-a301076d9d18?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '35k', likes: '8.9k', category: 'Lazada', style: 'Voucher', description: "Template săn voucher Lazada với countdown và mã giảm giá." },
+  // Portrait 9:16 - Continued
+  { id: '5', title: 'Summer Vibes Portrait', author: 'SalesMaster', price: 'Free', tags: ['Summer', 'Bright', 'Portrait'], thumbnail: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '48k', likes: '14k', category: 'TikTok Shop', style: 'Summer', description: "Chân dung mùa hè tươi sáng, năng lượng tích cực" },
+  { id: '6', title: 'Professional Headshot', author: 'BrandVN', price: 12, tags: ['Professional', 'Business', 'Portrait'], thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '18k', likes: '4.8k', category: 'Instagram', style: 'Professional', description: "Ảnh chân dung chuyên nghiệp cho doanh nhân" },
+  { id: '7', title: 'Artistic Portrait', author: 'VoucherPro', price: 'Free', tags: ['Artistic', 'Creative', 'Portrait'], thumbnail: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '35k', likes: '8.9k', category: 'Instagram', style: 'Artistic', description: "Chân dung nghệ thuật với ánh sáng độc đáo" },
   
-  // TikTok Shop Templates
-  { id: '8', title: 'TikTok Product Showcase', author: 'TikSeller', price: 5, tags: ['TikTok', 'Video', 'Product'], thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '58k', likes: '18k', category: 'TikTok Shop', style: 'Video', description: "Template video sản phẩm viral cho TikTok Shop, tối ưu thuật toán." },
-  { id: '9', title: 'TikTok Unboxing Review', author: 'ReviewKing', price: 8, tags: ['TikTok', 'Unboxing', 'Review'], thumbnail: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '42k', likes: '12k', category: 'TikTok Shop', style: 'Review', description: "Template unboxing review hấp dẫn, tăng tương tác và bán hàng." },
-  { id: '10', title: 'TikTok Before After', author: 'TransformVN', price: 'Free', tags: ['TikTok', 'Before After', 'Viral'], thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '65k', likes: '22k', category: 'TikTok Shop', style: 'Viral', description: "Template before/after viral, phù hợp mỹ phẩm, skincare, fitness." },
-  { id: '11', title: 'TikTok Flash Deal', author: 'DealHunter', price: 'Free', tags: ['TikTok', 'Flash', 'Deal'], thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '28k', likes: '7.5k', category: 'TikTok Shop', style: 'Deal', description: "Template flash deal TikTok với countdown và giá sốc." },
+  // Portrait 9:16 - Fashion & Style
+  { id: '8', title: 'Minimalist Fashion', author: 'TikSeller', price: 5, tags: ['Minimalist', 'Fashion', 'Clean'], thumbnail: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '58k', likes: '18k', category: 'TikTok Shop', style: 'Minimalist', description: "Thời trang tối giản, phong cách hiện đại" },
+  { id: '9', title: 'Urban Street Fashion', author: 'ReviewKing', price: 8, tags: ['Urban', 'Street', 'Fashion'], thumbnail: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '42k', likes: '12k', category: 'TikTok Shop', style: 'Urban', description: "Thời trang đường phố năng động, cá tính" },
+  { id: '10', title: 'Elegant Evening Look', author: 'TransformVN', price: 'Free', tags: ['Elegant', 'Evening', 'Glamour'], thumbnail: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '65k', likes: '22k', category: 'Instagram', style: 'Evening', description: "Phong cách dạ tiệc sang trọng, quyến rũ" },
+  { id: '11', title: 'Bohemian Style', author: 'DealHunter', price: 'Free', tags: ['Bohemian', 'Boho', 'Free Spirit'], thumbnail: 'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '28k', likes: '7.5k', category: 'Instagram', style: 'Bohemian', description: "Phong cách boho tự do, phóng khoáng" },
   
-  // Facebook Templates
-  { id: '12', title: 'Facebook Carousel Ads', author: 'AdsPro', price: 8, tags: ['Facebook', 'Ads', 'Carousel'], thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '32k', likes: '8.8k', category: 'Facebook', style: 'Carousel', description: "Template quảng cáo carousel Facebook với CTR cao, tối ưu conversion." },
-  { id: '13', title: 'Facebook Shop Cover', author: 'CoverDesign', price: 'Free', tags: ['Facebook', 'Cover', 'Shop'], thumbnail: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '25k', likes: '6.2k', category: 'Facebook', style: 'Cover', description: "Template cover Facebook Shop chuyên nghiệp, thu hút khách hàng." },
-  { id: '14', title: 'Facebook Marketplace Post', author: 'MarketPro', price: 'Free', tags: ['Facebook', 'Marketplace', 'Post'], thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '45k', likes: '11k', category: 'Facebook', style: 'Post', description: "Template đăng bán Facebook Marketplace chuẩn SEO, dễ tìm kiếm." },
-  { id: '15', title: 'Facebook Video Ads', author: 'VideoAds', price: 15, tags: ['Facebook', 'Video', 'Ads'], thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '38k', likes: '9.5k', category: 'Facebook', style: 'Video', description: "Template video ads Facebook với hook mạnh, tăng retention." },
+  // Portrait 9:16 - Beauty & Makeup
+  { id: '12', title: 'Natural Beauty Portrait', author: 'AdsPro', price: 8, tags: ['Natural', 'Beauty', 'Skincare'], thumbnail: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '32k', likes: '8.8k', category: 'Instagram', style: 'Natural', description: "Vẻ đẹp tự nhiên, làn da khỏe mạnh" },
+  { id: '13', title: 'Makeup Tutorial Look', author: 'CoverDesign', price: 'Free', tags: ['Makeup', 'Tutorial', 'Beauty'], thumbnail: 'https://images.unsplash.com/photo-1503104834685-7205e8607eb9?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '25k', likes: '6.2k', category: 'TikTok Shop', style: 'Makeup', description: "Look makeup tutorial, dễ học theo" },
+  { id: '14', title: 'Fitness Model Portrait', author: 'MarketPro', price: 'Free', tags: ['Fitness', 'Health', 'Active'], thumbnail: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '45k', likes: '11k', category: 'Instagram', style: 'Fitness', description: "Chân dung fitness khỏe khoắn, năng động" },
+  { id: '15', title: 'Vintage Style Portrait', author: 'VideoAds', price: 15, tags: ['Vintage', 'Retro', 'Classic'], thumbnail: 'https://images.unsplash.com/photo-1504703395950-b89145a5425b?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '38k', likes: '9.5k', category: 'Instagram', style: 'Vintage', description: "Phong cách vintage cổ điển, hoài niệm" },
   
-  // Instagram Templates
-  { id: '16', title: 'Instagram Story Product', author: 'InstaShop', price: 'Free', tags: ['Instagram', 'Story', 'Product'], thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '55k', likes: '16k', category: 'Instagram', style: 'Story', description: "Template story Instagram bắt mắt, swipe up mua hàng ngay." },
-  { id: '17', title: 'Instagram Reels Trending', author: 'ReelsMaster', price: 10, tags: ['Instagram', 'Reels', 'Trending'], thumbnail: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '48k', likes: '14k', category: 'Instagram', style: 'Reels', description: "Template Reels trending với nhạc hot, tăng reach organic." },
-  { id: '18', title: 'Instagram Grid Aesthetic', author: 'AestheticVN', price: 20, tags: ['Instagram', 'Grid', 'Aesthetic'], thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '7.8k', category: 'Instagram', style: 'Aesthetic', description: "Template grid Instagram đồng bộ, tạo feed đẹp chuyên nghiệp." },
-  { id: '19', title: 'Instagram Shopping Tag', author: 'ShopTag', price: 'Free', tags: ['Instagram', 'Shopping', 'Tag'], thumbnail: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '28k', likes: '6.5k', category: 'Instagram', style: 'Shopping', description: "Template với shopping tag, khách hàng mua trực tiếp từ post." },
+  // Portrait 9:16 - Lifestyle & Travel
+  { id: '16', title: 'Travel Adventure Portrait', author: 'InstaShop', price: 'Free', tags: ['Travel', 'Adventure', 'Outdoor'], thumbnail: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '55k', likes: '16k', category: 'Instagram', style: 'Travel', description: "Chân dung du lịch phiêu lưu, khám phá" },
+  { id: '17', title: 'Coffee Shop Aesthetic', author: 'ReelsMaster', price: 10, tags: ['Coffee', 'Aesthetic', 'Cozy'], thumbnail: 'https://images.unsplash.com/photo-1524638431109-93d95c968f03?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '48k', likes: '14k', category: 'Instagram', style: 'Aesthetic', description: "Phong cách quán cà phê ấm cúng, thư giãn" },
+  { id: '18', title: 'Golden Hour Portrait', author: 'AestheticVN', price: 20, tags: ['Golden Hour', 'Sunset', 'Warm'], thumbnail: 'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '22k', likes: '7.8k', category: 'Instagram', style: 'Golden Hour', description: "Chân dung giờ vàng, ánh sáng hoàng hôn" },
+  { id: '19', title: 'Sporty Active Look', author: 'ShopTag', price: 'Free', tags: ['Sport', 'Active', 'Athletic'], thumbnail: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '28k', likes: '6.5k', category: 'TikTok Shop', style: 'Sport', description: "Phong cách thể thao năng động, khỏe mạnh" },
   
-  // Zalo Shop Templates
-  { id: '20', title: 'Zalo Shop Mini Banner', author: 'ZaloSeller', price: 'Free', tags: ['Zalo', 'Mini', 'Banner'], thumbnail: 'https://images.unsplash.com/photo-1556742111-a301076d9d18?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '18k', likes: '4.2k', category: 'Zalo Shop', style: 'Mini', description: "Template banner nhỏ gọn cho Zalo Shop, phù hợp chat bán hàng." },
-  { id: '21', title: 'Zalo OA Broadcast', author: 'ZaloOA', price: 5, tags: ['Zalo', 'OA', 'Broadcast'], thumbnail: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '12k', likes: '3.1k', category: 'Zalo Shop', style: 'Broadcast', description: "Template broadcast Zalo OA với CTA rõ ràng, tăng click rate." },
+  // Portrait 9:16 - Creative & Artistic
+  { id: '20', title: 'Moody Dark Portrait', author: 'ZaloSeller', price: 'Free', tags: ['Moody', 'Dark', 'Dramatic'], thumbnail: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '18k', likes: '4.2k', category: 'Instagram', style: 'Moody', description: "Chân dung tối màu, dramatic và bí ẩn" },
+  { id: '21', title: 'Colorful Pop Portrait', author: 'ZaloOA', price: 5, tags: ['Colorful', 'Pop', 'Vibrant'], thumbnail: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '12k', likes: '3.1k', category: 'TikTok Shop', style: 'Colorful', description: "Màu sắc rực rỡ, phong cách pop art" },
   
-  // Sendo Templates
-  { id: '22', title: 'Sendo Deal Sốc', author: 'SendoPro', price: 5, tags: ['Sendo', 'Deal', 'Giảm giá'], thumbnail: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '8k', likes: '1.8k', category: 'Sendo', style: 'Deal', description: "Template deal sốc Sendo với countdown và badge giảm giá nổi bật." },
-  { id: '23', title: 'Sendo Siêu Rẻ', author: 'SieuRe', price: 'Free', tags: ['Sendo', 'Siêu rẻ', 'Budget'], thumbnail: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a07d?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '6k', likes: '1.2k', category: 'Sendo', style: 'Budget', description: "Template siêu rẻ Sendo, nhấn mạnh giá tốt nhất thị trường." },
+  // Portrait 9:16 - More Styles
+  { id: '22', title: 'Romantic Soft Portrait', author: 'SendoPro', price: 5, tags: ['Romantic', 'Soft', 'Dreamy'], thumbnail: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '8k', likes: '1.8k', category: 'Instagram', style: 'Romantic', description: "Chân dung lãng mạn, mềm mại và mơ màng" },
+  { id: '23', title: 'Edgy Fashion Portrait', author: 'SieuRe', price: 'Free', tags: ['Edgy', 'Fashion', 'Bold'], thumbnail: 'https://images.unsplash.com/photo-1504199367641-aba8151af406?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '6k', likes: '1.2k', category: 'TikTok Shop', style: 'Edgy', description: "Thời trang táo bạo, cá tính mạnh mẽ" },
   
-  // Product Category Templates
-  { id: '24', title: 'Mỹ phẩm White Background', author: 'BeautyShot', price: 'Free', tags: ['Mỹ phẩm', 'White BG', 'Clean'], thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '28k', likes: '7.2k', category: 'Shopee', style: 'Clean', description: "Nền trắng chuẩn sàn TMĐT cho mỹ phẩm, skincare, makeup." },
-  { id: '25', title: 'Thời trang Lifestyle', author: 'FashionVN', price: 12, tags: ['Thời trang', 'Lifestyle', 'Model'], thumbnail: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '35k', likes: '9.5k', category: 'Instagram', style: 'Lifestyle', description: "Template lifestyle cho thời trang, phù hợp Instagram và Facebook." },
-  { id: '26', title: 'Điện thoại Tech Showcase', author: 'TechPro', price: 15, tags: ['Điện tử', 'Tech', 'Smartphone'], thumbnail: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '22k', likes: '5.8k', category: 'Lazada', style: 'Tech', description: "Template công nghệ cao cấp cho điện thoại, laptop, phụ kiện tech." },
-  { id: '27', title: 'Food & Beverage Delicious', author: 'FoodieShot', price: 'Free', tags: ['Thực phẩm', 'Food', 'Yummy'], thumbnail: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '42k', likes: '12k', category: 'TikTok Shop', style: 'Food', description: "Template đồ ăn hấp dẫn, tăng cảm giác thèm ăn cho khách hàng." },
-  { id: '28', title: 'Đồ gia dụng Home Living', author: 'HomePro', price: 8, tags: ['Gia dụng', 'Home', 'Living'], thumbnail: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '15k', likes: '3.8k', category: 'Shopee', style: 'Home', description: "Template đồ gia dụng với không gian sống đẹp, tăng giá trị sản phẩm." },
-  { id: '29', title: 'Phụ kiện Accessories Pro', author: 'AccessPro', price: 'Free', tags: ['Phụ kiện', 'Accessories', 'Fashion'], thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80', trending: false, downloads: '18k', likes: '4.5k', category: 'Instagram', style: 'Accessories', description: "Template phụ kiện thời trang với góc chụp đẹp, tăng giá trị cảm nhận." },
+  // Portrait 9:16 - Premium Collection
+  { id: '24', title: 'Luxury Fashion Portrait', author: 'BeautyShot', price: 'Free', tags: ['Luxury', 'Fashion', 'Premium'], thumbnail: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '28k', likes: '7.2k', category: 'Instagram', style: 'Luxury', description: "Thời trang cao cấp, sang trọng và đẳng cấp" },
+  { id: '25', title: 'Beach Summer Portrait', author: 'FashionVN', price: 12, tags: ['Beach', 'Summer', 'Vacation'], thumbnail: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '35k', likes: '9.5k', category: 'Instagram', style: 'Beach', description: "Chân dung biển mùa hè, tươi mát và sảng khoái" },
+  { id: '26', title: 'Studio Pro Portrait', author: 'TechPro', price: 15, tags: ['Studio', 'Professional', 'Clean'], thumbnail: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&h=711&q=80', trending: false, downloads: '22k', likes: '5.8k', category: 'Instagram', style: 'Studio', description: "Chân dung studio chuyên nghiệp, nền sạch" },
   
-  // Multi-Platform Templates
-  { id: '30', title: 'Multi-Platform Product Card', author: 'OmniSeller', price: 20, tags: ['Đa nền tảng', 'Product', 'Universal'], thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '52k', likes: '15k', category: 'All', style: 'Universal', description: "Template sản phẩm đa năng, xuất ra nhiều kích thước cho mọi sàn TMĐT." },
-  { id: '31', title: 'All-in-One Sale Banner', author: 'SalePro', price: 25, tags: ['Đa nền tảng', 'Sale', 'Banner'], thumbnail: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '48k', likes: '13k', category: 'All', style: 'Sale', description: "Template sale đa nền tảng, tự động resize cho Shopee, Lazada, TikTok." },
-  { id: '32', title: 'Universal Video Template', author: 'VideoKing', price: 30, tags: ['Đa nền tảng', 'Video', 'Universal'], thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80', trending: true, downloads: '38k', likes: '11k', category: 'All', style: 'Video', description: "Template video đa nền tảng, xuất 9:16, 1:1, 16:9 cho mọi kênh." },
+  // Square 1:1 Templates (~20% of templates)
+  { id: '27', title: 'Product Showcase Square', author: 'FoodieShot', price: 'Free', tags: ['Product', 'Square', 'Clean'], thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&h=600&q=80', trending: true, downloads: '42k', likes: '12k', category: 'Shopee', style: 'Product', description: "Ảnh sản phẩm vuông, nền trắng chuẩn TMĐT" },
+  { id: '28', title: 'Food Photography Square', author: 'HomePro', price: 8, tags: ['Food', 'Square', 'Delicious'], thumbnail: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&h=600&q=80', trending: false, downloads: '15k', likes: '3.8k', category: 'Instagram', style: 'Food', description: "Ảnh đồ ăn vuông, hấp dẫn và ngon miệng" },
+  { id: '29', title: 'Cosmetics Flat Lay', author: 'AccessPro', price: 'Free', tags: ['Cosmetics', 'Flat Lay', 'Beauty'], thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&h=600&q=80', trending: false, downloads: '18k', likes: '4.5k', category: 'Shopee', style: 'Flat Lay', description: "Flat lay mỹ phẩm, bố cục đẹp mắt" },
+  
+  // More Portrait 9:16
+  { id: '30', title: 'Autumn Fashion Portrait', author: 'OmniSeller', price: 20, tags: ['Autumn', 'Fashion', 'Warm'], thumbnail: 'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '52k', likes: '15k', category: 'Instagram', style: 'Autumn', description: "Thời trang mùa thu, tông màu ấm áp" },
+  { id: '31', title: 'Night City Portrait', author: 'SalePro', price: 25, tags: ['Night', 'City', 'Neon'], thumbnail: 'https://images.unsplash.com/photo-1504199367641-aba8151af406?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '48k', likes: '13k', category: 'TikTok Shop', style: 'Night', description: "Chân dung đêm thành phố, ánh đèn neon" },
+  { id: '32', title: 'Wellness Lifestyle', author: 'VideoKing', price: 30, tags: ['Wellness', 'Health', 'Lifestyle'], thumbnail: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '38k', likes: '11k', category: 'Instagram', style: 'Wellness', description: "Lối sống lành mạnh, cân bằng và tích cực" },
 ];
 
 // --- TEMPLATE DETAIL MODAL ---
@@ -1013,85 +1009,61 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
               </div>
            </div>
 
-           {/* Masonry Grid */}
-           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+           {/* Masonry Grid - Image Only */}
+           <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3 space-y-3">
               {filteredTemplates.map(template => (
                  <div 
                   key={template.id} 
                   onClick={() => setSelectedTemplate(template)}
-                  className="group relative break-inside-avoid rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 cursor-pointer shadow-sm hover:shadow-lg transition-shadow"
+                  className="group relative break-inside-avoid rounded-xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 cursor-pointer"
                  >
+                    <img 
+                      src={template.thumbnail} 
+                      className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105" 
+                      loading="lazy" 
+                    />
                     
-                    {/* Image */}
-                    <div className="relative">
-                       <img src={template.thumbnail} className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
-                       
-                       {/* Overlay Gradient (Hidden by default, shown on hover/tap) */}
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
-                          
-                          <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                             <Button className="w-full mb-3 bg-white text-zinc-900 hover:bg-zinc-200 border-0 shadow-lg font-bold">
-                                {trans.marketplace.useTemplate}
-                             </Button>
-                             
-                             <div className="flex items-center justify-between text-white/90 text-xs font-medium">
-                                <div className="flex items-center gap-3">
-                                   <span className="flex items-center gap-1"><Download size={14} /> {template.downloads}</span>
-                                   <span className="flex items-center gap-1"><Heart size={14} /> {template.likes}</span>
-                                </div>
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                       {/* Top Right - Likes */}
+                       <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full">
+                          <Heart size={12} className="text-white" />
+                          <span className="text-white text-xs font-medium">{template.likes}</span>
+                       </div>
+
+                       {/* Bottom Info */}
+                       <div className="absolute bottom-0 left-0 right-0 p-3">
+                          <p className="text-white text-sm font-medium truncate mb-2">{template.title}</p>
+                          <div className="flex items-center gap-2">
+                             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-blue-500 p-[1px]">
+                                <img 
+                                  src={`https://picsum.photos/seed/${template.author}/30/30`} 
+                                  className="w-full h-full rounded-full border border-white/20" 
+                                />
                              </div>
+                             <span className="text-white/80 text-xs">{template.author}</span>
                           </div>
                        </div>
-                       
-                       <div className="absolute top-3 left-3 flex gap-2">
-                          {template.trending && (
-                            <Badge className="bg-red-500/90 text-white backdrop-blur-sm border-0 shadow-sm flex items-center gap-1 px-2">
-                               <TrendingUp size={10} /> {trans.marketplace.trending}
-                            </Badge>
-                          )}
-                       </div>
-                       
-                       {/* PRO Badge with new Yellow Color */}
-                       <div className="absolute top-3 right-3">
-                          {typeof template.price === 'number' ? (
-                             <Badge className="bg-yellow-400 text-black border-0 font-bold flex items-center gap-1 shadow-sm px-2">
-                                <Crown size={12} fill="currentColor" /> PRO
-                             </Badge>
-                          ) : (
-                             <Badge className="bg-black/50 text-white backdrop-blur-md border-0">{trans.marketplace.free}</Badge>
-                          )}
-                       </div>
                     </div>
-
-                    <div className="p-3">
-                       <div className="flex justify-between items-start mb-1">
-                          <h3 className="font-bold text-zinc-900 dark:text-zinc-200 text-sm truncate pr-2">{template.title}</h3>
-                          <span className="text-xs font-semibold text-repix-600 dark:text-repix-400 shrink-0">
-                            {typeof template.price === 'number' ? `${template.price}c` : ''}
-                          </span>
-                       </div>
-                       <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 group/author cursor-pointer">
-                             <div className="w-5 h-5 rounded-full bg-gradient-to-br from-pink-500 to-blue-500 p-[1px]">
-                                <img src={`https://picsum.photos/seed/${template.author}/30/30`} className="w-full h-full rounded-full border border-white dark:border-zinc-900" />
-                             </div>
-                             <span className="text-xs text-zinc-500 dark:text-zinc-400 group-hover/author:text-zinc-900 dark:group-hover/author:text-zinc-200 transition-colors">{template.author}</span>
-                          </div>
-                          <button className="text-zinc-400 hover:text-red-500 transition-colors">
-                             <Heart size={14} />
-                          </button>
-                       </div>
-                    </div>
-
                  </div>
               ))}
            </div>
         </div>
       </div>
       
-      {/* Template Detail Modal */}
+      {/* RecreateView - Opens when clicking on template */}
       {selectedTemplate && (
-         <TemplateDetailModal template={selectedTemplate} onClose={() => setSelectedTemplate(null)} />
+         <RecreateView 
+           onClose={() => setSelectedTemplate(null)} 
+           originalImage={selectedTemplate.thumbnail}
+           originalPrompt={selectedTemplate.description || selectedTemplate.title}
+           generationInfo={{
+             model: 'Repix Pro',
+             style: selectedTemplate.style || 'Photograph',
+             ratio: '3:2',
+           }}
+           autoGenerate={false}
+         />
       )}
 
       {/* Share Generation Modal */}

@@ -4,3 +4,4 @@ export { ProjectsView } from './ProjectsView';
 export { AIGeneratedView } from './AIGeneratedView';
 export { TemplatesView } from './TemplatesView';
 export { BatchProcessedView } from './BatchProcessedView';
+export { TrashView } from './TrashView';

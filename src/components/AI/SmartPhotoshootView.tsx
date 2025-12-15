@@ -3,12 +3,13 @@ import {
   Upload, X, Check, Sparkles, ShoppingBag, User, Video,
   Camera, Package, ChevronRight, Download, ArrowLeft, Crown, Loader2,
   Play, Eye, Grid3X3, LayoutGrid, Zap, Star, TrendingUp, Minus, Plus, Lock,
-  FileImage, FileArchive, ChevronDown, Wand2
+  FileImage, FileArchive, ChevronDown, Wand2, RefreshCw
 } from 'lucide-react';
 import { Button, Badge, Card } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { AssetPickerModal } from '../Editor/AssetPickerModal';
+import { RecreateView } from '../Marketplace/RecreateView';
 
 // Image count limits by tier
 const IMAGE_LIMITS = {
@@ -139,6 +140,8 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
   const [activeDemo, setActiveDemo] = useState<keyof typeof demoSets | null>(null);
   const [viewingDemo, setViewingDemo] = useState<keyof typeof demoSets | null>(null); // For preview only
   const [showAssetPicker, setShowAssetPicker] = useState(false);
+  const [showRecreateModal, setShowRecreateModal] = useState(false);
+  const [selectedImageForRecreate, setSelectedImageForRecreate] = useState<{ src: string; index: number; prompt: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Get tier limits based on subscription plan
@@ -618,20 +621,26 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
                           {language === 'vi' ? 'Tạo mới' : 'New Set'}
                         </Button>
                         
-                        {/* Edit Button - Only show when 1 image selected */}
+                        {/* Regenerate Button - Only show when 1 image selected */}
                         {selectedOutputs.length === 1 && (
                           <Button 
                             variant="outline"
                             onClick={() => {
+                              console.log('Regenerate clicked', selectedOutputs[0], generatedImages[selectedOutputs[0]]);
                               const img = generatedImages[selectedOutputs[0]];
-                              if (onNavigateToEditor) {
-                                onNavigateToEditor(img);
+                              if (img) {
+                                setSelectedImageForRecreate({ 
+                                  src: img, 
+                                  index: selectedOutputs[0],
+                                  prompt: `Generated image ${selectedOutputs[0] + 1} from Smart Photoshoot`
+                                });
+                                setShowRecreateModal(true);
                               }
                             }}
                             className="border-purple-500 text-purple-500 hover:bg-purple-500/10"
                           >
                             <Wand2 size={16} className="mr-2" />
-                            {language === 'vi' ? 'Chỉnh sửa' : 'Edit'}
+                            {language === 'vi' ? 'Tạo lại' : 'Regenerate'}
                           </Button>
                         )}
                         
@@ -772,34 +781,61 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
                     {/* Results Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {generatedImages.map((img, index) => (
-                        <button
+                        <div
                           key={index}
-                          onClick={() => toggleImageSelection(index)}
                           className={`relative aspect-[4/5] rounded-xl overflow-hidden border-2 transition-all group ${
                             selectedOutputs.includes(index)
                               ? 'border-purple-500 ring-4 ring-purple-500/20'
                               : 'border-zinc-200 dark:border-zinc-700 hover:border-purple-300'
                           }`}
                         >
-                          <img src={img} alt={`Generated ${index + 1}`} className="w-full h-full object-cover" />
+                          <img 
+                            src={img} 
+                            alt={`Generated ${index + 1}`} 
+                            className="w-full h-full object-cover cursor-pointer"
+                            onClick={() => toggleImageSelection(index)}
+                          />
                           
                           {/* Selection overlay */}
-                          <div className={`absolute inset-0 transition-all ${
-                            selectedOutputs.includes(index) ? 'bg-purple-500/20' : 'bg-black/0 group-hover:bg-black/20'
-                          }`}>
-                            <div className="absolute top-3 right-3">
-                              <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
-                                selectedOutputs.includes(index)
-                                  ? 'bg-purple-500 text-white scale-110'
-                                  : 'bg-white/80 dark:bg-zinc-800/80 text-zinc-400 group-hover:scale-110'
-                              }`}>
-                                {selectedOutputs.includes(index) ? <Check size={16} /> : <span className="text-xs font-bold">{index + 1}</span>}
-                              </div>
+                          <div 
+                            className={`absolute inset-0 transition-all pointer-events-none ${
+                              selectedOutputs.includes(index) ? 'bg-purple-500/20' : 'bg-black/0 group-hover:bg-black/20'
+                            }`}
+                          />
+                          
+                          {/* Top right - Selection checkbox */}
+                          <button
+                            onClick={() => toggleImageSelection(index)}
+                            className="absolute top-3 right-3 z-10"
+                          >
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                              selectedOutputs.includes(index)
+                                ? 'bg-purple-500 text-white scale-110'
+                                : 'bg-white/80 dark:bg-zinc-800/80 text-zinc-400 group-hover:scale-110'
+                            }`}>
+                              {selectedOutputs.includes(index) ? <Check size={16} /> : <span className="text-xs font-bold">{index + 1}</span>}
                             </div>
-                          </div>
+                          </button>
+
+                          {/* Top left - Regenerate button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedImageForRecreate({ 
+                                src: img, 
+                                index: index,
+                                prompt: `Generated image ${index + 1} from Smart Photoshoot`
+                              });
+                              setShowRecreateModal(true);
+                            }}
+                            className="absolute top-3 left-3 z-10 p-2 rounded-full bg-black/50 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 text-white opacity-0 group-hover:opacity-100 transition-all"
+                            title={language === 'vi' ? 'Tạo lại' : 'Regenerate'}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
 
                           {/* Label */}
-                          <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                          <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none">
                             <p className="text-white text-sm font-medium">
                               {index === 0 ? (language === 'vi' ? 'Góc chính' : 'Main angle') :
                                index === 1 ? (language === 'vi' ? 'Góc bên' : 'Side view') :
@@ -809,7 +845,7 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
                                `Variation ${index + 1}`}
                             </p>
                           </div>
-                        </button>
+                        </div>
                       ))}
                     </div>
 
@@ -1192,6 +1228,32 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
           multiSelect={false}
           maxSelection={1}
         />
+      )}
+
+      {/* Recreate Modal */}
+      {showRecreateModal && selectedImageForRecreate && (
+        <RecreateView
+          onClose={() => {
+            console.log('Closing RecreateView');
+            setShowRecreateModal(false);
+            setSelectedImageForRecreate(null);
+          }}
+          originalImage={selectedImageForRecreate.src}
+          originalPrompt={selectedImageForRecreate.prompt}
+          generationInfo={{
+            model: 'Higgsfield Soul',
+            style: 'Photograph',
+            ratio: '4:5',
+          }}
+          autoGenerate={true}
+        />
+      )}
+      
+      {/* Debug: Show modal state */}
+      {showRecreateModal && !selectedImageForRecreate && (
+        <div className="fixed inset-0 z-[99999] bg-red-500/50 flex items-center justify-center">
+          <p className="text-white text-2xl">Error: No image selected for recreate</p>
+        </div>
       )}
     </div>
   );

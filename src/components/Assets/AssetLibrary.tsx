@@ -4,7 +4,7 @@ import {
   Clock, Star, Tag, MoreHorizontal, Eye, Share2, Copy, ExternalLink,
   CheckCircle2, XCircle, Loader2, Cloud, HardDrive, Sparkles, Palette,
   Calendar, SortAsc, SortDesc, ChevronDown, Plus, Upload, FolderPlus,
-  Smartphone, RefreshCw
+  Smartphone, RefreshCw, Layers, Wand2
 } from 'lucide-react';
 import { Button, Badge } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -13,10 +13,8 @@ import { ImportManager } from './ImportManager';
 import { PhoneSyncView } from './PhoneSyncView';
 import {
   ImportsView,
-  ExportsView,
   AIGeneratedView,
-  TemplatesView,
-  BatchProcessedView,
+  TrashView,
 } from './views';
 
 interface Asset {
@@ -40,6 +38,7 @@ interface Folder {
   name: string;
   count: number;
   color: string;
+  icon: React.ReactNode;
 }
 
 export const AssetLibrary: React.FC = () => {
@@ -102,14 +101,24 @@ export const AssetLibrary: React.FC = () => {
     // Here you would add the imported files to your assets list
   };
 
-  // Mock folders with translations
+  // AI Tools for filtering
+  const [selectedTool, setSelectedTool] = useState<string>('all');
+  const aiTools = [
+    { id: 'all', name: trans.assets.allTools || 'All Tools' },
+    { id: 'text-to-image', name: 'Text to Image' },
+    { id: 'remove-bg', name: 'Remove Background' },
+    { id: 'upscale', name: 'Upscale 4K' },
+    { id: 'magic-replace', name: 'Magic Replace' },
+    { id: 'gen-fill', name: 'Generative Fill' },
+    { id: 'magic-erase', name: 'Magic Erase' },
+  ];
+
+  // Folders with translations
   const folders: Folder[] = [
-    { id: 'all', name: trans.assets.allAssets, count: 156, color: 'bg-zinc-500' },
-    { id: 'imports', name: trans.assets.imports || 'Imports', count: 28, color: 'bg-cyan-500' },
-    { id: 'exports', name: trans.assets.exports, count: 48, color: 'bg-green-500' },
-    { id: 'generated', name: trans.assets.generated, count: 67, color: 'bg-purple-500' },
-    { id: 'templates', name: trans.assets.templates, count: 12, color: 'bg-amber-500' },
-    { id: 'batch', name: trans.assets.batchProcessed, count: 34, color: 'bg-pink-500' },
+    { id: 'all', name: trans.assets.allAssets, count: 156, color: 'bg-zinc-500', icon: <Layers size={16} className="text-zinc-500" /> },
+    { id: 'my-resources', name: trans.assets.myResources || 'My Resources', count: 89, color: 'bg-blue-500', icon: <Image size={16} className="text-blue-500" /> },
+    { id: 'generated', name: trans.assets.generated, count: 67, color: 'bg-purple-500', icon: <Wand2 size={16} className="text-purple-500" /> },
+    { id: 'trash', name: trans.assets.trash || 'Trash', count: 5, color: 'bg-red-500', icon: <Trash2 size={16} className="text-red-500" /> },
   ];
 
  
@@ -251,7 +260,7 @@ export const AssetLibrary: React.FC = () => {
                   : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
               }`}
             >
-              <div className={`w-2 h-2 rounded-full ${folder.color}`} />
+              {folder.icon}
               <span className="flex-1 text-left font-medium">{folder.name}</span>
               <span className="text-xs text-zinc-400">{folder.count}</span>
             </button>
@@ -370,13 +379,6 @@ export const AssetLibrary: React.FC = () => {
           </div>
         )}
 
-        {/* Create Folder */}
-        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
-          <Button variant="outline" className="w-full gap-2 text-sm">
-            <FolderPlus size={16} />
-            {trans.assets.newFolder}
-          </Button>
-        </div>
       </aside>
 
       {/* Main Content */}
@@ -435,19 +437,19 @@ export const AssetLibrary: React.FC = () => {
               setShowImportView(false);
             }}
           />
-        ) : selectedFolder === 'imports' ? (
+        ) : selectedFolder === 'my-resources' ? (
           <ImportsView 
             onOpenImportManager={() => setShowImportView(true)}
             onOpenPhoneSync={() => setShowPhoneSyncView(true)}
           />
-        ) : selectedFolder === 'exports' ? (
-          <ExportsView />
         ) : selectedFolder === 'generated' ? (
-          <AIGeneratedView />
-        ) : selectedFolder === 'templates' ? (
-          <TemplatesView />
-        ) : selectedFolder === 'batch' ? (
-          <BatchProcessedView />
+          <AIGeneratedView 
+            selectedTool={selectedTool}
+            onToolChange={setSelectedTool}
+            aiTools={aiTools}
+          />
+        ) : selectedFolder === 'trash' ? (
+          <TrashView />
         ) : (
           /* Default All Assets View */
           <>

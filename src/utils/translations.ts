@@ -662,15 +662,24 @@ export const translations = {
       batch: "Batch",
       uploaded: "Uploaded",
       allAssets: "All Assets",
+      myResources: "My Resources",
+      generated: "AI Generated",
+      trash: "Trash",
       imports: "Imports",
       exports: "Exports",
-      generated: "AI Generated",
       batchProcessed: "Batch Processed",
       noAssets: "No assets yet",
       noAssetsDesc: "Upload or generate your first asset to get started",
       syncPhone: "Sync from Phone",
       syncPhoneDesc: "Sync photos from your phone with just one click!",
-      syncNow: "Sync Now"
+      syncNow: "Sync Now",
+      filterByTool: "Filter by Tool",
+      allTools: "All Tools",
+      emptyTrash: "Empty Trash",
+      restore: "Restore",
+      permanentDelete: "Delete Permanently",
+      trashEmpty: "Trash is empty",
+      trashEmptyDesc: "Deleted items will appear here"
     }
   },
   vi: {
@@ -1335,15 +1344,24 @@ export const translations = {
       batch: "Xử lý hàng loạt",
       uploaded: "Đã tải lên",
       allAssets: "Tất cả tài nguyên",
+      myResources: "Tài nguyên của tôi",
+      generated: "AI Tạo",
+      trash: "Thùng rác",
       imports: "Đã nhập",
       exports: "Đã xuất",
-      generated: "AI Tạo",
       batchProcessed: "Xử lý hàng loạt",
       noAssets: "Chưa có tài nguyên",
       noAssetsDesc: "Tải lên hoặc tạo tài nguyên đầu tiên để bắt đầu",
       syncPhone: "Đồng bộ từ điện thoại",
       syncPhoneDesc: "Đồng bộ ảnh từ điện thoại chỉ với một cú click!",
-      syncNow: "Đồng bộ ngay"
+      syncNow: "Đồng bộ ngay",
+      filterByTool: "Lọc theo công cụ",
+      allTools: "Tất cả công cụ",
+      emptyTrash: "Dọn thùng rác",
+      restore: "Khôi phục",
+      permanentDelete: "Xóa vĩnh viễn",
+      trashEmpty: "Thùng rác trống",
+      trashEmptyDesc: "Các mục đã xóa sẽ xuất hiện ở đây"
     }
   }
 };

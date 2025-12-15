@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Image as ImageIcon, Check, Plus } from 'lucide-react';
+import { X, Image as ImageIcon, Plus, RefreshCw, Download, Edit3 } from 'lucide-react';
 import { Button } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { RecreateView } from './RecreateView';
 
 interface ShareGenerationModalProps {
   onClose: () => void;

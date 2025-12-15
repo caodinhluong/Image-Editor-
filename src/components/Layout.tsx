@@ -24,12 +24,12 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
 
   const navItems = [
     { id: 'home', icon: Home, label: trans.nav.home },
-    { id: 'editor', icon: Edit3, label: trans.nav.editor },
+    // { id: 'editor', icon: Edit3, label: trans.nav.editor }, // Temporarily hidden
     { id: 'photoshoot', icon: Sparkles, label: language === 'vi' ? 'Bộ ảnh AI' : 'AI Photoshoot', isNew: true },
     { id: 'assets', icon: FolderOpen, label: trans.nav.assets },
-    { id: 'brandkit', icon: Palette, label: trans.brandkit.title },
+    // { id: 'brandkit', icon: Palette, label: trans.brandkit.title }, // Temporarily hidden
     { id: 'marketplace', icon: ShoppingBag, label: trans.nav.marketplace },
-    { id: 'team', icon: Users, label: trans.nav.team },
+    // { id: 'team', icon: Users, label: trans.nav.team }, // Temporarily hidden
     { id: 'analytics', icon: BarChart3, label: trans.nav.analytics },
   ];
 
