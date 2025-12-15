@@ -392,7 +392,7 @@ export const AssetLibrary: React.FC = () => {
               </div>
               <div className="flex items-center gap-1.5">
                 {/* Google Drive */}
-                <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-md transition-shadow">
                   <svg viewBox="0 0 87.3 78" className="w-4 h-4">
                     <path fill="#0066DA" d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H1c0 1.55.4 3.1 1.2 4.5l4.4 9.35z"/>
                     <path fill="#00AC47" d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3L1.2 52.35c-.8 1.4-1.2 2.95-1.2 4.5h27.5L43.65 25z"/>
@@ -401,41 +401,10 @@ export const AssetLibrary: React.FC = () => {
                     <path fill="#2684FC" d="M59.85 53H27.5l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2L59.85 53z"/>
                     <path fill="#FFBA00" d="M73.4 26.5L60.1 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.2 28h27.45c0-1.55-.4-3.1-1.2-4.5l-12.7-22z"/>
                   </svg>
-                  <span className="hidden lg:inline text-zinc-600 dark:text-zinc-400">Drive</span>
+                  <span className="text-zinc-700 dark:text-zinc-300 font-medium">Google Drive</span>
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                </button>
-                
-                {/* Dropbox */}
-                <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-zinc-100 dark:bg-zinc-800/50 border border-transparent opacity-50 hover:opacity-75">
-                  <svg viewBox="0 0 24 24" className="w-4 h-4">
-                    <path fill="#0061FF" d="M6 2l6 3.6-6 3.6-6-3.6L6 2zm12 0l6 3.6-6 3.6-6-3.6 6-3.6zM0 12.8l6-3.6 6 3.6-6 3.6-6-3.6zm18-3.6l6 3.6-6 3.6-6-3.6 6-3.6zM6 17.6l6-3.6 6 3.6-6 3.6-6-3.6z"/>
-                  </svg>
-                  <span className="hidden lg:inline text-zinc-600 dark:text-zinc-400">Dropbox</span>
-                </button>
-                
-                {/* OneDrive */}
-                <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                  <svg viewBox="0 0 24 24" className="w-4 h-4">
-                    <path fill="#0364B8" d="M14.5 6c-1.61 0-3.09.53-4.3 1.42C9.5 6.53 8.3 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6h12c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96C18.44 6.81 16.61 6 14.5 6z"/>
-                    <path fill="#0078D4" d="M9.5 8c-2.49 0-4.5 2.01-4.5 4.5S7.01 17 9.5 17H19c1.93 0 3.5-1.57 3.5-3.5S20.93 10 19 10c-.17 0-.33.01-.5.03C17.93 8.24 16.36 7 14.5 7c-1.29 0-2.44.59-3.22 1.5-.5-.31-1.08-.5-1.78-.5z"/>
-                  </svg>
-                  <span className="hidden lg:inline text-zinc-600 dark:text-zinc-400">OneDrive</span>
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                </button>
-                
-                {/* iCloud */}
-                <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-zinc-100 dark:bg-zinc-800/50 border border-transparent opacity-50 hover:opacity-75">
-                  <svg viewBox="0 0 24 24" className="w-4 h-4">
-                    <path fill="#3693F3" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
-                  </svg>
-                  <span className="hidden lg:inline text-zinc-600 dark:text-zinc-400">iCloud</span>
                 </button>
               </div>
-              <Badge className="bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 text-[10px]">2/4</Badge>
-              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-zinc-500">
-                <RefreshCw size={12} />
-                Manage
-              </Button>
             </div>
 
             {/* Action Buttons */}
@@ -556,12 +525,6 @@ export const AssetLibrary: React.FC = () => {
                 <List size={16} className={viewMode === 'list' ? 'text-repix-500' : 'text-zinc-500'} />
               </button>
             </div>
-
-            {/* Upload/Import */}
-            <Button className="gap-2" onClick={() => setShowImportManager(true)}>
-              <Upload size={16} />
-              {trans.assets.upload}
-            </Button>
           </div>
         </div>
 

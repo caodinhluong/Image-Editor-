@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type ViewState = 'landing' | 'auth' | 'home' | 'editor' | 'marketplace' | 'team' | 'analytics' | 'profile' | 'settings' | 'brandkit' | 'assets';
+export type ViewState = 'landing' | 'auth' | 'home' | 'editor' | 'marketplace' | 'team' | 'analytics' | 'profile' | 'settings' | 'brandkit' | 'assets' | 'photoshoot';
 export type Language = 'en' | 'vi';
 
 export interface Template {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Layout } from './components/Layout';
 import { EditorView } from './components/Editor/EditorView';
@@ -15,7 +14,7 @@ import { ViewState } from './types';
 import { 
   Sparkles, ArrowRight, Image as ImageIcon, Scissors, Layers, Maximize2, Wand2, Search, Play,
   ShoppingBag, Camera, Briefcase, Zap, Crown, Check, ShieldCheck, Building2, Star,
-  Paperclip, X, ImagePlus, Download, Upload
+  Paperclip, X, ImagePlus, Download, Upload, ChevronRight, ChevronDown, RefreshCw, Edit3
 } from 'lucide-react';
 import { Button, Card, Badge } from './components/ui/UIComponents';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -26,10 +25,14 @@ import { AssetLibrary } from './components/Assets/AssetLibrary';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import { UpgradeModal } from './components/Subscription/UpgradeModal';
 import { AssetPickerModal } from './components/Editor/AssetPickerModal';
+import { SmartPhotoshootView } from './components/AI/SmartPhotoshootView';
+
+import { useSubscription } from './contexts/SubscriptionContext';
 
 // --- Modern Home Dashboard View ---
 const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => void }> = ({ onStartEditing }) => {
   const { trans, language } = useLanguage();
+  const { currentPlan, triggerUpgradeModal } = useSubscription();
   const [activeTab, setActiveTab] = useState<'trending' | 'recent'>('trending');
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -46,13 +49,14 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Generation Options States
-  const [selectedModel, setSelectedModel] = useState('standard');
+  const [selectedModel, setSelectedModel] = useState('higgsfield-soul'); // Default to first free model
   const [selectedStyle, setSelectedStyle] = useState('photograph');
   const [selectedRatio, setSelectedRatio] = useState('3:2');
   const [imageCount, setImageCount] = useState(2);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [showStyleDropdown, setShowStyleDropdown] = useState(false);
   const [showRatioDropdown, setShowRatioDropdown] = useState(false);
+  const [showRefImageDropdown, setShowRefImageDropdown] = useState(false);
   const [showAssetPicker, setShowAssetPicker] = useState(false);
   
   // Example Preview Modal State
@@ -62,15 +66,29 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   // Full screen preview state
   const [previewImage, setPreviewImage] = useState<{ url: string; index: number } | null>(null);
   
-  // Options Data - Real AI Models
+  
+  
+  // Options Data - Real AI Models with descriptions
   const modelOptions = [
-    { id: 'flux-schnell', label: 'Flux Schnell', labelVi: 'Flux Nhanh', tier: 'free' },
-    { id: 'sdxl', label: 'SDXL', labelVi: 'SDXL', tier: 'free' },
-    { id: 'flux-pro', label: 'Flux Pro', labelVi: 'Flux Pro', tier: 'plus' },
-    { id: 'dalle3', label: 'DALL-E 3', labelVi: 'DALL-E 3', tier: 'plus' },
-    { id: 'midjourney', label: 'Midjourney v6', labelVi: 'Midjourney v6', tier: 'pro' },
-    { id: 'imagen3', label: 'Imagen 3', labelVi: 'Imagen 3', tier: 'pro' },
-    { id: 'gemini-pro', label: 'Gemini 2.0', labelVi: 'Gemini 2.0', tier: 'pro' },
+    // Free Models
+    { id: 'higgsfield-soul', label: 'Higgsfield Soul', labelVi: 'Higgsfield Soul', desc: 'Ultra-Realistic Fashion Visuals', descVi: 'Hình ảnh thời trang siêu thực', tier: 'free', icon: '✨' },
+    { id: 'nano-banana-pro', label: 'Nano Banana Pro', labelVi: 'Nano Banana Pro', desc: "Google's Flagship Generation Model", descVi: 'Model tạo ảnh hàng đầu của Google', tier: 'free', icon: 'G' },
+    { id: 'z-image', label: 'Z-Image', labelVi: 'Z-Image', desc: 'Ultra-Fast Photorealistic Images', descVi: 'Ảnh siêu thực cực nhanh', tier: 'free', icon: '⚡' },
+    { id: 'flux-pro', label: 'FLUX.2 Pro', labelVi: 'FLUX.2 Pro', desc: 'Lightning-Fast Precision', descVi: 'Độ chính xác siêu nhanh', tier: 'free', icon: '△' },
+    { id: 'wan-22', label: 'WAN 2.2', labelVi: 'WAN 2.2', desc: 'High-Fidelity Cinematic Visuals', descVi: 'Hình ảnh điện ảnh chất lượng cao', tier: 'free', icon: '🎬' },
+    // Plus Models
+    { id: 'higgsfield-faceswap', label: 'Higgsfield Face Swap', labelVi: 'Higgsfield Face Swap', desc: 'Seamless Face Swapping', descVi: 'Hoán đổi khuôn mặt liền mạch', tier: 'plus', icon: '👤' },
+    { id: 'higgsfield-character', label: 'Higgsfield Character Swap', labelVi: 'Higgsfield Character Swap', desc: 'Seamless Character Swapping', descVi: 'Hoán đổi nhân vật liền mạch', tier: 'plus', icon: '🎭' },
+    { id: 'nano-banana', label: 'Nano Banana', labelVi: 'Nano Banana', desc: "Google's Standard Generation Model", descVi: 'Model tạo ảnh tiêu chuẩn của Google', tier: 'plus', icon: 'G' },
+    { id: 'seedream-45', label: 'Seedream 4.5', labelVi: 'Seedream 4.5', desc: "ByteDance's Next-Gen 4K Image Model", descVi: 'Model ảnh 4K thế hệ mới của ByteDance', tier: 'plus', icon: '📊' },
+    { id: 'kling-o1', label: 'Kling O1', labelVi: 'Kling O1', desc: "Kling's Photorealistic Image Model", descVi: 'Model ảnh siêu thực của Kling', tier: 'plus', icon: '◎' },
+    { id: 'flux-flex', label: 'FLUX.2 Flex', labelVi: 'FLUX.2 Flex', desc: 'Next-Gen Image Generation', descVi: 'Tạo ảnh thế hệ mới', tier: 'plus', icon: '△' },
+    // Pro Models (highest tier)
+    { id: 'seedream-40', label: 'Seedream 4.0', labelVi: 'Seedream 4.0', desc: "ByteDance's Advanced Image Editing Model", descVi: 'Model chỉnh sửa ảnh nâng cao của ByteDance', tier: 'pro', icon: '📊' },
+    { id: 'reve', label: 'Reve', labelVi: 'Reve', desc: 'Advanced Image Editing Model', descVi: 'Model chỉnh sửa ảnh nâng cao', tier: 'pro', icon: '❋' },
+    { id: 'flux-kontext', label: 'Flux Kontext Max', labelVi: 'Flux Kontext Max', desc: 'Edit With Accuracy', descVi: 'Chỉnh sửa chính xác', tier: 'pro', icon: '⟁' },
+    { id: 'gpt-image', label: 'GPT Image', labelVi: 'GPT Image', desc: "OpenAI's Powerful Image Tool", descVi: 'Công cụ ảnh mạnh mẽ của OpenAI', tier: 'pro', icon: '◈' },
+    { id: 'multi-reference', label: 'Multi Reference', labelVi: 'Multi Reference', desc: 'Multiple Edits In One Shot', descVi: 'Nhiều chỉnh sửa trong một lần', tier: 'pro', icon: '⊞' },
   ];
   
   const styleOptions = [
@@ -429,36 +447,39 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                        />
                        
                        {/* Reference Image Button with Dropdown */}
-                       <div className="relative group">
+                       <div className="relative">
                          <button
+                           onClick={() => { setShowRefImageDropdown(!showRefImageDropdown); setShowModelDropdown(false); setShowStyleDropdown(false); setShowRatioDropdown(false); }}
                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors"
                          >
                            <ImagePlus size={14} />
                            {language === 'vi' ? 'Ảnh tham chiếu' : 'Reference image'}
                          </button>
                          {/* Dropdown Menu */}
-                         <div className="absolute top-full left-0 mt-1 py-1 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 min-w-[180px]">
-                           <button
-                             onClick={() => fileInputRef.current?.click()}
-                             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                           >
-                             <Upload size={16} />
-                             {language === 'vi' ? 'Tải lên từ thiết bị' : 'Upload from device'}
-                           </button>
-                           <button
-                             onClick={() => setShowAssetPicker(true)}
-                             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                           >
-                             <Paperclip size={16} />
-                             {language === 'vi' ? 'Từ My Assets' : 'From My Assets'}
-                           </button>
-                         </div>
+                         {showRefImageDropdown && (
+                           <div className="absolute top-full left-0 mt-1 py-1 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[180px]">
+                             <button
+                               onClick={() => { fileInputRef.current?.click(); setShowRefImageDropdown(false); }}
+                               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                             >
+                               <Upload size={16} />
+                               {language === 'vi' ? 'Tải lên từ thiết bị' : 'Upload from device'}
+                             </button>
+                             <button
+                               onClick={() => { setShowAssetPicker(true); setShowRefImageDropdown(false); }}
+                               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                             >
+                               <Paperclip size={16} />
+                               {language === 'vi' ? 'Từ My Assets' : 'From My Assets'}
+                             </button>
+                           </div>
+                         )}
                        </div>
 
                        {/* Model Dropdown */}
                        <div className="relative">
                          <button 
-                           onClick={() => { setShowModelDropdown(!showModelDropdown); setShowStyleDropdown(false); setShowRatioDropdown(false); }}
+                           onClick={() => { setShowModelDropdown(!showModelDropdown); setShowStyleDropdown(false); setShowRatioDropdown(false); setShowRefImageDropdown(false); }}
                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                          >
                            Model: {modelOptions.find(m => m.id === selectedModel)?.[language === 'vi' ? 'labelVi' : 'label']}
@@ -471,29 +492,68 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                          </button>
                          {showModelDropdown && (
-                           <div className="absolute top-full left-0 mt-1 py-2 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[200px]">
-                             <p className="px-3 py-1 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
-                               {language === 'vi' ? 'Chọn Model AI' : 'Select AI Model'}
+                           <div className="absolute top-full left-0 mt-1 py-2 bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-700 z-20 w-[320px] max-h-[400px] overflow-y-auto">
+                             <p className="px-4 py-2 text-xs font-medium text-zinc-500">
+                               {language === 'vi' ? 'Chọn model' : 'Select model'}
                              </p>
-                             {modelOptions.map(opt => (
-                               <button
-                                 key={opt.id}
-                                 onClick={() => { setSelectedModel(opt.id); setShowModelDropdown(false); }}
-                                 className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${selectedModel === opt.id ? 'text-repix-500 font-medium bg-repix-50 dark:bg-repix-900/20' : 'text-zinc-600 dark:text-zinc-400'}`}
-                               >
-                                 <span>{language === 'vi' ? opt.labelVi : opt.label}</span>
-                                 {opt.tier === 'plus' && (
-                                   <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[9px] font-bold">
-                                     <Crown size={8} /> PLUS
-                                   </span>
-                                 )}
-                                 {opt.tier === 'pro' && (
-                                   <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[9px] font-bold">
-                                     <Crown size={8} /> PRO
-                                   </span>
-                                 )}
-                               </button>
-                             ))}
+                             {modelOptions.map(opt => {
+                               // Check if user can access this model based on their plan
+                               const canAccess = opt.tier === 'free' || 
+                                 (opt.tier === 'plus' && (currentPlan === 'plus' || currentPlan === 'pro')) ||
+                                 (opt.tier === 'pro' && currentPlan === 'pro');
+                               
+                               return (
+                                 <button
+                                   key={opt.id}
+                                   onClick={() => {
+                                     if (canAccess) {
+                                       setSelectedModel(opt.id);
+                                       setShowModelDropdown(false);
+                                     } else {
+                                       setShowModelDropdown(false);
+                                       triggerUpgradeModal('advancedAI');
+                                     }
+                                   }}
+                                   className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-zinc-800 transition-colors ${selectedModel === opt.id ? 'bg-zinc-800' : ''}`}
+                                 >
+                                   {/* Icon with gradient colors */}
+                                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${
+                                     selectedModel === opt.id 
+                                       ? 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 text-white' 
+                                       : 'bg-zinc-800 border border-zinc-700'
+                                   }`}>
+                                     <span className={selectedModel === opt.id ? 'text-white' : 'bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent'}>
+                                       {opt.icon}
+                                     </span>
+                                   </div>
+                                   {/* Content */}
+                                   <div className="flex-1 min-w-0">
+                                     <div className="flex items-center gap-2">
+                                       <span className={`text-sm font-medium ${selectedModel === opt.id ? 'text-white' : 'text-zinc-200'}`}>
+                                         {opt.label}
+                                       </span>
+                                       {opt.tier === 'plus' && (
+                                         <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 text-[9px] font-bold border border-purple-500/30">
+                                           <Crown size={8} /> PLUS
+                                         </span>
+                                       )}
+                                       {opt.tier === 'pro' && (
+                                         <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[9px] font-bold border border-amber-500/30">
+                                           <Crown size={8} /> PRO
+                                         </span>
+                                       )}
+                                     </div>
+                                     <p className="text-xs text-zinc-500 truncate">
+                                       {language === 'vi' ? opt.descVi : opt.desc}
+                                     </p>
+                                   </div>
+                                   {/* Check mark with gradient */}
+                                   {selectedModel === opt.id && (
+                                     <Check size={18} className="text-pink-500 shrink-0" />
+                                   )}
+                                 </button>
+                               );
+                             })}
                            </div>
                          )}
                        </div>
@@ -501,7 +561,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                        {/* Style Dropdown */}
                        <div className="relative">
                          <button 
-                           onClick={() => { setShowStyleDropdown(!showStyleDropdown); setShowModelDropdown(false); setShowRatioDropdown(false); }}
+                           onClick={() => { setShowStyleDropdown(!showStyleDropdown); setShowModelDropdown(false); setShowRatioDropdown(false); setShowRefImageDropdown(false); }}
                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                          >
                            Style: {styleOptions.find(s => s.id === selectedStyle)?.[language === 'vi' ? 'labelVi' : 'label']}
@@ -525,7 +585,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                        {/* Ratio & Count Dropdown */}
                        <div className="relative">
                          <button 
-                           onClick={() => { setShowRatioDropdown(!showRatioDropdown); setShowModelDropdown(false); setShowStyleDropdown(false); }}
+                           onClick={() => { setShowRatioDropdown(!showRatioDropdown); setShowModelDropdown(false); setShowStyleDropdown(false); setShowRefImageDropdown(false); }}
                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                          >
                            {selectedRatio} · {imageCount} {language === 'vi' ? 'ảnh' : 'images'}
@@ -837,83 +897,156 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
               )}
             </div>
 
-            {/* Example Preview Modal */}
+            {/* Example Preview Modal - Professional Design */}
             {selectedExample && (
               <div 
-                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+                className="fixed inset-0 z-[100] flex bg-black/95 backdrop-blur-xl animate-in fade-in duration-200"
                 onClick={() => setSelectedExample(null)}
               >
+                {/* Background blur image */}
                 <div 
-                  className="relative bg-white dark:bg-zinc-900 rounded-2xl max-w-3xl w-full shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden"
+                  className="absolute inset-0 opacity-20 blur-3xl scale-125"
+                  style={{ 
+                    backgroundImage: `url(${selectedExample.src})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                />
+                
+                {/* Center: Image Preview - Takes remaining space */}
+                <div 
+                  className="flex-1 flex items-center justify-center p-6 md:p-10 pr-[360px]"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {/* Close Button */}
-                  <button
-                    onClick={() => setSelectedExample(null)}
-                    className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 dark:bg-zinc-800/80 hover:bg-white dark:hover:bg-zinc-700 transition-colors shadow-lg"
-                  >
-                    <X size={20} className="text-zinc-600 dark:text-zinc-400" />
-                  </button>
+                  <div className="relative group animate-in zoom-in-95 duration-200">
+                    <img
+                      src={selectedExample.src}
+                      alt={selectedExample.title}
+                      className="max-w-full max-h-[80vh] object-contain rounded-3xl shadow-2xl shadow-black/60 ring-1 ring-white/10"
+                    />
+                    {/* Subtle glow effect */}
+                    <div className="absolute -inset-6 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 blur-3xl -z-10 rounded-[40px] opacity-60" />
+                  </div>
+                </div>
 
-                  {/* Title */}
-                  <div className="text-center py-4 border-b border-zinc-200 dark:border-zinc-800">
-                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
-                      {selectedExample.title}
-                    </h2>
+                {/* Right: Info Panel - Fixed to right edge */}
+                <div 
+                  className="fixed right-0 top-0 bottom-0 w-[340px] bg-zinc-900/98 backdrop-blur-2xl border-l border-zinc-800/80 flex flex-col shadow-2xl shadow-black/50 animate-in slide-in-from-right duration-300"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="p-5 flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/30">
+                        <Sparkles size={18} />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-white text-[15px] leading-tight">{selectedExample.title}</h3>
+                        <p className="text-xs text-zinc-500 mt-0.5">AI Generated</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setSelectedExample(null)}
+                      className="p-2 rounded-xl hover:bg-zinc-800/80 transition-all duration-200"
+                    >
+                      <X size={18} className="text-zinc-500 hover:text-zinc-300" />
+                    </button>
                   </div>
 
                   {/* Content */}
-                  <div className="p-6 flex flex-col md:flex-row gap-6">
-                    {/* Image */}
-                    <div className="flex-shrink-0">
-                      <img
-                        src={selectedExample.src}
-                        alt={selectedExample.title}
-                        className="w-full md:w-72 h-auto rounded-xl shadow-lg"
-                      />
-                    </div>
-
-                    {/* Prompt Card */}
-                    <div className="flex-1 flex flex-col">
-                      <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4 flex-1">
-                        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-3">
-                          AI Art Image Prompt
-                        </h3>
-                        
-                        <div className="mb-3">
-                          <p className="text-xs text-zinc-500 mb-1">Prompt:</p>
-                          <div className="p-3 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                            <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                              {selectedExample.prompt}
-                            </p>
-                          </div>
+                  <div className="flex-1 overflow-y-auto px-5 pb-5 space-y-5">
+                    {/* Prompt Section */}
+                    <div className="bg-zinc-800/50 rounded-2xl p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2 text-xs text-zinc-400 font-medium">
+                          <Sparkles size={12} />
+                          <span>PROMPT</span>
                         </div>
-
                         <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(selectedExample.prompt);
-                          }}
-                          className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-repix-500 transition-colors ml-auto"
+                          onClick={() => navigator.clipboard.writeText(selectedExample.prompt)}
+                          className="px-2.5 py-1 text-[11px] font-medium bg-zinc-700/80 hover:bg-zinc-600 text-zinc-300 rounded-lg transition-all duration-200"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
-                          {language === 'vi' ? 'Sao chép Prompt' : 'Copy Prompt'}
+                          Copy
                         </button>
                       </div>
+                      <p className="text-[13px] text-zinc-300 leading-relaxed">
+                        {selectedExample.prompt}
+                      </p>
+                    </div>
 
-                      {/* Open in Editor Button */}
-                      <Button
+                    {/* Information Section */}
+                    <div className="bg-zinc-800/50 rounded-2xl p-4">
+                      <div className="flex items-center gap-2 text-xs text-zinc-400 font-medium mb-4">
+                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                        <span>INFORMATION</span>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[13px] text-zinc-500">Model</span>
+                          <span className="text-[13px] text-white font-medium bg-zinc-700/80 px-3 py-1 rounded-lg">
+                            {modelOptions.find(m => m.id === selectedModel)?.label || 'Flux Schnell'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[13px] text-zinc-500">Style</span>
+                          <span className="text-[13px] text-zinc-300 bg-zinc-700/50 px-3 py-1 rounded-lg">
+                            {language === 'vi' 
+                              ? styleOptions.find(s => s.id === selectedStyle)?.labelVi 
+                              : styleOptions.find(s => s.id === selectedStyle)?.label || 'Photograph'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[13px] text-zinc-500">{language === 'vi' ? 'Tỉ lệ' : 'Ratio'}</span>
+                          <span className="text-[13px] text-zinc-300 bg-zinc-700/50 px-3 py-1 rounded-lg">{selectedRatio}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="p-5 border-t border-zinc-800/50 space-y-3 bg-zinc-900/50">
+                    {/* Primary Action - Recreate with app gradient colors */}
+                    <button
+                      onClick={() => {
+                        // Copy prompt to dashboard input and close modal
+                        setPrompt(selectedExample.prompt);
+                        setSelectedExample(null);
+                        // User can now edit or generate from dashboard
+                      }}
+                      className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:from-purple-500 hover:via-pink-400 hover:to-orange-300 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 hover:scale-[1.02]"
+                    >
+                      <RefreshCw size={16} />
+                      {language === 'vi' ? 'Tạo lại' : 'Recreate'}
+                    </button>
+
+                    {/* Secondary Actions Grid */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button 
                         onClick={() => {
-                          setPrompt(selectedExample.prompt);
-                          setSelectedExample(null);
-                          onStartEditing(selectedExample.src);
+                          const link = document.createElement('a');
+                          link.href = selectedExample.src;
+                          link.download = `${selectedExample.title.replace(/\s+/g, '-')}.jpg`;
+                          link.click();
                         }}
-                        className="w-full mt-4 gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 text-sm font-medium rounded-xl transition-all duration-200"
                       >
-                        <Sparkles size={16} />
-                        {language === 'vi' ? 'Mở trong Editor' : 'Open in editor'}
-                      </Button>
+                        <Download size={15} />
+                        Download
+                      </button>
+                      <button 
+                        onClick={() => {
+                          // Open editor with example image
+                          const imgSrc = selectedExample.src;
+                          setSelectedExample(null);
+                          onStartEditing(imgSrc);
+                        }}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 text-sm font-medium rounded-xl transition-all duration-200"
+                      >
+                        <Edit3 size={15} />
+                        Edit
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1607,9 +1740,17 @@ const AppContent: React.FC = () => {
     <Layout currentView={view} onChangeView={setView} onSignOut={handleSignOut} onGoToLanding={handleGoToLanding}>
       {view === 'home' && <HomeView onStartEditing={handleStartEditing} />}
       {view === 'editor' && <EditorView initialImage={initialEditorImage} initialRatio={initialEditorRatio} />}
+      {view === 'photoshoot' && <SmartPhotoshootView onNavigateToEditor={(imageUrl: string) => {
+        setInitialEditorImage(imageUrl);
+        setView('editor');
+      }} />}
       {view === 'assets' && <AssetLibrary />}
       {view === 'brandkit' && <BrandKitView />}
-      {view === 'marketplace' && <MarketplaceView />}
+      {view === 'marketplace' && <MarketplaceView onNavigateToPublish={() => {
+        setView('profile');
+        // Set a flag to open published tab
+        localStorage.setItem('repix_open_published', 'true');
+      }} />}
       {view === 'team' && <TeamView />}
       {view === 'analytics' && <AnalyticsView />}
       {view === 'settings' && <SettingsPanel />}

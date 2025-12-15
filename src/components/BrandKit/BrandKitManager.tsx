@@ -405,7 +405,33 @@ export const BrandKitManager: React.FC<BrandKitManagerProps> = ({ onCreateNew, o
   }
 
   return (
-    <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto p-6">
+    <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto p-6 relative">
+      {/* Coming Soon Overlay */}
+      <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+        <div className="text-center p-8 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 max-w-md mx-4">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-purple-500/30">
+            <Sparkles size={36} className="text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-3">
+            {language === 'vi' ? 'Sắp ra mắt' : 'Coming Soon'}
+          </h2>
+          <p className="text-white/80 text-lg mb-2">
+            {language === 'vi' ? 'Tính năng Brand Kit đang được phát triển' : 'Brand Kit feature is under development'}
+          </p>
+          <p className="text-white/60 text-sm">
+            {language === 'vi' 
+              ? 'Chúng tôi đang hoàn thiện tính năng này để mang đến trải nghiệm tốt nhất cho bạn.' 
+              : 'We are perfecting this feature to bring you the best experience.'}
+          </p>
+          <div className="mt-6 flex items-center justify-center gap-2 text-purple-300">
+            <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+            <span className="text-sm font-medium">
+              {language === 'vi' ? 'Đang phát triển...' : 'In development...'}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}

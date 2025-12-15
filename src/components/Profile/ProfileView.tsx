@@ -1,27 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, Settings, CreditCard, Heart, Image as ImageIcon, 
-  Share2, Edit2, Zap, Clock, Bell, Key, Download, MoreHorizontal,
-  Shield, Crown, Grid, Award, DollarSign, TrendingUp, ShoppingCart,
-  Star, Package, Upload, Wallet, Eye, Lock
+  Share2, Edit2, Zap, Clock, Bell, Key, MoreHorizontal,
+  Crown, Eye, ExternalLink, Trash2
 } from 'lucide-react';
 import { Button, Card, Badge, Input } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer
-} from 'recharts';
+import { ShareGenerationModal } from '../Marketplace/ShareGenerationModal';
+
 
 export const ProfileView: React.FC = () => {
   const { trans, toggleLanguage, language } = useLanguage();
   const { theme, toggleTheme } = useTheme();
-  const { canAccess, triggerUpgradeModal } = useSubscription();
-  const [activeTab, setActiveTab] = useState<'portfolio' | 'creator' | 'templates' | 'likes' | 'billing' | 'settings'>('portfolio');
+  useSubscription();
+  const [activeTab, setActiveTab] = useState<'portfolio' | 'published' | 'likes' | 'billing' | 'settings'>('portfolio');
+  const [showShareModal, setShowShareModal] = useState(false);
   
-  // Check Creator Studio access (Pro or higher)
-  const hasCreatorAccess = canAccess('creatorStudio');
+  // Check if navigated from Marketplace to open Published tab
+  useEffect(() => {
+    const shouldOpenPublished = localStorage.getItem('repix_open_published');
+    if (shouldOpenPublished === 'true') {
+      setActiveTab('published');
+      setShowShareModal(true);
+      localStorage.removeItem('repix_open_published');
+    }
+  }, []);
+  
+
 
   // Mock User Data
   const user = {
@@ -39,49 +46,9 @@ export const ProfileView: React.FC = () => {
     }
   };
 
-  // Portfolio với ảnh sản phẩm thời trang nổi tiếng
-  const portfolioImages = [
-    { id: 0, src: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop', title: 'Nike Air Max', date: '2 days ago' },
-    { id: 1, src: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop', title: 'Louis Vuitton Bag', date: '3 days ago' },
-    { id: 2, src: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop', title: 'Apple Watch', date: '5 days ago' },
-    { id: 3, src: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop', title: 'Chanel Perfume', date: '1 week ago' },
-    { id: 4, src: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400&h=400&fit=crop', title: 'Adidas Sneakers', date: '1 week ago' },
-    { id: 5, src: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop', title: 'Gucci Handbag', date: '2 weeks ago' },
-  ];
 
-  const myTemplates = Array(3).fill(null).map((_, i) => ({
-    id: i,
-    title: `Template ${i + 1}`,
-    thumbnail: `https://picsum.photos/seed/temp${i}/400/300`,
-    sales: Math.floor(Math.random() * 1000),
-    status: 'Active'
-  }));
 
-  // Creator Stats
-  const creatorStats = {
-    totalEarnings: 12450,
-    thisMonth: 2340,
-    totalSales: 1247,
-    avgRating: 4.8,
-    totalDownloads: 5632,
-    activeTemplates: 24,
-    pendingBalance: 1234
-  };
 
-  const revenueData = [
-    { month: 'Jan', revenue: 1200 },
-    { month: 'Feb', revenue: 1800 },
-    { month: 'Mar', revenue: 1500 },
-    { month: 'Apr', revenue: 2200 },
-    { month: 'May', revenue: 1900 },
-    { month: 'Jun', revenue: 2340 }
-  ];
-
-  const recentSales = [
-    { id: '1', template: 'Cyberpunk City Pack', buyer: 'John Doe', amount: 29, time: '2h ago' },
-    { id: '2', template: 'Nature Landscape Set', buyer: 'Jane Smith', amount: 19, time: '5h ago' },
-    { id: '3', template: 'Product Photography', buyer: 'Mike Johnson', amount: 39, time: '8h ago' },
-  ];
 
   return (
     <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto">
@@ -117,19 +84,23 @@ export const ProfileView: React.FC = () => {
                   </div>
                   <p className="text-zinc-500 dark:text-zinc-400 font-medium mb-3">{user.handle} • {trans.profile.memberSince} {user.joined}</p>
                   
-                  {/* Stats Row */}
-                  <div className="flex items-center justify-center md:justify-start gap-6 text-sm">
-                     <div className="text-center md:text-left">
-                        <span className="block font-bold text-zinc-900 dark:text-white text-lg">{user.stats.followers}</span>
+                  {/* Compact Stats Row */}
+                  <div className="flex items-center justify-center md:justify-start gap-4 text-sm flex-wrap">
+                     <div className="flex items-center gap-1.5">
+                        <Zap size={14} className="text-yellow-500" />
+                        <span className="font-bold text-zinc-900 dark:text-white">{user.credits.current.toLocaleString()}</span>
+                        <span className="text-zinc-500">credits</span>
+                     </div>
+                     <span className="text-zinc-300 dark:text-zinc-600">•</span>
+                     <div className="flex items-center gap-1.5">
+                        <ImageIcon size={14} className="text-blue-500" />
+                        <span className="font-bold text-zinc-900 dark:text-white">156</span>
+                        <span className="text-zinc-500">{language === 'vi' ? 'ảnh' : 'images'}</span>
+                     </div>
+                     <span className="text-zinc-300 dark:text-zinc-600">•</span>
+                     <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-zinc-900 dark:text-white">{user.stats.followers}</span>
                         <span className="text-zinc-500">{trans.profile.followers}</span>
-                     </div>
-                     <div className="text-center md:text-left">
-                        <span className="block font-bold text-zinc-900 dark:text-white text-lg">{user.stats.following}</span>
-                        <span className="text-zinc-500">{trans.profile.following}</span>
-                     </div>
-                     <div className="text-center md:text-left">
-                        <span className="block font-bold text-zinc-900 dark:text-white text-lg">{user.stats.downloads}</span>
-                        <span className="text-zinc-500">{trans.marketplace.downloads}</span>
                      </div>
                   </div>
                </div>
@@ -142,59 +113,12 @@ export const ProfileView: React.FC = () => {
                </div>
             </div>
 
-            {/* Credit Dashboard Card */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-               <Card className="p-6 bg-gradient-to-br from-repix-600 to-indigo-700 text-white border-none shadow-xl col-span-1 md:col-span-2 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-                  <div className="relative z-10 flex justify-between items-start">
-                     <div>
-                        <p className="text-repix-100 font-medium mb-1">{trans.profile.creditsLeft}</p>
-                        <h2 className="text-4xl font-bold tracking-tight mb-4">{user.credits.current.toLocaleString()} <span className="text-lg font-normal opacity-70">/ {user.credits.total.toLocaleString()}</span></h2>
-                        <div className="h-2 w-full max-w-md bg-black/20 rounded-full overflow-hidden mb-2">
-                           <div className="h-full bg-white/90 w-[70%] rounded-full"></div>
-                        </div>
-                        <p className="text-xs text-repix-200">{trans.profile.nextBilling} Oct 24, 2024</p>
-                     </div>
-                     <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md">
-                        <Zap size={32} className="text-yellow-300 fill-yellow-300" />
-                     </div>
-                  </div>
-               </Card>
-               
-               <Card className="p-0 overflow-hidden border-zinc-200 dark:border-zinc-800 flex flex-col">
-                  <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
-                     <h3 className="font-bold flex items-center gap-2"><TrophyIcon /> Achievements</h3>
-                  </div>
-                  <div className="p-4 flex-1 flex items-center justify-around">
-                      <div className="text-center group cursor-pointer">
-                         <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-500 flex items-center justify-center border border-yellow-200 dark:border-yellow-700 group-hover:scale-110 transition-transform">
-                            <Zap size={20} fill="currentColor" />
-                         </div>
-                         <span className="text-xs font-medium">Power User</span>
-                      </div>
-                      <div className="text-center group cursor-pointer">
-                         <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-500 flex items-center justify-center border border-blue-200 dark:border-blue-700 group-hover:scale-110 transition-transform">
-                            <Heart size={20} fill="currentColor" />
-                         </div>
-                         <span className="text-xs font-medium">Top Seller</span>
-                      </div>
-                      <div className="text-center group cursor-pointer grayscale opacity-50">
-                         <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center border border-zinc-200 dark:border-zinc-700">
-                            <Shield size={20} />
-                         </div>
-                         <span className="text-xs font-medium">Verified</span>
-                      </div>
-                  </div>
-               </Card>
-            </div>
-
             {/* Main Tabs */}
             <div className="border-b border-zinc-200 dark:border-zinc-800 mb-6 sticky top-0 bg-light-bg dark:bg-dark-bg z-20">
                <nav className="flex gap-6 overflow-x-auto hide-scrollbar">
                   {[
                      { id: 'portfolio', label: trans.profile.portfolio, icon: ImageIcon },
-                     { id: 'creator', label: language === 'vi' ? 'Creator Studio' : 'Creator Studio', icon: Award },
-                     { id: 'templates', label: trans.profile.templates, icon: Grid },
+                     { id: 'published', label: language === 'vi' ? 'Đã xuất bản' : 'Published', icon: Share2 },
                      { id: 'likes', label: trans.profile.likes, icon: Heart },
                      { id: 'billing', label: trans.profile.billing, icon: CreditCard },
                      { id: 'settings', label: trans.profile.settings, icon: Settings },
@@ -215,228 +139,150 @@ export const ProfileView: React.FC = () => {
                
                {/* PORTFOLIO TAB */}
                {activeTab === 'portfolio' && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                     {portfolioImages.map((img) => (
-                        <div key={img.id} className="group relative aspect-square rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 cursor-pointer">
-                           <img src={img.src} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                              <h4 className="text-white font-medium truncate">{img.title}</h4>
-                              <p className="text-white/70 text-xs">{img.date}</p>
-                           </div>
-                           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full"><Download size={14}/></Button>
-                           </div>
-                        </div>
-                     ))}
-                     {/* Add New Placeholder */}
-                     <div className="aspect-square rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 flex flex-col items-center justify-center text-zinc-400 hover:text-repix-500 hover:border-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/10 cursor-pointer transition-all">
-                        <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-2">
-                           <Zap size={24} />
-                        </div>
-                        <span className="font-medium text-sm">Create New</span>
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                     <div className="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-6">
+                        <ImageIcon size={40} className="text-zinc-400" />
                      </div>
+                     <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+                        {language === 'vi' ? 'Chưa có sáng tạo nào' : 'No creations yet'}
+                     </h3>
+                     <p className="text-zinc-500 mb-6 max-w-md">
+                        {language === 'vi' 
+                           ? 'Bắt đầu tạo ảnh AI đầu tiên của bạn và chúng sẽ xuất hiện ở đây.'
+                           : 'Start creating your first AI images and they will appear here.'}
+                     </p>
+                     <Button className="gap-2">
+                        <Zap size={16} />
+                        {language === 'vi' ? 'Tạo ngay' : 'Create Now'}
+                     </Button>
                   </div>
                )}
 
-               {/* CREATOR STUDIO TAB */}
-               {activeTab === 'creator' && (
-                  <div className="space-y-6">
-                     {/* Pro Access Required */}
-                     {!hasCreatorAccess ? (
-                        <div className="text-center py-12">
-                           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                              <Lock className="text-white" size={36} />
-                           </div>
-                           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">
-                              {language === 'vi' ? 'Creator Studio' : 'Creator Studio'}
-                           </h2>
-                           <p className="text-zinc-500 dark:text-zinc-400 mb-6 max-w-md mx-auto">
-                              {language === 'vi' 
-                                 ? 'Tính năng Creator Studio chỉ dành cho người dùng Pro trở lên. Nâng cấp để bán template và kiếm tiền.'
-                                 : 'Creator Studio is available for Pro users and above. Upgrade to sell templates and earn money.'}
-                           </p>
-                           <div className="bg-zinc-100 dark:bg-zinc-800 rounded-xl p-5 mb-6 max-w-md mx-auto text-left">
-                              <h4 className="font-bold text-zinc-900 dark:text-white mb-3 text-sm">
-                                 {language === 'vi' ? 'Với Creator Studio:' : 'With Creator Studio:'}
-                              </h4>
-                              <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-                                 <li className="flex items-center gap-2"><Upload size={14} className="text-repix-500" /> {language === 'vi' ? 'Tải lên và bán template' : 'Upload and sell templates'}</li>
-                                 <li className="flex items-center gap-2"><DollarSign size={14} className="text-emerald-500" /> {language === 'vi' ? 'Kiếm tiền từ sáng tạo' : 'Earn from your creations'}</li>
-                                 <li className="flex items-center gap-2"><TrendingUp size={14} className="text-blue-500" /> {language === 'vi' ? 'Theo dõi doanh số' : 'Track sales analytics'}</li>
-                              </ul>
-                           </div>
-                           <Button onClick={() => triggerUpgradeModal('creatorStudio')} className="gap-2">
-                              <Crown size={18} />
-                              {language === 'vi' ? 'Nâng cấp lên Pro' : 'Upgrade to Pro'}
-                           </Button>
+               {/* PUBLISHED TAB */}
+               {activeTab === 'published' && (
+                  <div className="flex gap-6 min-h-[600px]">
+                     {/* Left Sidebar */}
+                     <div className="w-56 flex-shrink-0 space-y-5">
+                        {/* Stats */}
+                        <div className="flex items-center gap-3 text-sm">
+                           <span className="text-zinc-900 dark:text-white font-bold">0</span>
+                           <span className="text-zinc-500">likes</span>
+                           <span className="text-zinc-900 dark:text-white font-bold ml-2">2</span>
+                           <span className="text-zinc-500">posts</span>
+                           <span className="text-zinc-900 dark:text-white font-bold ml-2">1</span>
+                           <span className="text-zinc-500">views</span>
                         </div>
-                     ) : (
-                     <>
-                     {/* Creator Stats Grid */}
-                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Card className="p-4">
-                           <div className="flex items-center gap-3 mb-2">
-                              <div className="p-2 rounded-lg bg-emerald-500/10">
-                                 <DollarSign className="text-emerald-500" size={18} />
-                              </div>
-                              <span className="text-xs text-zinc-500">{language === 'vi' ? 'Tổng thu nhập' : 'Total Earnings'}</span>
-                           </div>
-                           <p className="text-2xl font-bold text-zinc-900 dark:text-white">${creatorStats.totalEarnings.toLocaleString()}</p>
-                           <p className="text-xs text-emerald-500 mt-1">+${creatorStats.thisMonth} {language === 'vi' ? 'tháng này' : 'this month'}</p>
-                        </Card>
-                        
-                        <Card className="p-4">
-                           <div className="flex items-center gap-3 mb-2">
-                              <div className="p-2 rounded-lg bg-blue-500/10">
-                                 <ShoppingCart className="text-blue-500" size={18} />
-                              </div>
-                              <span className="text-xs text-zinc-500">{language === 'vi' ? 'Tổng bán' : 'Total Sales'}</span>
-                           </div>
-                           <p className="text-2xl font-bold text-zinc-900 dark:text-white">{creatorStats.totalSales.toLocaleString()}</p>
-                        </Card>
-                        
-                        <Card className="p-4">
-                           <div className="flex items-center gap-3 mb-2">
-                              <div className="p-2 rounded-lg bg-amber-500/10">
-                                 <Star className="text-amber-500" size={18} />
-                              </div>
-                              <span className="text-xs text-zinc-500">{language === 'vi' ? 'Đánh giá TB' : 'Avg Rating'}</span>
-                           </div>
-                           <p className="text-2xl font-bold text-zinc-900 dark:text-white">{creatorStats.avgRating}</p>
-                        </Card>
-                        
-                        <Card className="p-4">
-                           <div className="flex items-center gap-3 mb-2">
-                              <div className="p-2 rounded-lg bg-purple-500/10">
-                                 <Package className="text-purple-500" size={18} />
-                              </div>
-                              <span className="text-xs text-zinc-500">{language === 'vi' ? 'Templates' : 'Templates'}</span>
-                           </div>
-                           <p className="text-2xl font-bold text-zinc-900 dark:text-white">{creatorStats.activeTemplates}</p>
-                        </Card>
-                     </div>
 
-                     {/* Revenue Chart & Recent Sales */}
-                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Revenue Chart */}
-                        <Card className="p-5">
-                           <h3 className="font-bold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-                              <TrendingUp size={18} className="text-repix-500" />
-                              {language === 'vi' ? 'Doanh thu' : 'Revenue'}
-                           </h3>
-                           <ResponsiveContainer width="100%" height={200}>
-                              <LineChart data={revenueData}>
-                                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" opacity={0.3} />
-                                 <XAxis dataKey="month" stroke="#71717a" style={{ fontSize: '11px' }} />
-                                 <YAxis stroke="#71717a" style={{ fontSize: '11px' }} />
-                                 <Tooltip
-                                    contentStyle={{
-                                       backgroundColor: '#18181b',
-                                       border: '1px solid #27272a',
-                                       borderRadius: '8px',
-                                       color: '#fff',
-                                       fontSize: '12px'
-                                    }}
-                                 />
-                                 <Line type="monotone" dataKey="revenue" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7', r: 3 }} />
-                              </LineChart>
-                           </ResponsiveContainer>
-                        </Card>
+                        {/* Filter Pills */}
+                        <div className="flex flex-wrap gap-2">
+                           {['All', 'Image', 'Video', 'Boards'].map((tab, i) => (
+                              <button 
+                                 key={tab}
+                                 className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                                    i === 0 
+                                       ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900' 
+                                       : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                                 }`}
+                              >
+                                 {tab}
+                              </button>
+                           ))}
+                        </div>
 
-                        {/* Recent Sales */}
-                        <Card className="p-5">
-                           <h3 className="font-bold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-                              <ShoppingCart size={18} className="text-blue-500" />
-                              {language === 'vi' ? 'Bán gần đây' : 'Recent Sales'}
-                           </h3>
-                           <div className="space-y-3">
-                              {recentSales.map((sale) => (
-                                 <div key={sale.id} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
-                                    <div>
-                                       <p className="font-medium text-sm text-zinc-900 dark:text-white">{sale.template}</p>
-                                       <p className="text-xs text-zinc-500">{sale.buyer} • {sale.time}</p>
-                                    </div>
-                                    <span className="font-bold text-emerald-600">${sale.amount}</span>
+                        {/* Create Share Inspire Card */}
+                        <div className="bg-zinc-100 dark:bg-zinc-800/80 rounded-2xl p-5">
+                           {/* Stacked Images */}
+                           <div className="flex justify-center mb-4">
+                              <div className="relative w-28 h-20">
+                                 <div className="absolute left-0 top-1 w-10 h-14 rounded-lg overflow-hidden rotate-[-15deg] shadow-md border-2 border-white dark:border-zinc-700">
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80" className="w-full h-full object-cover" />
                                  </div>
-                              ))}
+                                 <div className="absolute left-1/2 -translate-x-1/2 top-0 w-10 h-14 rounded-lg overflow-hidden z-10 shadow-md border-2 border-white dark:border-zinc-700">
+                                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=80" className="w-full h-full object-cover" />
+                                 </div>
+                                 <div className="absolute right-0 top-1 w-10 h-14 rounded-lg overflow-hidden rotate-[15deg] shadow-md border-2 border-white dark:border-zinc-700">
+                                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80" className="w-full h-full object-cover" />
+                                 </div>
+                              </div>
                            </div>
-                        </Card>
+                           
+                           <h3 className="text-zinc-900 dark:text-white font-bold text-base text-center mb-1">
+                              Create. Share. Inspire.
+                           </h3>
+                           <p className="text-zinc-500 text-xs text-center mb-4 leading-relaxed">
+                              {language === 'vi' 
+                                 ? 'Xuất bản sáng tạo và xem người khác biến ý tưởng thành hiện thực.'
+                                 : 'Publish your generations and see how others bring their ideas to life.'}
+                           </p>
+                           
+                           <button 
+                              onClick={() => setShowShareModal(true)} 
+                              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white font-semibold text-sm py-2.5 rounded-full transition-all shadow-lg shadow-purple-500/25"
+                           >
+                              <Share2 size={14} />
+                              Publish
+                           </button>
+                        </div>
                      </div>
 
-                     {/* Payout Section */}
-                     <Card className="p-5">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                           <div className="flex items-center gap-4">
-                              <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600">
-                                 <Wallet className="text-white" size={24} />
+                     {/* Right Content - Masonry Grid */}
+                     <div className="flex-1 overflow-hidden">
+                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 auto-rows-max">
+                           {[
+                              { id: 1, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=700&fit=crop', title: 'Portrait Style', span: 'row-span-2', hasAI: true },
+                              { id: 2, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=400&fit=crop', title: 'Product Shot', span: '', hasAI: false },
+                              { id: 3, image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&h=400&fit=crop', title: 'Lifestyle Portrait', span: '', hasAI: true },
+                              { id: 4, image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&h=600&fit=crop', title: 'Fashion Edit', span: 'row-span-2', hasAI: false },
+                              { id: 5, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=350&fit=crop', title: 'Minimal Product', span: '', hasAI: true },
+                              { id: 6, image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&h=350&fit=crop', title: 'Beauty Shot', span: '', hasAI: false },
+                           ].map((item) => (
+                              <div 
+                                 key={item.id} 
+                                 className={`group relative rounded-xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 cursor-pointer ${item.span} ${item.span ? 'h-80' : 'h-40'}`}
+                              >
+                                 <img 
+                                    src={item.image} 
+                                    alt={item.title} 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                 />
+                                 
+                                 {/* Hover Overlay */}
+                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                    <div className="absolute bottom-3 left-3 right-3">
+                                       <h4 className="text-white font-medium text-sm truncate">{item.title}</h4>
+                                       <div className="flex items-center gap-3 mt-1 text-white/70 text-xs">
+                                          <span className="flex items-center gap-1"><Eye size={11} /> 1.2k</span>
+                                          <span className="flex items-center gap-1"><Heart size={11} /> 234</span>
+                                       </div>
+                                    </div>
+                                    
+                                    {/* Quick Actions */}
+                                    <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                       <button className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30">
+                                          <ExternalLink size={12} className="text-white" />
+                                       </button>
+                                       <button className="p-1.5 bg-red-500/80 backdrop-blur-sm rounded-lg hover:bg-red-500">
+                                          <Trash2 size={12} className="text-white" />
+                                       </button>
+                                    </div>
+                                 </div>
+                                 
+                                 {/* AI Badge */}
+                                 {item.hasAI && (
+                                    <div className="absolute bottom-2 right-2 opacity-100 group-hover:opacity-0 transition-opacity">
+                                       <span className="px-1.5 py-0.5 bg-emerald-500 text-white text-[9px] font-bold rounded shadow-lg">
+                                          AI
+                                       </span>
+                                    </div>
+                                 )}
                               </div>
-                              <div>
-                                 <p className="text-sm text-zinc-500">{language === 'vi' ? 'Số dư khả dụng' : 'Available Balance'}</p>
-                                 <p className="text-3xl font-bold text-zinc-900 dark:text-white">${creatorStats.totalEarnings.toLocaleString()}</p>
-                              </div>
-                           </div>
-                           <div className="flex gap-3">
-                              <div className="text-right">
-                                 <p className="text-xs text-zinc-500">{language === 'vi' ? 'Đang chờ' : 'Pending'}</p>
-                                 <p className="font-bold text-zinc-900 dark:text-white">${creatorStats.pendingBalance}</p>
-                              </div>
-                              <Button className="gap-2">
-                                 <DollarSign size={16} />
-                                 {language === 'vi' ? 'Rút tiền' : 'Withdraw'}
-                              </Button>
-                           </div>
+                           ))}
                         </div>
-                     </Card>
-
-                     {/* Upload New Template CTA */}
-                     <Card className="p-6 bg-gradient-to-br from-repix-500/10 to-pink-500/10 border-repix-500/20">
-                        <div className="flex flex-col md:flex-row items-center gap-4">
-                           <div className="p-4 rounded-2xl bg-gradient-to-br from-repix-500 to-pink-500">
-                              <Upload className="text-white" size={28} />
-                           </div>
-                           <div className="flex-1 text-center md:text-left">
-                              <h3 className="font-bold text-lg text-zinc-900 dark:text-white mb-1">
-                                 {language === 'vi' ? 'Tải lên template mới' : 'Upload New Template'}
-                              </h3>
-                              <p className="text-sm text-zinc-500">
-                                 {language === 'vi' ? 'Chia sẻ sáng tạo của bạn và kiếm tiền từ cộng đồng' : 'Share your creations and earn from the community'}
-                              </p>
-                           </div>
-                           <Button className="gap-2 bg-gradient-to-r from-repix-500 to-pink-500 hover:from-repix-600 hover:to-pink-600">
-                              <Upload size={16} />
-                              {language === 'vi' ? 'Tải lên' : 'Upload'}
-                           </Button>
-                        </div>
-                     </Card>
-                     </>
-                     )}
+                     </div>
                   </div>
                )}
 
-               {/* TEMPLATES TAB */}
-               {activeTab === 'templates' && (
-                  <div className="space-y-4">
-                     {myTemplates.map(tmp => (
-                        <div key={tmp.id} className="flex items-center gap-4 p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl hover:shadow-md transition-shadow">
-                           <div className="w-24 h-16 rounded-lg bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
-                              <img src={tmp.thumbnail} className="w-full h-full object-cover" />
-                           </div>
-                           <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                 <h4 className="font-bold text-zinc-900 dark:text-white">{tmp.title}</h4>
-                                 <Badge className="bg-green-100 text-green-700 border-green-200">{tmp.status}</Badge>
-                              </div>
-                              <p className="text-sm text-zinc-500">{tmp.sales} sales • Last updated 1 week ago</p>
-                           </div>
-                           <div className="text-right">
-                              <p className="font-bold text-zinc-900 dark:text-white">$124.50</p>
-                              <p className="text-xs text-zinc-500">Revenue</p>
-                           </div>
-                           <Button variant="ghost" size="icon"><Edit2 size={16} /></Button>
-                        </div>
-                     ))}
-                  </div>
-               )}
+
 
                {/* SETTINGS TAB */}
                {activeTab === 'settings' && (
@@ -518,10 +364,18 @@ export const ProfileView: React.FC = () => {
             </div>
          </div>
       </div>
+
+      {/* Share Generation Modal */}
+      {showShareModal && (
+        <ShareGenerationModal 
+          onClose={() => setShowShareModal(false)}
+          onPublish={(items) => {
+            console.log('Publishing items:', items);
+            setShowShareModal(false);
+          }}
+        />
+      )}
     </div>
   );
 };
 
-const TrophyIcon = () => (
-   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trophy text-amber-500"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-);

@@ -300,7 +300,14 @@ export const translations = {
       electronics: "Electronics",
       food: "Food & Beverage",
       home: "Home & Living",
-      accessories: "Accessories"
+      accessories: "Accessories",
+      // New translations
+      shareGeneration: "Share Generation",
+      share: "Share",
+      featuredTitle: "Neon Dreams Vol. 2",
+      featuredDesc: "Experience the next level of cyberpunk aesthetics with our community-curated collection of neon-soaked presets.",
+      exploreCollection: "Explore Collection",
+      createdBy: "Created by"
     },
     team: {
       workspace: "Acme Corp Workspace",
@@ -966,7 +973,14 @@ export const translations = {
       electronics: "Điện tử",
       food: "Thực phẩm",
       home: "Gia dụng",
-      accessories: "Phụ kiện"
+      accessories: "Phụ kiện",
+      // New translations
+      shareGeneration: "Chia sẻ sáng tạo",
+      share: "Chia sẻ",
+      featuredTitle: "Neon Dreams Vol. 2",
+      featuredDesc: "Trải nghiệm đỉnh cao thẩm mỹ cyberpunk với bộ sưu tập preset neon được cộng đồng tuyển chọn.",
+      exploreCollection: "Khám phá bộ sưu tập",
+      createdBy: "Tạo bởi"
     },
     team: {
       workspace: "Không gian làm việc Acme",

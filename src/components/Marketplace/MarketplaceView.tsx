@@ -11,6 +11,7 @@ import { Button, Input, Badge, Card, Slider } from '../ui/UIComponents';
 import { Template } from '../../types';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
+import { ShareGenerationModal } from './ShareGenerationModal';
 
 interface ExtendedTemplate extends Template {
   downloads: string;
@@ -891,7 +892,11 @@ const TrendTracker: React.FC<{
   );
 };
 
-export const MarketplaceView: React.FC = () => {
+interface MarketplaceViewProps {
+  onNavigateToPublish?: () => void;
+}
+
+export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPublish }) => {
   const { trans } = useLanguage();
   const [showFilters, setShowFilters] = useState(false);
   const [showCreatorStudio, setShowCreatorStudio] = useState(false);
@@ -924,23 +929,23 @@ export const MarketplaceView: React.FC = () => {
       <div className="flex-1 flex flex-col overflow-y-auto">
         
         {/* Top Header & Search */}
-        <div className="sticky top-0 z-10 bg-light-bg/95 dark:bg-dark-bg/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 md:px-8 py-4">
+        <div className="sticky top-0 z-30 bg-light-bg dark:bg-dark-bg border-b border-zinc-200 dark:border-zinc-800 px-4 md:px-8 py-4">
            <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
               <div>
                  <h1 className="text-2xl font-bold">{trans.marketplace.title}</h1>
                  <p className="text-sm text-zinc-500 dark:text-zinc-400">{trans.marketplace.desc}</p>
               </div>
-              <div className="flex items-center gap-3">
-                 <div className="px-3 py-2 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 flex items-center gap-2">
-                   <span className="text-zinc-500 dark:text-zinc-400 text-xs md:text-sm font-medium">{trans.marketplace.credits}:</span>
-                   <span className="text-repix-600 dark:text-repix-400 font-bold text-sm">1,250</span>
-                 </div>
-                 <Button size="sm" onClick={() => setShowCreatorStudio(true)}>
-                    <UploadCloud size={16} className="mr-2" /> 
-                    <span className="hidden sm:inline">{trans.marketplace.upload}</span>
-                    <span className="sm:hidden">Upload</span>
-                 </Button>
-              </div>
+              <Button size="sm" onClick={() => {
+                 if (onNavigateToPublish) {
+                   onNavigateToPublish();
+                 } else {
+                   setShowCreatorStudio(true);
+                 }
+              }}>
+                 <Share2 size={16} className="mr-2" /> 
+                 <span className="hidden sm:inline">{trans.marketplace.shareGeneration || 'Share Generation'}</span>
+                 <span className="sm:hidden">{trans.marketplace.share || 'Share'}</span>
+              </Button>
            </div>
 
            {/* Search Bar */}
@@ -989,20 +994,20 @@ export const MarketplaceView: React.FC = () => {
            />
 
            {/* Hero Banner / Featured */}
-           <div className="relative rounded-2xl overflow-hidden bg-zinc-900 shadow-2xl shadow-black/50 aspect-[4/3] md:aspect-[4/1] flex items-end md:items-center">
+           <div className="relative rounded-2xl overflow-hidden bg-zinc-900 shadow-2xl shadow-black/50 aspect-[4/3] md:aspect-[3/1] flex items-end md:items-center">
               <img src="https://picsum.photos/seed/hero_art/1200/400" className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay" />
               <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black via-black/50 to-transparent"></div>
               
-              <div className="relative z-10 p-6 md:p-12 max-w-2xl">
+              <div className="relative z-[1] p-6 md:p-12 max-w-2xl">
                  <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-widest mb-2">
                     <Star size={12} fill="currentColor" /> {trans.marketplace.featured}
                  </div>
-                 <h2 className="text-3xl md:text-5xl font-bold text-white mb-2 md:mb-4 leading-tight">Neon Dreams Vol. 2</h2>
-                 <p className="text-zinc-300 mb-6 line-clamp-2 text-sm md:text-base">Experience the next level of cyberpunk aesthetics with our community-curated collection of neon-soaked presets.</p>
+                 <h2 className="text-3xl md:text-5xl font-bold text-white mb-2 md:mb-4 leading-tight">{trans.marketplace.featuredTitle || 'Neon Dreams Vol. 2'}</h2>
+                 <p className="text-zinc-300 mb-6 line-clamp-2 text-sm md:text-base">{trans.marketplace.featuredDesc || 'Experience the next level of cyberpunk aesthetics with our community-curated collection of neon-soaked presets.'}</p>
                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                    <Button size="lg" className="rounded-full px-8 bg-white text-black hover:bg-zinc-200 border-0 w-full md:w-auto">Explore Collection</Button>
+                    <Button size="lg" className="rounded-full px-8 bg-white text-black hover:bg-zinc-200 border-0 w-full md:w-auto">{trans.marketplace.exploreCollection || 'Explore Collection'}</Button>
                     <div className="flex items-center gap-2 text-white/80 text-sm">
-                       <User size={16} /> Created by <span className="text-white font-bold underline cursor-pointer">NeonMaster</span>
+                       <User size={16} /> {trans.marketplace.createdBy || 'Created by'} <span className="text-white font-bold underline cursor-pointer">NeonMaster</span>
                     </div>
                  </div>
               </div>
@@ -1089,9 +1094,9 @@ export const MarketplaceView: React.FC = () => {
          <TemplateDetailModal template={selectedTemplate} onClose={() => setSelectedTemplate(null)} />
       )}
 
-      {/* Creator Studio Overlay (Replaces Old Modal) */}
+      {/* Share Generation Modal */}
       {showCreatorStudio && (
-        <CreatorStudio onClose={() => setShowCreatorStudio(false)} />
+        <ShareGenerationModal onClose={() => setShowCreatorStudio(false)} />
       )}
 
 
