@@ -26,12 +26,15 @@ import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import { UpgradeModal } from './components/Subscription/UpgradeModal';
 import { AssetPickerModal } from './components/Editor/AssetPickerModal';
 import { SmartPhotoshootView } from './components/AI/SmartPhotoshootView';
+import { CreativeStationsView } from './components/AI/CreativeStationsView';
 import { RecreateView } from './components/Marketplace/RecreateView';
+import { AIToolExecutionView } from './components/AI/CreativeStations/AIToolExecutionView';
+import { STATIONS, getToolById } from './data/stations';
 
 import { useSubscription } from './contexts/SubscriptionContext';
 
 // --- Modern Home Dashboard View ---
-const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => void }> = ({ onStartEditing }) => {
+const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => void; onOpenTool: (toolId: string) => void }> = ({ onStartEditing, onOpenTool }) => {
   const { trans, language } = useLanguage();
   const { currentPlan, triggerUpgradeModal } = useSubscription();
   const [activeTab, setActiveTab] = useState<'trending' | 'recent'>('trending');
@@ -295,12 +298,41 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
     { id: 12, src: "https://images.unsplash.com/photo-1556906781-9a412961c28c?w=400&h=600&fit=crop", prompt: "Converse sneakers vintage style", author: "@retro_kicks" },
   ];
 
-  // Quick Tools (Persona: Casual User)
-  const tools = [
-    { icon: ImageIcon, color: "text-blue-500", bg: "bg-blue-500/10", label: trans.home.toolTextToImage },
-    { icon: Scissors, color: "text-pink-500", bg: "bg-pink-500/10", label: trans.home.toolRemoveBg },
-    { icon: Maximize2, color: "text-amber-500", bg: "bg-amber-500/10", label: trans.home.toolUpscale },
-    { icon: Wand2, color: "text-repix-500", bg: "bg-repix-500/10", label: trans.home.toolReplace },
+  // Featured AI Tools - With Before/After Preview Images
+  // Featured AI Tools with video previews
+  const featuredTools = [
+    { 
+      id: 'hd-enhance',
+      icon: '✨', 
+      name: language === 'vi' ? 'Nâng cấp HD' : 'HD Enhance',
+      desc: language === 'vi' ? 'Tăng độ phân giải 2x-4x' : 'Upscale 2x-4x resolution',
+      gradient: 'from-amber-500 to-orange-500',
+      video: 'https://static.higgsfield.ai/explore/upscale.mp4',
+    },
+    { 
+      id: 'create-image',
+      icon: '🖼️', 
+      name: language === 'vi' ? 'Tạo ảnh AI' : 'Create Image',
+      desc: language === 'vi' ? 'Tạo ảnh từ văn bản' : 'Generate image from text',
+      gradient: 'from-pink-500 to-rose-500',
+      video: 'https://static.higgsfield.ai/explore/create-image.mp4',
+    },
+    { 
+      id: 'create-video',
+      icon: '🎬', 
+      name: language === 'vi' ? 'Tạo video AI' : 'Create Video',
+      desc: language === 'vi' ? 'Tạo video từ ảnh/văn bản' : 'Generate video from image/text',
+      gradient: 'from-purple-500 to-violet-500',
+      video: 'https://static.higgsfield.ai/explore/create-video.mp4',
+    },
+    { 
+      id: 'cosplay-character',
+      icon: '🎭', 
+      name: language === 'vi' ? 'Cosplay nhân vật' : 'Cosplay Character',
+      desc: language === 'vi' ? 'Biến thành nhân vật bất kỳ' : 'Transform to any character',
+      gradient: 'from-green-500 to-emerald-500',
+      video: 'https://static.higgsfield.ai/keyframe-characterswap-flow-preview.mp4',
+    },
   ];
 
   // Workflows (Persona: E-commerce, Creator, Agency)
@@ -710,27 +742,71 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
 
               </div>
 
-            {/* --- QUICK ACTIONS SECTION --- */}
+            {/* --- AI CREATIVE TOOLS SECTION - Premium UX Design --- */}
             <div className="mb-16">
-              <div className="flex items-end justify-between mb-6">
+              {/* Section Header - Clean & Minimal */}
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                    <Zap size={20} className="text-amber-500" /> {trans.home.tools}
+                  <h2 className="text-xl md:text-2xl font-bold text-zinc-900 dark:text-white mb-1">
+                    {language === 'vi' ? 'Công cụ AI phổ biến' : 'Popular AI Tools'}
                   </h2>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{trans.home.quickActionsDesc}</p>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    {language === 'vi' ? 'Hover để xem trước hiệu ứng' : 'Hover to preview the effect'}
+                  </p>
                 </div>
+                <button 
+                  onClick={() => {
+                    const event = new CustomEvent('navigateToCreativeStations');
+                    window.dispatchEvent(event);
+                  }}
+                  className="flex items-center gap-1.5 text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
+                >
+                  {language === 'vi' ? 'Xem tất cả' : 'View all'}
+                  <ArrowRight size={16} />
+                </button>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {tools.map((tool, idx) => (
+
+              {/* Featured Tools Grid - Video Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {featuredTools.map((tool) => (
                   <button 
-                    key={idx}
-                    onClick={() => onStartEditing()}
-                    className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-repix-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all group shadow-sm hover:shadow-md"
+                    key={tool.id}
+                    onClick={() => onOpenTool(tool.id)}
+                    className="group relative overflow-hidden rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-purple-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/20 hover:-translate-y-1"
                   >
-                    <div className={`w-14 h-14 rounded-2xl ${tool.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                       <tool.icon className={tool.color} size={28} />
+                    {/* Video Container */}
+                    <div className="relative aspect-[3/4] overflow-hidden">
+                      {/* Auto-playing Video */}
+                      <video 
+                        src={tool.video}
+                        muted
+                        loop
+                        playsInline
+                        autoPlay
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent" />
+                      
+                      {/* Icon Badge */}
+                      <div className={`absolute top-3 right-3 w-10 h-10 rounded-xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center text-lg shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
+                        {tool.icon}
+                      </div>
                     </div>
-                    <span className="font-semibold text-zinc-700 dark:text-zinc-200">{tool.label}</span>
+                    
+                    {/* Content */}
+                    <div className="p-4">
+                      <h3 className="font-bold text-white text-base mb-1 group-hover:text-purple-300 transition-colors">
+                        {tool.name}
+                      </h3>
+                      <p className="text-xs text-zinc-500 line-clamp-1 group-hover:text-zinc-400 transition-colors">
+                        {tool.desc}
+                      </p>
+                    </div>
+                    
+                    {/* Hover Glow Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   </button>
                 ))}
               </div>
@@ -1901,6 +1977,9 @@ const AppContent: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [initialEditorImage, setInitialEditorImage] = useState<string | undefined>(undefined);
   const [initialEditorRatio, setInitialEditorRatio] = useState<string | undefined>(undefined);
+  
+  // State for direct tool opening from HomeView
+  const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
 
   // Save authentication state to localStorage
   useEffect(() => {
@@ -1945,6 +2024,27 @@ const AppContent: React.FC = () => {
       setInitialEditorRatio(ratio);
     }
     setView('editor');
+  };
+
+  // Listen for navigation events from HomeView
+  useEffect(() => {
+    const handleNavigateToCreativeStations = () => {
+      setView('creative-stations');
+    };
+    
+    window.addEventListener('navigateToCreativeStations', handleNavigateToCreativeStations);
+    return () => {
+      window.removeEventListener('navigateToCreativeStations', handleNavigateToCreativeStations);
+    };
+  }, []);
+
+  // Handle opening a specific tool from HomeView
+  const handleOpenTool = (toolId: string) => {
+    setSelectedToolId(toolId);
+  };
+
+  const handleCloseTool = () => {
+    setSelectedToolId(null);
   };
 
   // Show Onboarding for new users
@@ -2006,9 +2106,29 @@ const AppContent: React.FC = () => {
 
   return (
     <Layout currentView={view} onChangeView={setView} onSignOut={handleSignOut} onGoToLanding={handleGoToLanding}>
-      {view === 'home' && <HomeView onStartEditing={handleStartEditing} />}
+      {view === 'home' && <HomeView onStartEditing={handleStartEditing} onOpenTool={handleOpenTool} />}
+      
+      {/* Direct Tool Execution Modal from HomeView */}
+      {selectedToolId && (() => {
+        const toolData = getToolById(selectedToolId);
+        if (!toolData) return null;
+        return (
+          <AIToolExecutionView
+            tool={toolData.tool}
+            station={toolData.station}
+            onClose={handleCloseTool}
+            onComplete={(result) => {
+              console.log('Tool completed:', result);
+            }}
+          />
+        );
+      })()}
       {view === 'editor' && <EditorView initialImage={initialEditorImage} initialRatio={initialEditorRatio} />}
       {view === 'photoshoot' && <SmartPhotoshootView onNavigateToEditor={(imageUrl: string) => {
+        setInitialEditorImage(imageUrl);
+        setView('editor');
+      }} />}
+      {view === 'creative-stations' && <CreativeStationsView onNavigateToEditor={(imageUrl: string) => {
         setInitialEditorImage(imageUrl);
         setView('editor');
       }} />}

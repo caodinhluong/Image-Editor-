@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Home, Edit3, ShoppingBag, Users, Settings, 
   LogOut, Sun, Moon, BarChart3, Award, Palette, FolderOpen,
-  ChevronLeft, ChevronRight, Sparkles
+  ChevronLeft, ChevronRight, Sparkles, Wand2
 } from 'lucide-react';
 import { ViewState } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -25,7 +25,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
   const navItems = [
     { id: 'home', icon: Home, label: trans.nav.home },
     // { id: 'editor', icon: Edit3, label: trans.nav.editor }, // Temporarily hidden
-    { id: 'photoshoot', icon: Sparkles, label: language === 'vi' ? 'Bộ ảnh AI' : 'AI Photoshoot', isNew: true },
+    { id: 'photoshoot', icon: Sparkles, label: language === 'vi' ? 'Bộ Ảnh Thông Minh' : 'Smart Photoshoot', isNew: true },
+    { id: 'creative-stations', icon: Wand2, label: language === 'vi' ? 'Quầy Sáng Tạo' : 'Creative Stations', isNew: true },
     { id: 'assets', icon: FolderOpen, label: trans.nav.assets },
     // { id: 'brandkit', icon: Palette, label: trans.brandkit.title }, // Temporarily hidden
     { id: 'marketplace', icon: ShoppingBag, label: trans.nav.marketplace },
@@ -42,14 +43,14 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
       {/* Collapse Toggle Button - Outside sidebar for proper z-index */}
       <button
         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        className={`hidden md:flex fixed ${isSidebarCollapsed ? 'left-[52px]' : 'left-[244px]'} top-20 z-[50] w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 items-center justify-center text-zinc-500 hover:text-repix-500 hover:border-repix-500 transition-all duration-300 shadow-md hover:shadow-lg`}
+        className={`hidden md:flex fixed ${isSidebarCollapsed ? 'left-[52px]' : 'left-[276px]'} top-20 z-[50] w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 items-center justify-center text-zinc-500 hover:text-repix-500 hover:border-repix-500 transition-all duration-300 shadow-md hover:shadow-lg`}
         title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </button>
 
       {/* Desktop Sidebar - Hidden on Mobile */}
-      <aside className={`hidden md:flex ${isSidebarCollapsed ? 'w-16' : 'w-64'} border-r border-zinc-200 dark:border-dark-border bg-white dark:bg-dark-surface flex-col z-20 transition-all duration-300 relative`}>
+      <aside className={`hidden md:flex ${isSidebarCollapsed ? 'w-16' : 'w-72'} border-r border-zinc-200 dark:border-dark-border bg-white dark:bg-dark-surface flex-col z-20 transition-all duration-300 relative`}>
         
         {/* Brand & Toggles */}
         <div className={`h-16 flex items-center ${isSidebarCollapsed ? 'justify-center px-2' : 'justify-between px-4'} border-b border-zinc-200 dark:border-dark-border`}>

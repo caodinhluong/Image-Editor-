@@ -38,6 +38,15 @@ export const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
   const [showToolFilter, setShowToolFilter] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<AIAsset | null>(null);
   const [showRecreate, setShowRecreate] = useState(false);
+  const [activeTab, setActiveTab] = useState<'image' | 'video'>('image');
+
+  // Sample video assets with Higgsfield CDN videos
+  const videoAssets = [
+    { id: 'v1', name: 'Portrait_Motion.mp4', thumbnail: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600', videoUrl: 'https://cdn.higgsfield.ai/kling_video_sample/1308a1ac-d626-4178-b6d5-0e2bb676f194.mp4', prompt: 'Portrait with subtle hair movement and cinematic lighting', model: 'Kling AI', duration: '5s', createdAt: '2024-12-10' },
+    { id: 'v2', name: 'Fashion_Scene.mp4', thumbnail: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600', videoUrl: 'https://cdn.higgsfield.ai/kling_video_sample/377e5f89-37b7-4d72-8a22-2802faabf4e5.mp4', prompt: 'Fashion model walking with dynamic camera movement', model: 'Runway Gen-3', duration: '8s', createdAt: '2024-12-09' },
+    { id: 'v3', name: 'Artistic_Motion.mp4', thumbnail: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?w=600', videoUrl: 'https://cdn.higgsfield.ai/kling_video_sample/383a6e99-f88d-41c1-8b62-e2181cae3406.mp4', prompt: 'Artistic double exposure with flowing motion', model: 'Kling AI', duration: '6s', createdAt: '2024-12-08' },
+    { id: 'v4', name: 'Creative_Loop.mp4', thumbnail: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600', videoUrl: 'https://cdn.higgsfield.ai/kling_video_sample/cf9c9837-4383-4edf-898e-7f85b687eea5.mp4', prompt: 'Creative portrait with seamless loop animation', model: 'Pika Labs', duration: '4s', createdAt: '2024-12-07' },
+  ];
 
   const aiAssets: AIAsset[] = [
     { id: '1', name: 'Forest_Magic.png', thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600', prompt: 'Dark mystical forest with red magical light, two silhouettes facing each other, cinematic atmosphere', model: 'Repix Pro', style: 'Cinematic', tool: 'text-to-image', createdAt: '2024-12-10', generationTime: '12s', credits: 4, liked: true, ratio: '2:3' },
@@ -72,19 +81,50 @@ export const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Action Bar */}
       <div className="px-6 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0 flex items-center justify-between">
-        {/* Quick Stats */}
-        <div className="flex items-center gap-3">
-          {[
-            { label: language === 'vi' ? 'Tổng' : 'Total', value: '67', icon: Sparkles, color: 'text-purple-500' },
-            { label: language === 'vi' ? 'Hôm nay' : 'Today', value: '5', icon: Calendar, color: 'text-blue-500' },
-            { label: 'Credits', value: '268', icon: Zap, color: 'text-amber-500' },
-          ].map((stat, idx) => (
-            <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-              <stat.icon size={12} className={stat.color} />
-              <span className={`text-sm font-bold ${stat.color}`}>{stat.value}</span>
-              <span className="text-xs text-zinc-500">{stat.label}</span>
-            </div>
-          ))}
+        {/* Tabs: Image / Video */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
+            <button
+              onClick={() => setActiveTab('image')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'image'
+                  ? 'bg-white dark:bg-zinc-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+              }`}
+            >
+              🖼️ {language === 'vi' ? 'Hình ảnh' : 'Image'}
+              <span className="ml-1.5 px-1.5 py-0.5 text-[10px] bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">
+                {aiAssets.length}
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('video')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'video'
+                  ? 'bg-white dark:bg-zinc-700 text-pink-600 dark:text-pink-400 shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+              }`}
+            >
+              🎬 Video
+              <span className="ml-1.5 px-1.5 py-0.5 text-[10px] bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 rounded-full">
+                {videoAssets.length}
+              </span>
+            </button>
+          </div>
+          
+          {/* Quick Stats */}
+          <div className="flex items-center gap-2">
+            {[
+              { label: language === 'vi' ? 'Tổng' : 'Total', value: String(aiAssets.length + videoAssets.length), icon: Sparkles, color: 'text-purple-500' },
+              { label: language === 'vi' ? 'Hôm nay' : 'Today', value: '5', icon: Calendar, color: 'text-blue-500' },
+            ].map((stat, idx) => (
+              <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+                <stat.icon size={12} className={stat.color} />
+                <span className={`text-sm font-bold ${stat.color}`}>{stat.value}</span>
+                <span className="text-xs text-zinc-500">{stat.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
         
         <div className="flex items-center gap-2">
@@ -135,94 +175,131 @@ export const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
         </div>
       </div>
 
-      {/* Masonry Grid */}
+      {/* Content Grid */}
       <div className="flex-1 overflow-y-auto p-4 bg-zinc-100 dark:bg-zinc-900/50">
-        <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3 space-y-3">
-          {filteredAssets.map(asset => (
-            <div
-              key={asset.id}
-              className="break-inside-avoid group relative rounded-xl overflow-hidden cursor-pointer bg-zinc-200 dark:bg-zinc-800"
-              onClick={() => setSelectedAsset(asset)}
-            >
-              <img 
-                src={asset.thumbnail} 
-                alt={asset.name} 
-                className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-                {/* Top Actions */}
-                <div className="absolute top-2 right-2 flex gap-1.5">
-                  <button 
-                    onClick={(e) => toggleLike(e, asset.id)}
-                    className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
-                      asset.liked 
-                        ? 'bg-red-500 text-white' 
-                        : 'bg-black/40 text-white hover:bg-black/60'
-                    }`}
-                  >
-                    <Heart size={14} fill={asset.liked ? 'currentColor' : 'none'} />
-                  </button>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); }}
-                    className="p-2 bg-black/40 hover:bg-black/60 backdrop-blur-sm rounded-full text-white transition-colors"
-                  >
-                    <Download size={14} />
-                  </button>
-                </div>
-
-                {/* Bottom Info */}
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  {/* Style Badge */}
-                  <Badge className="mb-2 bg-purple-500/90 text-white text-[10px] backdrop-blur-sm">
-                    <Sparkles size={10} className="mr-1" />
-                    {asset.style}
-                  </Badge>
-                  
-                  {/* Prompt Preview */}
-                  <p className="text-white text-xs line-clamp-2 mb-2 leading-relaxed">
-                    {asset.prompt}
-                  </p>
-                  
-                  {/* Meta Info */}
-                  <div className="flex items-center gap-2 text-[10px] text-white/70">
-                    <span className="flex items-center gap-0.5">
-                      <Clock size={10} />
-                      {asset.generationTime}
-                    </span>
-                    <span className="flex items-center gap-0.5">
-                      <Zap size={10} />
-                      {asset.credits}
-                    </span>
-                    <span>{asset.model}</span>
+        {/* Image Tab */}
+        {activeTab === 'image' && (
+          <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3 space-y-3">
+            {filteredAssets.map(asset => (
+              <div
+                key={asset.id}
+                className="break-inside-avoid group relative rounded-xl overflow-hidden cursor-pointer bg-zinc-200 dark:bg-zinc-800"
+                onClick={() => setSelectedAsset(asset)}
+              >
+                <img 
+                  src={asset.thumbnail} 
+                  alt={asset.name} 
+                  className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  {/* Top Actions */}
+                  <div className="absolute top-2 right-2 flex gap-1.5">
+                    <button 
+                      onClick={(e) => toggleLike(e, asset.id)}
+                      className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
+                        asset.liked 
+                          ? 'bg-red-500 text-white' 
+                          : 'bg-black/40 text-white hover:bg-black/60'
+                      }`}
+                    >
+                      <Heart size={14} fill={asset.liked ? 'currentColor' : 'none'} />
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); }}
+                      className="p-2 bg-black/40 hover:bg-black/60 backdrop-blur-sm rounded-full text-white transition-colors"
+                    >
+                      <Download size={14} />
+                    </button>
                   </div>
-                </div>
 
-                {/* Center Action */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="p-3 bg-white/20 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
-                    <RefreshCw size={20} className="text-white" />
+                  {/* Bottom Info */}
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <Badge className="mb-2 bg-purple-500/90 text-white text-[10px] backdrop-blur-sm">
+                      <Sparkles size={10} className="mr-1" />
+                      {asset.style}
+                    </Badge>
+                    <p className="text-white text-xs line-clamp-2 mb-2 leading-relaxed">
+                      {asset.prompt}
+                    </p>
+                    <div className="flex items-center gap-2 text-[10px] text-white/70">
+                      <span className="flex items-center gap-0.5">
+                        <Clock size={10} />
+                        {asset.generationTime}
+                      </span>
+                      <span>{asset.model}</span>
+                    </div>
+                  </div>
+
+                  {/* Center Action */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="p-3 bg-white/20 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
+                      <RefreshCw size={20} className="text-white" />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
+        {/* Video Tab - Masonry layout with autoplay */}
+        {activeTab === 'video' && (
+          <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3 space-y-3">
+            {videoAssets.map(video => (
+              <div
+                key={video.id}
+                className="break-inside-avoid group relative rounded-xl overflow-hidden cursor-pointer bg-zinc-200 dark:bg-zinc-800"
+              >
+                {/* Video Player - Auto plays continuously */}
+                <video 
+                  src={video.videoUrl}
+                  muted
+                  loop
+                  playsInline
+                  autoPlay
+                  className="w-full h-auto"
+                />
+                
+                {/* Duration Badge */}
+                <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-white text-xs font-medium">
+                  {video.duration}
+                </div>
+                
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <Badge className="mb-2 bg-pink-500/90 text-white text-[10px] backdrop-blur-sm">
+                      🎬 {video.model}
+                    </Badge>
+                    <p className="text-white text-xs line-clamp-2 leading-relaxed">
+                      {video.prompt}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Empty State */}
-        {filteredAssets.length === 0 && (
+        {((activeTab === 'image' && filteredAssets.length === 0) || (activeTab === 'video' && videoAssets.length === 0)) && (
           <div className="flex flex-col items-center justify-center h-full text-center py-20">
             <div className="w-20 h-20 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
               <Wand2 size={32} className="text-zinc-400" />
             </div>
             <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
-              {language === 'vi' ? 'Chưa có ảnh nào' : 'No images yet'}
+              {activeTab === 'image' 
+                ? (language === 'vi' ? 'Chưa có ảnh nào' : 'No images yet')
+                : (language === 'vi' ? 'Chưa có video nào' : 'No videos yet')
+              }
             </h3>
             <p className="text-sm text-zinc-500 max-w-xs">
-              {language === 'vi' 
-                ? 'Bắt đầu tạo ảnh AI đầu tiên của bạn' 
-                : 'Start creating your first AI image'}
+              {activeTab === 'image'
+                ? (language === 'vi' ? 'Bắt đầu tạo ảnh AI đầu tiên của bạn' : 'Start creating your first AI image')
+                : (language === 'vi' ? 'Bắt đầu tạo video AI đầu tiên của bạn' : 'Start creating your first AI video')
+              }
             </p>
           </div>
         )}

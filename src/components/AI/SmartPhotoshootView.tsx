@@ -280,22 +280,22 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
       <div className="max-w-7xl mx-auto px-6 py-8">
         
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/30">
-              <Sparkles size={28} className="text-white" />
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-blue-500/30">
+              <Camera size={28} className="text-white" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-                {language === 'vi' ? 'Bộ ảnh thông minh' : 'Smart Photoshoot'}
+                {language === 'vi' ? 'Bộ Ảnh Thông Minh' : 'Smart Photoshoot'}
               </h1>
               <p className="text-zinc-500 mt-1">
-                {language === 'vi' ? '1 ảnh gốc → Bộ ảnh hoàn chỉnh cho mọi nền tảng' : '1 original → Complete photo set for all platforms'}
+                {language === 'vi' ? 'Tạo bộ ảnh chuyên nghiệp cho mọi nền tảng' : 'Create professional photo sets for any platform'}
               </p>
             </div>
           </div>
           
-          {/* Progress */}
+          {/* Progress Steps */}
           <div className="hidden md:flex items-center gap-2 bg-white dark:bg-zinc-800 rounded-full px-4 py-2 shadow-sm">
             {['Upload', 'Category', 'Platform', 'Result'].map((label, i) => (
               <div key={i} className="flex items-center">
@@ -311,9 +311,6 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
             ))}
           </div>
         </div>
-
-
-
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
