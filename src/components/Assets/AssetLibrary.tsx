@@ -562,7 +562,7 @@ export const AssetLibrary: React.FC = () => {
         {/* Assets Grid/List */}
         <div className="flex-1 overflow-y-auto p-6">
           {viewMode === 'grid' ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 2xl:gap-4">
               {filteredAssets.map(asset => (
                 <div
                   key={asset.id}

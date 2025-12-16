@@ -121,7 +121,7 @@ export const SpaceDashboard: React.FC<SpaceDashboardProps> = ({
 
   return (
     <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg p-8 overflow-y-auto">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto space-y-8">
 
         {/* Space Header - Clean & Professional */}
         <div className="flex justify-between items-center">
@@ -209,7 +209,7 @@ export const SpaceDashboard: React.FC<SpaceDashboardProps> = ({
         </div>
 
         {/* Analytics & Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 2xl:gap-6">
           <Card className="p-6 col-span-2">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
@@ -282,7 +282,7 @@ export const SpaceDashboard: React.FC<SpaceDashboardProps> = ({
         </div>
 
         {/* Quick Tools */}
-        <div className="grid grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 2xl:gap-4">
           {[
             { icon: FileText, label: language === 'vi' ? 'Brand Guidelines' : 'Brand Guidelines', color: 'bg-violet-500', onClick: () => setShowBrandGuidelines(true) },
             { icon: Folder, label: language === 'vi' ? 'Thư viện Asset' : 'Asset Library', color: 'bg-cyan-500', onClick: () => setShowAssetLibrary(true) },

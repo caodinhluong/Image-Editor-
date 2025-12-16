@@ -387,7 +387,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
 
       {/* --- AI SHOWCASE GALLERY --- */}
       <section className="py-24 px-6 relative z-10 bg-gradient-to-b from-black/80 via-black/60 to-black/80 backdrop-blur-sm overflow-hidden">
-         <div className="max-w-7xl mx-auto">
+         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto">
             <ScrollReveal>
               <div className="text-center mb-16">
                  <Badge variant="pro" className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-500/20 border-pink-500/30 text-pink-300">
@@ -406,7 +406,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
             </ScrollReveal>
 
             {/* Showcase Grid - Premium AI Generated Images */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 2xl:gap-6 mb-16">
                {[
                  { 
                    img: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=600&h=750&fit=crop&q=90', 
@@ -577,7 +577,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
 
       {/* --- FEATURES (BENTO GRID) --- */}
       <section id="features" className="py-32 px-6 relative z-10 bg-black/70 backdrop-blur-sm">
-         <div className="max-w-7xl mx-auto">
+         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto">
             <ScrollReveal>
               <div className="mb-20">
                  <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight text-white">{trans.landing.featuresTitle} <br/> <span className="text-zinc-400">{trans.landing.featuresTitleHighlight}</span></h2>
@@ -688,7 +688,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
             </ScrollReveal>
             
             {/* Bento Grid for other features */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(280px,auto)]">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 2xl:gap-8 auto-rows-[minmax(280px,auto)]">
                {/* Card 1: Standard - Global Edge Network */}
                <ScrollReveal delay={100}>
                  <BentoCard 
@@ -755,7 +755,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
       <section className="py-32 bg-black/80 text-white relative overflow-hidden backdrop-blur-sm">
          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.15),transparent_70%)]"></div>
          
-         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 relative z-10 text-center">
             <ScrollReveal>
               <Badge variant="pro" className="mb-6 bg-repix-500/20 text-repix-300 border-repix-500/30">{trans.landing.globalScale}</Badge>
               <h2 className="text-4xl md:text-6xl font-bold mb-6">{trans.landing.deployedToEdge}</h2>
@@ -798,7 +798,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
       {/* --- TESTIMONIALS SECTION --- */}
       <section className="py-24 px-6 relative z-10 bg-gradient-to-b from-black/60 to-black/80 backdrop-blur-sm overflow-hidden">
          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(236,72,153,0.1),transparent_50%)]"></div>
-         <div className="max-w-7xl mx-auto relative z-10">
+         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto relative z-10">
             <ScrollReveal>
               <div className="text-center mb-16">
                  <Badge variant="pro" className="mb-4 bg-pink-500/20 border-pink-500/30 text-pink-300">
@@ -873,7 +873,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
 
       {/* --- PRICING SECTION --- */}
       <section id="pricing" className="py-32 px-6 relative z-10 bg-black/70 backdrop-blur-sm">
-         <div className="max-w-7xl mx-auto">
+         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto">
             <ScrollReveal>
               <div className="text-center mb-16">
                  <Badge variant="pro" className="mb-4">{trans.landing.pricing}</Badge>
@@ -886,7 +886,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
               </div>
             </ScrollReveal>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 2xl:gap-8 px-4">
                {/* Free Plan */}
                <ScrollReveal delay={0}>
                <div className="group relative rounded-3xl p-8 flex flex-col h-full transition-all duration-500 bg-white/90 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:-translate-y-2 hover:shadow-xl hover:border-repix-500/30 hover:shadow-repix-500/10 backdrop-blur-sm">
@@ -1047,7 +1047,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignup, isA
 
       {/* --- FOOTER --- */}
       <footer className="bg-black/90 border-t border-white/10 pt-20 pb-10 relative z-10 backdrop-blur-sm">
-         <div className="max-w-7xl mx-auto px-6">
+         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-16">
                {/* Brand Column */}
                <div className="lg:col-span-2">

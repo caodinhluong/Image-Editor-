@@ -108,7 +108,7 @@ const DemoBrandKits: React.FC<{ language: string; onCreateNew: () => void }> = (
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 2xl:gap-5">
         {displayedDemos.map((demo) => (
           <Card 
             key={demo.id}
@@ -432,7 +432,7 @@ export const BrandKitManager: React.FC<BrandKitManagerProps> = ({ onCreateNew, o
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -553,7 +553,7 @@ export const BrandKitManager: React.FC<BrandKitManagerProps> = ({ onCreateNew, o
 
         {/* Brand Kits Grid */}
             {brandKits.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 2xl:gap-6">
                 {brandKits.map((brandKit) => (
               <div
                 key={brandKit.id}

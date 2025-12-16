@@ -77,7 +77,7 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
         </div>
 
         {/* Tools grid - larger cards with video previews */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 2xl:gap-5">
           {selectedStation.tools.map((tool) => (
             <ToolCard
               key={tool.id}
@@ -140,7 +140,7 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
       </div>
 
       {/* Station Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3 gap-4 2xl:gap-6">
         {STATIONS.map((station) => (
           <StationCard
             key={station.id}

@@ -256,7 +256,7 @@ export const CreatorDashboard: React.FC = () => {
 
   return (
     <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 2xl:px-8 py-8">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -300,7 +300,7 @@ export const CreatorDashboard: React.FC = () => {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 2xl:gap-6">
               <Card className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="p-3 rounded-xl bg-emerald-500/10">
@@ -416,7 +416,7 @@ export const CreatorDashboard: React.FC = () => {
             </Card>
 
             {/* Recent Sales & Reviews */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 2xl:gap-6">
               {/* Recent Sales */}
               <Card className="p-6">
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-4">{trans.creator.recentSales}</h2>
@@ -469,7 +469,7 @@ export const CreatorDashboard: React.FC = () => {
         {/* Templates Tab */}
         {activeTab === 'templates' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 2xl:gap-6">
               {templates.map((template) => (
                 <Card key={template.id} className="overflow-hidden group">
                   <div className="relative aspect-video overflow-hidden">
@@ -524,7 +524,7 @@ export const CreatorDashboard: React.FC = () => {
         {/* Earnings Tab */}
         {activeTab === 'earnings' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 2xl:gap-6">
               <Card className="p-6">
                 <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">{trans.creator.balance}</h3>
                 <p className="text-3xl font-bold text-zinc-900 dark:text-white mb-4">${stats.totalEarnings.toLocaleString()}</p>

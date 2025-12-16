@@ -64,7 +64,7 @@ export const ProfileView: React.FC = () => {
             </button>
          </div>
 
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-10">
             <div className="relative -mt-16 sm:-mt-24 mb-6 flex flex-col md:flex-row items-end md:items-end gap-6">
                {/* Avatar */}
                <div className="relative group">
@@ -227,7 +227,7 @@ export const ProfileView: React.FC = () => {
 
                      {/* Right Content - Masonry Grid */}
                      <div className="flex-1 overflow-hidden">
-                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 auto-rows-max">
+                        <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 2xl:gap-4 auto-rows-max">
                            {[
                               { id: 1, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=700&fit=crop', title: 'Portrait Style', span: 'row-span-2', hasAI: true },
                               { id: 2, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=400&fit=crop', title: 'Product Shot', span: '', hasAI: false },
@@ -286,7 +286,7 @@ export const ProfileView: React.FC = () => {
 
                {/* SETTINGS TAB */}
                {activeTab === 'settings' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 2xl:gap-8">
                      <div className="space-y-6">
                         <h3 className="font-bold text-lg text-zinc-900 dark:text-white border-b border-zinc-200 dark:border-zinc-800 pb-2">General</h3>
                         <div className="space-y-4">

@@ -421,7 +421,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
           {/* Hero Background Gradient */}
           <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-repix-500/5 to-transparent pointer-events-none" />
           
-          <div className="max-w-7xl mx-auto px-6 pt-12 pb-20 relative z-10">
+          <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 2xl:px-8 pt-12 pb-20 relative z-10">
             
             {/* --- SECTION 1: HERO & PROMPT (The Core) --- */}
             <div className="text-center max-w-3xl mx-auto mb-16">
@@ -767,7 +767,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
               </div>
 
               {/* Featured Tools Grid - Video Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 2xl:grid-cols-4 gap-4 2xl:gap-6">
                 {featuredTools.map((tool) => (
                   <button 
                     key={tool.id}
@@ -821,8 +821,8 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
               {/* Masonry Grid with Fade Effect */}
               <div className="relative">
                 <div 
-                  className={`grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 overflow-hidden transition-all duration-500 ease-in-out ${
-                    showMoreExamples ? 'max-h-[2000px]' : 'max-h-[420px] md:max-h-[500px]'
+                  className={`grid grid-cols-2 md:grid-cols-4 2xl:grid-cols-4 gap-3 md:gap-4 2xl:gap-6 overflow-hidden transition-all duration-500 ease-in-out ${
+                    showMoreExamples ? 'max-h-[2000px]' : 'max-h-[420px] md:max-h-[500px] 2xl:max-h-[600px]'
                   }`}
                 >
                 {/* Column 1 */}

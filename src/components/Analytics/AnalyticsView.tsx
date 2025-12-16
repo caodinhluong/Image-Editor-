@@ -95,7 +95,7 @@ export const AnalyticsView: React.FC = () => {
 
   return (
     <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 2xl:px-8 py-8">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -133,7 +133,7 @@ export const AnalyticsView: React.FC = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 2xl:gap-6 mb-8">
           {stats.map((stat, idx) => (
             <Card key={idx} className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between mb-4">
@@ -155,7 +155,7 @@ export const AnalyticsView: React.FC = () => {
         </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 2xl:gap-6 mb-8">
           
           {/* Generation Trend Chart */}
           <Card className="lg:col-span-2 p-6">

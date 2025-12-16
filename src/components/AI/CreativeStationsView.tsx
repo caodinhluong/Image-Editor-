@@ -19,7 +19,7 @@ export const CreativeStationsView: React.FC<CreativeStationsViewProps> = ({ onNa
 
   return (
     <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 2xl:px-8 py-8">
         
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">

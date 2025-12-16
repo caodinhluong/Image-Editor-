@@ -1010,7 +1010,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
            </div>
 
            {/* Masonry Grid - Image Only */}
-           <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3 space-y-3">
+           <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-3 2xl:gap-4 space-y-3 2xl:space-y-4">
               {filteredTemplates.map(template => (
                  <div 
                   key={template.id} 

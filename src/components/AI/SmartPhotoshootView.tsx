@@ -277,7 +277,7 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
 
   return (
     <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 2xl:px-8 py-8">
         
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -313,7 +313,7 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 2xl:gap-8">
           
           {/* Left: Upload / Preview */}
           <div className="lg:col-span-1">
@@ -427,7 +427,7 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
                   {language === 'vi' ? 'Bộ ảnh sẽ được tối ưu cho nền tảng bạn chọn' : 'Photos will be optimized for your selected platform'}
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-2 gap-4">
                   {categories.map((cat) => (
                     <button
                       key={cat.id}
@@ -776,7 +776,7 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
                     </div>
 
                     {/* Results Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4">
                       {generatedImages.map((img, index) => (
                         <div
                           key={index}
@@ -890,7 +890,7 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
                 </Card>
 
                 {/* Features */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 2xl:grid-cols-4 gap-4">
                   {[
                     { icon: Grid3X3, label: language === 'vi' ? 'Đa góc chụp' : 'Multi-angle', color: 'text-blue-500' },
                     { icon: LayoutGrid, label: language === 'vi' ? 'Đa bối cảnh' : 'Multi-context', color: 'text-green-500' },

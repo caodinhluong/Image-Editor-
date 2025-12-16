@@ -54,7 +54,7 @@ export const SettingsPanel: React.FC = () => {
 
   return (
     <div className="flex-1 h-full bg-light-bg dark:bg-dark-bg overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 2xl:px-8 py-8">
         
         {/* Header */}
         <div className="mb-8">
@@ -154,7 +154,7 @@ export const SettingsPanel: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 2xl:gap-5 mb-6">
                     <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900/50">
                       <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Price</p>
                       <p className="text-2xl font-bold text-zinc-900 dark:text-white">
