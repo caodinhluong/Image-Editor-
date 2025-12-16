@@ -1,7 +1,8 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   X, Upload, Sparkles, Download, RefreshCw, Clock, FolderOpen, Save,
-  Image as ImageIcon, ChevronDown, ZoomIn, ZoomOut, RotateCcw, Heart, Bookmark, Share2
+  Image as ImageIcon, ChevronDown, ZoomIn, ZoomOut, RotateCcw, Heart, Bookmark, Share2,
+  Wand2, RectangleHorizontal, Square, Smartphone, Monitor, RectangleVertical
 } from 'lucide-react';
 import { Station, Tool, ProcessingState, ProcessingResult } from '../../../types/stations';
 import { useLanguage } from '../../../contexts/LanguageContext';
@@ -40,10 +41,14 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
   const [showAssetPicker, setShowAssetPicker] = useState(false);
   const [savedToAssets, setSavedToAssets] = useState(false);
   
-  // Multi-image state for Dynamic Polaroid
+  // Multi-image state for Dynamic Polaroid (4 images)
   const [multiImages, setMultiImages] = useState<(string | null)[]>([null, null, null, null]);
   const [activeImageSlot, setActiveImageSlot] = useState<number>(0);
+  
+  // Model selection for Dynamic Polaroid
   const [selectedModel, setSelectedModel] = useState<'standard' | 'premium'>('standard');
+  
+  // Dropdown menu for image source selection
   const [showImageSourceMenu, setShowImageSourceMenu] = useState(false);
   
   // View states
@@ -53,6 +58,25 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
 
   // Tool options state
   const [toolOptions, setToolOptions] = useState<Record<string, any>>({});
+  
+  // Video-specific state
+  const [videoPrompt, setVideoPrompt] = useState('');
+  const [isEnhancingPrompt, setIsEnhancingPrompt] = useState(false);
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState('16:9');
+  
+  // Check if this is a video tool (show prompt & aspect ratio)
+  // Dynamic Polaroid is excluded - it only needs 4 images and duration option
+  const isVideoTool = (selectedTool.inputType === 'video' || selectedTool.inputType === 'both' || selectedTool.id === 'video-kitchen') 
+    && selectedTool.id !== 'dynamic-polaroid';
+  
+  // Video aspect ratio options
+  const aspectRatioOptions = [
+    { id: '16:9', label: '16:9', icon: RectangleHorizontal, desc: 'Landscape', descVi: 'Ngang' },
+    { id: '9:16', label: '9:16', icon: Smartphone, desc: 'Portrait', descVi: 'Dọc' },
+    { id: '1:1', label: '1:1', icon: Square, desc: 'Square', descVi: 'Vuông' },
+    { id: '4:3', label: '4:3', icon: Monitor, desc: 'Standard', descVi: 'Chuẩn' },
+    { id: '3:4', label: '3:4', icon: RectangleVertical, desc: 'Portrait', descVi: 'Dọc 3:4' },
+  ];
   
   // Processing state
   const [processingState, setProcessingState] = useState<ProcessingState>({
@@ -96,6 +120,12 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       original: 'Ảnh gốc',
       generated: 'Kết quả',
       selectTool: 'Chọn công cụ',
+      videoDescription: 'Mô tả video',
+      videoPlaceholder: 'Mô tả chi tiết video bạn muốn tạo... (VD: Một con mèo đang chạy trên bãi biển lúc hoàng hôn)',
+      videoTip: 'Mẹo: Mô tả càng chi tiết, video càng chính xác. Sử dụng AI Enhance để tối ưu prompt.',
+      aspectRatio: 'Khung hình',
+      aiEnhance: 'AI Enhance',
+      enhancing: 'Đang tối ưu...',
     },
     en: {
       inputImage: 'Input Image',
@@ -119,6 +149,12 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       original: 'Original',
       generated: 'Result',
       selectTool: 'Select tool',
+      videoDescription: 'Video Description',
+      videoPlaceholder: 'Describe the video you want to create... (e.g., A cat running on the beach at sunset)',
+      videoTip: 'Tip: The more detailed your description, the better the result. Use AI Enhance to optimize your prompt.',
+      aspectRatio: 'Aspect Ratio',
+      aiEnhance: 'AI Enhance',
+      enhancing: 'Enhancing...',
     }
   };
   const trans = t[language] || t.en;
@@ -201,11 +237,18 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
 
   // Handle generate
   const handleGenerate = async () => {
-    if (selectedTool.id === 'dynamic-polaroid') {
+    // For video-kitchen, require prompt (image is optional)
+    if (selectedTool.id === 'video-kitchen') {
+      if (!videoPrompt.trim()) return;
+    } 
+    // For dynamic-polaroid, require at least 1 image from multiImages
+    else if (selectedTool.id === 'dynamic-polaroid') {
       if (!multiImages.some(img => img !== null)) return;
-    } else {
+    } 
+    else {
       if (!inputImage) return;
     }
+    
     if (credits < selectedTool.creditCost) {
       triggerUpgradeModal('advancedAI');
       return;
@@ -219,9 +262,16 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
         for (let i = 0; i < selectedTool.creditCost; i++) {
           useCredits('textToImage', 1);
         }
-        const outputUrl = selectedTool.id === 'dynamic-polaroid' 
-          ? (multiImages.find(img => img !== null) || '') 
-          : (result.outputUrl || inputImage);
+        // For video-kitchen, use input image if provided, otherwise placeholder
+        let outputUrl: string;
+        if (selectedTool.id === 'video-kitchen') {
+          outputUrl = inputImage || 'https://via.placeholder.com/1920x1080/1a1a2e/ffffff?text=Video+Generated';
+        } else if (selectedTool.id === 'dynamic-polaroid') {
+          // Use first available image as output preview
+          outputUrl = multiImages.find(img => img !== null) || 'https://via.placeholder.com/1080x1080/1a1a2e/ffffff?text=Polaroid+Video';
+        } else {
+          outputUrl = result.outputUrl || inputImage || '';
+        }
         setOutputImage(outputUrl);
         setOutputTab('result');
         onComplete?.(result);
@@ -257,16 +307,25 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
   };
 
   const handleAssetSelect = (asset: { src: string } | { src: string }[]) => {
+    // For Dynamic Polaroid with multi-select
     if (selectedTool.id === 'dynamic-polaroid') {
       if (Array.isArray(asset)) {
+        // Multi-select from assets
         const newImages = [...multiImages];
         let slotIndex = 0;
         for (const a of asset) {
-          while (slotIndex < 4 && newImages[slotIndex] !== null) slotIndex++;
-          if (slotIndex < 4) { newImages[slotIndex] = a.src; slotIndex++; }
+          // Find next empty slot
+          while (slotIndex < 4 && newImages[slotIndex] !== null) {
+            slotIndex++;
+          }
+          if (slotIndex < 4) {
+            newImages[slotIndex] = a.src;
+            slotIndex++;
+          }
         }
         setMultiImages(newImages);
       } else {
+        // Single select
         const newImages = [...multiImages];
         newImages[activeImageSlot] = asset.src;
         setMultiImages(newImages);
@@ -278,23 +337,44 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
     setShowAssetPicker(false);
   };
   
+  // Handle multiple file upload from device for Dynamic Polaroid
   const handleMultiFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
+    
+    const newImages = [...multiImages];
+    let slotIndex = 0;
+    
     Array.from(files).slice(0, 4).forEach((file) => {
       if (!SUPPORTED_IMAGE_FORMATS.includes(file.type) || file.size > MAX_FILE_SIZE) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setMultiImages(prev => {
-          const updated = [...prev];
-          const emptySlot = updated.findIndex(img => img === null);
-          if (emptySlot !== -1) updated[emptySlot] = ev.target?.result as string;
-          return updated;
-        });
-      };
-      reader.readAsDataURL(file);
+      
+      // Find next empty slot
+      while (slotIndex < 4 && newImages[slotIndex] !== null) {
+        slotIndex++;
+      }
+      
+      if (slotIndex < 4) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          setMultiImages(prev => {
+            const updated = [...prev];
+            // Find first empty slot again (state may have changed)
+            const emptySlot = updated.findIndex(img => img === null);
+            if (emptySlot !== -1) {
+              updated[emptySlot] = ev.target?.result as string;
+            }
+            return updated;
+          });
+        };
+        reader.readAsDataURL(file);
+        slotIndex++;
+      }
     });
-    if (multiFileInputRef.current) multiFileInputRef.current.value = '';
+    
+    // Reset input
+    if (multiFileInputRef.current) {
+      multiFileInputRef.current.value = '';
+    }
     setShowImageSourceMenu(false);
   };
 
@@ -319,6 +399,21 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
     };
     document.addEventListener('mousemove', handleMove);
     document.addEventListener('mouseup', handleUp);
+  };
+
+  // AI Enhance prompt for video
+  const handleEnhancePrompt = async () => {
+    if (!videoPrompt.trim()) return;
+    setIsEnhancingPrompt(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    const enhancements = [
+      'cinematic lighting, smooth camera movement, high quality, 4K resolution',
+      'professional color grading, dynamic motion, detailed textures',
+      'dramatic atmosphere, fluid transitions, vivid colors',
+    ];
+    const randomEnhancement = enhancements[Math.floor(Math.random() * enhancements.length)];
+    setVideoPrompt(prev => `${prev}, ${randomEnhancement}`);
+    setIsEnhancingPrompt(false);
   };
 
  
@@ -488,66 +583,240 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
             </div>
           </div>
 
-          {/* Input Image Section - Dynamic Polaroid or Standard */}
+          {/* Video Prompt Section - Only for video tools */}
+          {isVideoTool && (
+            <div className="p-6 border-b border-zinc-800 space-y-4">
+              {/* Prompt Input */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-white">{trans.videoDescription}</h4>
+                  <button
+                    onClick={handleEnhancePrompt}
+                    disabled={!videoPrompt.trim() || isEnhancingPrompt}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      !videoPrompt.trim() || isEnhancingPrompt
+                        ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 hover:shadow-md'
+                    }`}
+                  >
+                    <Wand2 size={14} className={isEnhancingPrompt ? 'animate-spin' : ''} />
+                    {isEnhancingPrompt ? trans.enhancing : trans.aiEnhance}
+                  </button>
+                </div>
+                <textarea
+                  value={videoPrompt}
+                  onChange={(e) => setVideoPrompt(e.target.value)}
+                  placeholder={trans.videoPlaceholder}
+                  className="w-full h-24 px-4 py-3 rounded-xl border border-zinc-700 bg-zinc-800/50 text-white placeholder-zinc-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
+                <p className="text-xs text-zinc-500">{trans.videoTip}</p>
+              </div>
+
+              {/* Aspect Ratio Selection */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-white">{trans.aspectRatio}</h4>
+                <div className="flex flex-wrap gap-2">
+                  {aspectRatioOptions.map((ratio) => {
+                    const IconComponent = ratio.icon;
+                    return (
+                      <button
+                        key={ratio.id}
+                        onClick={() => setSelectedAspectRatio(ratio.id)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
+                          selectedAspectRatio === ratio.id
+                            ? 'border-purple-500 bg-purple-900/30 text-purple-400'
+                            : 'border-zinc-700 hover:border-purple-500/50 text-zinc-400 hover:text-zinc-300'
+                        }`}
+                      >
+                        <IconComponent size={16} />
+                        <span className="text-sm font-medium">{ratio.label}</span>
+                        <span className="text-xs opacity-70">
+                          {language === 'vi' ? ratio.descVi : ratio.desc}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Input Image Section - Multi-image for Dynamic Polaroid */}
           {selectedTool.id === 'dynamic-polaroid' ? (
             <div className="p-6">
-              <input ref={multiFileInputRef} type="file" accept={SUPPORTED_IMAGE_FORMATS.join(',')} multiple onChange={handleMultiFileUpload} className="hidden" />
-              <div onClick={() => setShowImageSourceMenu(!showImageSourceMenu)} className="relative aspect-square rounded-xl border-2 border-dashed border-zinc-600 hover:border-zinc-500 bg-zinc-800/50 transition-all cursor-pointer flex flex-col items-center justify-center">
-                {multiImages.some(img => img !== null) ? (
+              {/* Hidden multi-file input */}
+              <input
+                ref={multiFileInputRef}
+                type="file"
+                accept={SUPPORTED_IMAGE_F
+                multiple
+                onChange={handleMultiFileUpload}
+                cla
+              />
+              
+              {
+              <div
+                onClick={() => setShowImageSourceMenu(!sho)}
+                className="relative aspect-square rounded-xl border-2 bordeer"
+              >
+                {/* Show td */}
+                {multiImages.some(i
                   <div className="absolute inset-4 grid grid-cols-2 gap-2">
-                    {multiImages.map((img, index) => (
-                      <div key={index} className={`relative rounded-lg overflow-hidden ${img ? 'bg-zinc-700' : 'bg-zinc-800/50 border border-dashed border-zinc-600'}`}>
+                    {mu=> (
+                      <div
+                        key=dex}
+                        className={`relative rounded-lg overflow-hidden ${img ? 'bg-zinc-700' : 'bg-zinc-800/50'}`}
+                      >
                         {img ? (
                           <>
-                            <img src={img} alt={`Image ${index + 1}`} className="w-full h-full object-cover" />
-                            <button onClick={(e) => { e.stopPropagation(); const newImages = [...multiImages]; newImages[index] = null; setMultiImages(newImages); }} className="absolute top-1 right-1 p-1 bg-black/60 hover:bg-black/80 rounded-full"><X size={12} className="text-white" /></button>
+                            <img src={img} alt={`Image ${index + 1}" />
+                            <button
+                              onClick={(e) => {
+                                
+                                const newImages = [...multiImages];
+                             l;
+                                setMultiImages(newImages);
+                              }}
+                             olors"
+                            >
+                              <X size={12} className="text-white" />
+                            </button>
                           </>
-                        ) : (<div className="flex items-center justify-center h-full"><span className="text-zinc-600 text-2xl">+</span></div>)}
-                      </div>
+                        ) : (
+                          <d
+                       
+                        v>
+                     )}
+                    >
                     ))}
                   </div>
                 ) : (
                   <>
-                    <span className="text-zinc-500 text-4xl mb-3">+</span>
-                    <p className="text-zinc-400 font-medium">{language === 'vi' ? 'Thêm nguyên liệu' : 'Add Ingredient'}</p>
-                    <p className="text-purple-400 text-sm mt-1">({multiImages.filter(img => img !== null).length}/4) {language === 'vi' ? 'hoặc kéo vào giỏ' : 'or drag to basket'}</p>
+                    <span className="text-zinc-500 text-4xl mb-3
+                    <p className="text-zinc-400 font-medium">
+                      {ldient'}
+                    <>
+                  
+                    
+                </p>
                   </>
                 )}
-                {showImageSourceMenu && (
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden z-10 min-w-[200px]" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={() => { multiFileInputRef.current?.click(); setShowImageSourceMenu(false); }} className="w-full px-4 py-3 flex items-center gap-3 hover:bg-zinc-700 text-left"><Upload size={18} className="text-purple-400" /><span className="text-sm text-white">{language === 'vi' ? 'Tải từ máy' : 'Upload from device'}</span></button>
-                    <button onClick={() => { setShowAssetPicker(true); setShowImageSourceMenu(false); }} className="w-full px-4 py-3 flex items-center gap-3 hover:bg-zinc-700 text-left border-t border-zinc-700"><FolderOpen size={18} className="text-purple-400" /><span className="text-sm text-white">{language === 'vi' ? 'Thư viện của tôi' : 'My Assets'}</span></button>
+                
+                {/* Dropdown Menu */}
+                {sho&& (
+                
+              "
+                    onClick={(e) => e
+                  >
+                    <buton
+                      onClick={() => {
+                        multiFileInputRef.current?.click();
+                        setShowImageSourceMenu(f);
+                      }}
+                      className="w-full px-4 py-3 flex items-center gapft"
+                    >
+                 
+                      <span className="text-sm text-white">
+                        {}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAssetPicker(true);
+                        setShowImageSourceMenu(false);
+                      }}
+                 -700"
+                    >
+                      <Fo" />
+                    >
+                  s'}
+               n>
+                    </button>
                   </div>
                 )}
-              </div>
-              {multiImages.some(img => img !== null) && (<p className="text-xs text-zinc-500 mt-3 text-center">({multiImages.filter(img => img !== null).length}/4) {language === 'vi' ? 'hoặc kéo vào giỏ' : 'or drag to basket'}</p>)}
+              </div> </spa      AssetMy ủa tôi' : 'viện c'vi' ? 'Thư anguage ===       {ltext-white"xt-sm e="te classNam  <span-400t-purplee="texssNam8} cla={1sizepen rOldeder-zincder-t borleft borext-rs t-coloion00 transiter:bg-zinc-7ovter gap-3 hcenex items-px-4 py-3 fle="w-full assNam     cldevice'ad from : 'Uplo từ máy'  'vi' ? 'Tảige ===angual400" />e-"text-purplsName= clas8}e={1 sizUpload <     text-letion-colorsransiinc-700 tr:bg-z-3 hovealsetn()}opagatio.stopPrw-[200px] min-hidden z-10w-2xl overflodow--xl shaded00 rounr-zinc-7border bordec-800 -1/2 bg-zinslate-yane-x-1/2 -trat-transl/2 1/2 left-1te top-="absoluclassName        <div rceMenu wImageSou    sket'}g to baor dravào giỏ' : 'c kéo 'hoặ=== 'vi' ? language ) {h}/4ll).lengtg !== nu=> im.filter(img Imagesulti  ({m
+              
+              {/* Counter when images added */}
+              {multiImages.some(img => img !== null) && (
+                <p className="text-xs text-zinc-500 mt-3 text-center">
+                  ({multiImages.filter(img => img !== null).length}/4) {language === 'vi' ? 'hoặc kéo vào giỏ' : 'or drag to basket'}
+                </p>
+              )}
+              
+              {/* Model Selection */}
               <div className="mt-4 flex rounded-xl overflow-hidden border border-zinc-700">
-                <button onClick={() => setSelectedModel('standard')} className={`flex-1 py-3 text-sm font-medium transition-all ${selectedModel === 'standard' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : 'bg-zinc-800 text-zinc-400'}`}>{language === 'vi' ? 'Chuẩn' : 'Standard'}</button>
-                <button onClick={() => setSelectedModel('premium')} className={`flex-1 py-3 text-sm font-medium transition-all ${selectedModel === 'premium' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : 'bg-zinc-800 text-zinc-400'}`}>{language === 'vi' ? 'Cao cấp' : 'Premium'}</button>
+                <button
+                  onClick={() => setSelectedModel('standard')}
+                  className={`flex-1 py-3 text-sm font-medium transition-all ${
+                    selectedModel === 'standard'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                      : 'bg-zinc-800 text-zinc-400 hover:text-zinc-300'
+                  }`}
+                >
+                  {language === 'vi' ? 'Chuẩn' : 'Standard'}
+                </button>
+                <button
+                  onClick={() => setSelectedModel('premium')}
+                  className={`flex-1 py-3 text-sm font-medium transition-all ${
+                    selectedModel === 'premium'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                      : 'bg-zinc-800 text-zinc-400 hover:text-zinc-300'
+                  }`}
+                >
+                  {language === 'vi' ? 'Cao cấp' : 'Premium'}
+                </button>
               </div>
             </div>
           ) : (
+            /* Standard Single Image Section */
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-semibold text-white">{trans.inputImage}</h4>
-                {inputImage && (<button onClick={() => { setInputImage(null); setOutputImage(null); }} className="text-xs text-purple-400 hover:text-purple-300">{trans.changeImage}</button>)}
+                {inputImage && (
+                  <button onClick={() => { setInputImage(null); setOutputImage(null); }} className="text-xs text-purple-400 hover:text-purple-300">
+                    {trans.changeImage}
+                  </button>
+                )}
               </div>
+
               {!inputImage ? (
                 <div className="space-y-3">
-                  <div ref={dropZoneRef} onClick={() => fileInputRef.current?.click()} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} className="relative aspect-[4/3] rounded-xl border-2 border-dashed border-zinc-700 hover:border-purple-500 transition-colors cursor-pointer flex flex-col items-center justify-center gap-3 bg-zinc-800/30">
-                    <div className="p-4 rounded-full bg-purple-500/20"><Upload size={32} className="text-purple-400" /></div>
-                    <div className="text-center"><p className="font-medium text-zinc-300">{trans.dragDrop}</p><p className="text-xs text-zinc-500 mt-1">JPG, PNG, WebP (max 10MB)</p></div>
+                  <div
+                    ref={dropZoneRef}
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className="relative aspect-[4/3] rounded-xl border-2 border-dashed border-zinc-700 hover:border-purple-500 transition-colors cursor-pointer flex flex-col items-center justify-center gap-3 bg-zinc-800/30"
+                  >
+                    <div className="p-4 rounded-full bg-purple-500/20">
+                      <Upload size={32} className="text-purple-400" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium text-zinc-300">{trans.dragDrop}</p>
+                      <p className="text-xs text-zinc-500 mt-1">JPG, PNG, WebP (max 10MB)</p>
+                    </div>
                     <input ref={fileInputRef} type="file" accept={SUPPORTED_IMAGE_FORMATS.join(',')} onChange={handleInputChange} className="hidden" />
                   </div>
-                  <button onClick={() => setShowAssetPicker(true)} className="w-full p-3 rounded-xl border border-zinc-700 hover:border-purple-500 hover:bg-purple-900/20 transition-all flex items-center justify-center gap-2 text-sm font-medium text-zinc-400 hover:text-purple-400"><FolderOpen size={18} />{trans.selectFromAssets}</button>
+                  <button
+                    onClick={() => setShowAssetPicker(true)}
+                    className="w-full p-3 rounded-xl border border-zinc-700 hover:border-purple-500 hover:bg-purple-900/20 transition-all flex items-center justify-center gap-2 text-sm font-medium text-zinc-400 hover:text-purple-400"
+                  >
+                    <FolderOpen size={18} />
+                    {trans.selectFromAssets}
+                  </button>
                 </div>
-              ) : (<div className="relative rounded-xl overflow-hidden bg-zinc-800 border border-zinc-700"><img src={inputImage} alt="Input" className="w-full h-auto object-contain max-h-[280px]" /></div>)}
+              ) : (
+                <div className="relative rounded-xl overflow-hidden bg-zinc-800 border border-zinc-700">
+                  <img src={inputImage} alt="Input" className="w-full h-auto object-contain max-h-[280px]" />
+                </div>
+              )}
             </div>
           )}
 
  
-         {/* Tool Selector - Hidden for dynamic-polaroid */}
-          {selectedTool.id !== 'dynamic-polaroid' && (
+         {/* Tool Selector - Hidden for video-kitchen and dynamic-polaroid */}
+          {selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && (
           <div className="px-6 py-4 border-t border-zinc-800">
             <div className="flex items-center gap-2 text-xs text-zinc-400 font-semibold uppercase tracking-wider mb-3">
               <Sparkles size={12} className="text-purple-400" />
@@ -614,7 +883,8 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
           </div>
           )}
 
-          {/* Tool Options */}
+      
+    {/* Tool Options */}
           {selectedTool.options && selectedTool.options.length > 0 && (
             <div className="px-6 py-4 border-t border-zinc-800">
               <div className="flex items-center gap-2 text-xs text-zinc-400 font-semibold uppercase tracking-wider mb-4">
@@ -630,23 +900,6 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
 
         {/* Footer - Action Buttons */}
         <div className="p-4 border-t border-zinc-800 bg-zinc-900/80">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-lg">💎</span>
-                <span className="font-bold text-white">{selectedTool.creditCost}</span>
-                <span className="text-zinc-500">{trans.credits}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-zinc-500">
-                <Clock size={14} />
-                <span>~{selectedTool.estimatedTime}s</span>
-              </div>
-            </div>
-            <div className="text-xs text-zinc-500">
-              {trans.balance}: {credits} {trans.credits}
-            </div>
-          </div>
-
           <div className="flex items-center gap-3">
             <button onClick={onClose} className="flex-1 px-4 py-3 rounded-xl text-sm font-medium text-zinc-400 hover:bg-zinc-800 transition-colors">
               {trans.cancel}
@@ -670,9 +923,17 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
             ) : (
               <button
                 onClick={handleGenerate}
-                disabled={processingState.isProcessing || (selectedTool.id === 'dynamic-polaroid' ? !multiImages.some(img => img !== null) : !inputImage)}
+                disabled={
+                  processingState.isProcessing ||
+                  (selectedTool.id === 'video-kitchen' && !videoPrompt.trim()) ||
+                  (selectedTool.id === 'dynamic-polaroid' && !multiImages.some(img => img !== null)) ||
+                  (selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && !inputImage)
+                }
                 className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all ${
-                  processingState.isProcessing || (selectedTool.id === 'dynamic-polaroid' ? !multiImages.some(img => img !== null) : !inputImage)
+                  processingState.isProcessing ||
+                  (selectedTool.id === 'video-kitchen' && !videoPrompt.trim()) ||
+                  (selectedTool.id === 'dynamic-polaroid' && !multiImages.some(img => img !== null)) ||
+                  (selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && !inputImage)
                     ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
                     : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90'
                 }`}
@@ -744,8 +1005,8 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
           isOpen={showAssetPicker}
           onClose={() => setShowAssetPicker(false)}
           onSelectAsset={handleAssetSelect}
-          multiSelect={selectedTool.id === 'dynamic-polaroid'}
-          maxSelection={selectedTool.id === 'dynamic-polaroid' ? 4 - multiImages.filter(img => img !== null).length : 1}
+          multiSelect={false}
+          maxSelection={1}
         />
       )}
     </div>

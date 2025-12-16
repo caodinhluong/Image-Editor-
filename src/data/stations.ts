@@ -432,24 +432,13 @@ const kitchenTools: Tool[] = [
     id: 'dynamic-polaroid',
     name: 'Dynamic Polaroid',
     nameVi: 'Polaroid động',
-    description: 'Create animated Polaroid-style video clips (5s)',
-    descriptionVi: 'Tạo video clip Polaroid động (5 giây)',
+    description: 'Bring the polaroid memory to life.',
+    descriptionVi: 'Mang ký ức polaroid trở nên sống động.',
     icon: '📸',
     creditCost: 3,
     tier: 'free',
     estimatedTime: 15,
-    inputType: 'image',
-    options: [
-      {
-        id: 'duration',
-        label: 'Duration',
-        labelVi: 'Thời lượng',
-        type: 'select',
-        values: ['3s', '5s'],
-        valuesVi: ['3 giây', '5 giây'],
-        default: '5s'
-      }
-    ]
+    inputType: 'image'
   },
   {
     id: 'instant-noodle-video',
@@ -480,9 +469,9 @@ const kitchenTools: Tool[] = [
         label: 'Duration',
         labelVi: 'Thời lượng',
         type: 'select',
-        values: ['30s', '45s', '60s'],
-        valuesVi: ['30 giây', '45 giây', '60 giây'],
-        default: '30s'
+        values: ['8s', '12s', '15s', '23s'],
+        valuesVi: ['8 giây', '12 giây', '15 giây', '23 giây'],
+        default: '8s'
       }
     ]
   }

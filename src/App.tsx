@@ -34,7 +34,7 @@ import { STATIONS, getToolById } from './data/stations';
 import { useSubscription } from './contexts/SubscriptionContext';
 
 // --- Modern Home Dashboard View ---
-const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => void; onOpenTool: (toolId: string) => void }> = ({ onStartEditing, onOpenTool }) => {
+const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => void; onOpenTool: (toolId: string) => void; onNavigateToKitchen: () => void }> = ({ onStartEditing, onOpenTool, onNavigateToKitchen }) => {
   const { trans, language } = useLanguage();
   const { currentPlan, triggerUpgradeModal } = useSubscription();
   const [activeTab, setActiveTab] = useState<'trending' | 'recent'>('trending');
@@ -51,6 +51,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   const [uploadedImages, setUploadedImages] = useState<{ id: string; file: File; preview: string }[]>([]);
   const [showMaxImagesWarning, setShowMaxImagesWarning] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const promptTextareaRef = useRef<HTMLTextAreaElement>(null);
   
   // Generation Options States
   const [selectedModel, setSelectedModel] = useState('higgsfield-soul'); // Default to first free model
@@ -469,6 +470,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                    {/* Textarea Row */}
                    <div className="relative">
                      <textarea 
+                       ref={promptTextareaRef}
                        placeholder={uploadedImages.length > 0 ? "Describe what to do with these images..." : trans.home.placeholder}
                        value={prompt}
                        onChange={(e) => {
@@ -771,7 +773,18 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                 {featuredTools.map((tool) => (
                   <button 
                     key={tool.id}
-                    onClick={() => onOpenTool(tool.id)}
+                    onClick={() => {
+                      if (tool.id === 'create-image') {
+                        // Focus on prompt textarea and scroll to top
+                        promptTextareaRef.current?.focus();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      } else if (tool.id === 'create-video') {
+                        // Navigate to Kitchen Station in Creative Stations
+                        onNavigateToKitchen();
+                      } else {
+                        onOpenTool(tool.id);
+                      }
+                    }}
                     className="group relative overflow-hidden rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-purple-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/20 hover:-translate-y-1"
                   >
                     {/* Video Container */}
@@ -2106,7 +2119,14 @@ const AppContent: React.FC = () => {
 
   return (
     <Layout currentView={view} onChangeView={setView} onSignOut={handleSignOut} onGoToLanding={handleGoToLanding}>
-      {view === 'home' && <HomeView onStartEditing={handleStartEditing} onOpenTool={handleOpenTool} />}
+      {view === 'home' && <HomeView onStartEditing={handleStartEditing} onOpenTool={handleOpenTool} onNavigateToKitchen={() => {
+        // Navigate to Creative Stations and select Kitchen station
+        setView('creative-stations');
+        // Dispatch event to select Kitchen station
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('selectKitchenStation'));
+        }, 100);
+      }} />}
       
       {/* Direct Tool Execution Modal from HomeView */}
       {selectedToolId && (() => {

@@ -114,28 +114,28 @@ const toolShowcaseImages: Record<string, { before: string; after: string }> = {
     after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/ceaa2856-628f-45f1-a36d-dec7257a3913.webp',
   },
   'custom-recipe': {
-    before: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
-    after: 'https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=400&h=300&fit=crop',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/2573f7f8-9e66-491d-a6a1-a3b9a562c6df.webp',
+    after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/1c7ca8ad-48fc-4ba2-9810-8c8874ba309c.webp',
   },
   'pose-copy': {
-    before: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=300&fit=crop',
-    after: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=300&fit=crop',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/66eb2ff7-5a7b-4d10-8a27-fdeb0ee5e265.webp',
+    after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/3aaebabb-2044-4267-9290-201912b8a60d.webp',
   },
   'expression-copy': {
-    before: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
-    after: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=300&fit=crop',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/1d129630-4876-4a3a-8999-6edf1f54f1d8.webp',
+    after: 'https://lh3.googleusercontent.com/rd-gg-dl/ABS2GSlso3VvcZyNieqi538p1dvJUWUgi1a-ytx8627MIBZRTsoB9AkidsPQVE56-ztqTeAUl0Cm1b0QYaLntEJuDZ58u3UlFCBK7JGiIcNrEd2corD1H1Jpg8Lola0e-A5QBftYJZ0XuFTx9Dqt0bG-fZEX6maydez19UoCjywxeErY3n2TYlx_eDz-vb0zDv1_txNZh9-ap0w1_s5j0N-ampb7cQAwm2znGuIPP7esLimpz1ReWgPZjzwLUGxKho5mZpzhAbRmp4xvu-6WEQ50RTPIjI4l6TBqZxp4wOZwdFH13GTlEg8lx9o2aLwUExd8pMa0Z3xZovV5grmF3uEBXGgRPBeQ17VChWRtbo6r9dh-s7FWld5o2mef-mtnH1AHJzicxEod5ANWcZntyRuWrEC0CVedVctiyxlScOfSbuXlFPfLzmtruiTDiKF6VUQZtgjepBkhzShfzkZWCHhaz6zO845hKaSxU9ypx010-j-Tm322Omd4U5p5xtwbPeRvAj1M8Fq_RyMuzU0Ddckb4Ra9iLuw2QJLys1PZJk-VDw2U1ZI53clrKrMBlGU9jL60_OMysbrFxkJcGxTEH4Hmt8a0Sab4vC-J4MC1UWxDITOdrrqlJ3bwyZTzVSI3MF4u3VMvA-A47wOMCSwvsXDc3sUWLZBjoSiSYc0CcUdC5gVYPZILGTrkr3a8w_vYAWEp9N_E5Vsz56FMU0Erbn2uMlhEnZsxbyH06Xx4xe3ZllHdCNMwcNz2dPpGGbpSXvRU3Pltt8roTPQHsI4EBB1CLaBwYYvlERXWZwlQSOUCkOn3V64TdlGAX7XJLlBRnxxomhCSOo2PHcS0ic0DQc0S3QNXigeepp9McG7T23JYzdewNmFj-B4WbGhj2_P7_ReSU5SdqImm-HlYQpWvX9EQHpq0tupMINOYiVRGif9NBOynPvdlF9_jBUWs6UIzWr4RcqV-KRl7Jm3y7EHKPc_AZGs3YMW9Em5NFm6rJ1w1avKNKOol4IVFr92eaArArt3GnpWSroY8M63h27s2V4EA8ahwhJOEKgvFkvxOWNy405GZla_HP3nNZgnNi7_CX-KZVvJ03dAZmgzoDHF-NWOqk8hol8EbKPU2oP-f5mvRQYjEKX2hhJERbU_aqfR0HVHsFbhzMgonxmdx5gqFBAgg9Mq0RVGLbZyX6W2M3G25W2LxdGn6q6iDZfCeD7VhVKvipbOqf87SQ9nvhMbel88p6r8S4IJw7eppP6v4n8ll21cJMr_ecQiV0OOZKoD6eP11yz2ceLZRc5ovIq5vDvN_R90sZFapa_aHwfIMX4N7kRfGqAf7j7PBUrD74pooNF3hZJqFra5zt_P3mF5iRfTvHdlwiYk89KTThh4Gg=s1024-rj',
   },
   'color-swap': {
-    before: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop',
-    after: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/2573f7f8-9e66-491d-a6a1-a3b9a562c6df.webp',
+    after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/1c7ca8ad-48fc-4ba2-9810-8c8874ba309c.webp',
   },
   'isolate-subject': {
-    before: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop',
-    after: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400&h=300&fit=crop',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/b9590a7d-130f-4d6e-88b7-ef1793aa2c04.webp',
+    after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/23c2ed77-f95e-40fe-919c-dfb37bd48907.webp',
   },
   'y2k-background': {
-    before: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=300&fit=crop',
-    after: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=300&fit=crop',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/a7ef91cf-2d13-4425-a48c-3c213a07ab84.webp',
+    after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/f273586c-cf36-4ed2-b76b-61ee7bf22321.webp',
   },
 };
 

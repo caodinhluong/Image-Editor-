@@ -43,29 +43,55 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
       {/* Collapse Toggle Button - Outside sidebar for proper z-index */}
       <button
         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        className={`hidden md:flex fixed ${isSidebarCollapsed ? 'left-[52px]' : 'left-[276px]'} top-20 z-[50] w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 items-center justify-center text-zinc-500 hover:text-repix-500 hover:border-repix-500 transition-all duration-300 shadow-md hover:shadow-lg`}
+        className={`hidden md:flex fixed top-20 z-[50] w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 items-center justify-center text-zinc-500 hover:text-repix-500 hover:border-repix-500 shadow-md hover:shadow-lg hover:scale-110 active:scale-95`}
+        style={{
+          left: isSidebarCollapsed ? '52px' : '276px',
+          transition: 'left 400ms cubic-bezier(0.4, 0, 0.2, 1), transform 150ms ease',
+          willChange: 'left'
+        }}
         title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        <span 
+          className="flex items-center justify-center"
+          style={{
+            transition: 'transform 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: isSidebarCollapsed ? 'rotate(0deg)' : 'rotate(180deg)'
+          }}
+        >
+          <ChevronRight size={14} />
+        </span>
       </button>
 
       {/* Desktop Sidebar - Hidden on Mobile */}
-      <aside className={`hidden md:flex ${isSidebarCollapsed ? 'w-16' : 'w-72'} border-r border-zinc-200 dark:border-dark-border bg-white dark:bg-dark-surface flex-col z-20 transition-all duration-300 relative`}>
+      <aside 
+        className={`hidden md:flex ${isSidebarCollapsed ? 'w-16' : 'w-72'} border-r border-zinc-200 dark:border-dark-border bg-white dark:bg-dark-surface flex-col z-20 relative overflow-hidden`}
+        style={{
+          transition: 'width 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+          willChange: 'width'
+        }}
+      >
         
         {/* Brand & Toggles */}
-        <div className={`h-16 flex items-center ${isSidebarCollapsed ? 'justify-center px-2' : 'justify-between px-4'} border-b border-zinc-200 dark:border-dark-border`}>
+        <div 
+          className="h-16 flex items-center border-b border-zinc-200 dark:border-dark-border overflow-hidden"
+          style={{
+            padding: isSidebarCollapsed ? '0 8px' : '0 16px',
+            justifyContent: isSidebarCollapsed ? 'center' : 'space-between',
+            transition: 'padding 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
            <div 
              className="flex items-center cursor-pointer group select-none"
              onClick={() => onGoToLanding?.()}
              title="Go to Landing Page"
            >
-             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center shadow-lg shadow-repix-500/20 group-hover:shadow-repix-500/40 transition-shadow">
+             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 via-repix-500 to-accent-blue flex items-center justify-center shadow-lg shadow-repix-500/20 group-hover:shadow-repix-500/40 transition-shadow flex-shrink-0">
                <Sun size={18} className="text-white fill-white" />
              </div>
              {!isSidebarCollapsed && (
                <div className="ml-2">
-                 <span className="font-bold text-lg tracking-tight leading-none block bg-gradient-to-r from-pink-600 to-repix-600 bg-clip-text text-transparent dark:text-white group-hover:text-repix-500 transition-colors">Repix</span>
-                 <span className="text-[10px] text-zinc-400 font-medium tracking-wider">AI EDITOR</span>
+                 <span className="font-bold text-lg tracking-tight leading-none block bg-gradient-to-r from-pink-600 to-repix-600 bg-clip-text text-transparent dark:text-white group-hover:text-repix-500 transition-colors whitespace-nowrap">Repix</span>
+                 <span className="text-[10px] text-zinc-400 font-medium tracking-wider whitespace-nowrap">AI EDITOR</span>
                </div>
              )}
            </div>
@@ -91,41 +117,73 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
         </div>
 
         {/* Nav */}
-        <nav className={`flex-1 ${isSidebarCollapsed ? 'p-2' : 'p-4'} space-y-1`}>
-           {navItems.map(item => (
+        <nav 
+          className="flex-1 space-y-1 overflow-hidden"
+          style={{
+            padding: isSidebarCollapsed ? '8px' : '16px',
+            transition: 'padding 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
+           {navItems.map((item) => (
              <button
                key={item.id}
-               onClick={() => onChangeView(item.id as ViewState)}
+               onClick={() => {
+                 onChangeView(item.id as ViewState);
+                 setIsSidebarCollapsed(false);
+               }}
                title={isSidebarCollapsed ? item.label : undefined}
-               className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} ${isSidebarCollapsed ? 'p-3' : 'px-3 py-2.5'} rounded-lg text-sm font-medium transition-colors ${
+               className={`w-full flex items-center rounded-lg text-sm font-medium overflow-hidden ${
                  currentView === item.id 
                    ? 'animated-border bg-zinc-100 dark:bg-zinc-800 text-repix-600 dark:text-white' 
                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-200'
                }`}
+               style={{
+                 padding: isSidebarCollapsed ? '12px' : '10px 12px',
+                 justifyContent: isSidebarCollapsed ? 'center' : 'space-between',
+                 transition: 'background-color 200ms ease, padding 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+               }}
              >
-               <div className={`flex items-center ${isSidebarCollapsed ? '' : 'gap-3'}`}>
-                 <item.icon size={18} className={currentView === item.id ? 'text-repix-500' : item.id === 'photoshoot' ? 'text-purple-500' : ''} />
-                 {!isSidebarCollapsed && item.label}
-                 {!isSidebarCollapsed && (item as any).isNew && (
-                   <span className="px-1.5 py-0.5 text-[9px] font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">NEW</span>
+               <div className="flex items-center gap-3 min-w-0">
+                 <item.icon 
+                   size={18} 
+                   className={`flex-shrink-0 ${currentView === item.id ? 'text-repix-500' : item.id === 'photoshoot' ? 'text-purple-500' : ''}`}
+                 />
+                 {!isSidebarCollapsed && (
+                   <>
+                     <span className="whitespace-nowrap truncate">{item.label}</span>
+                     {(item as any).isNew && (
+                       <span className="px-1.5 py-0.5 text-[9px] font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full flex-shrink-0">NEW</span>
+                     )}
+                   </>
                  )}
                </div>
-               {!isSidebarCollapsed && currentView === item.id && <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-repix-500"></div>}
+               {!isSidebarCollapsed && currentView === item.id && (
+                 <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-repix-500 flex-shrink-0" />
+               )}
              </button>
            ))}
         </nav>
 
         {/* Bottom User Area */}
-        <div className={`${isSidebarCollapsed ? 'p-2' : 'p-4'} border-t border-zinc-200 dark:border-dark-border bg-zinc-50 dark:bg-zinc-900/30`}>
+        <div 
+          className="border-t border-zinc-200 dark:border-dark-border bg-zinc-50 dark:bg-zinc-900/30 overflow-hidden"
+          style={{
+            padding: isSidebarCollapsed ? '8px' : '16px',
+            transition: 'padding 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
            {/* Plan Badge */}
            {!isSidebarCollapsed && <PlanBadge className="mb-4" />}
            
            <div 
-            className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} mb-4 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 p-2 rounded-lg transition-colors group`}
-            onClick={() => onChangeView('profile')}
+            className={`flex items-center mb-4 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 p-2 rounded-lg transition-colors group ${isSidebarCollapsed ? 'justify-center' : 'gap-3'}`}
+            onClick={() => {
+              onChangeView('profile');
+              setIsSidebarCollapsed(false);
+            }}
             title={isSidebarCollapsed ? 'Profile' : undefined}
            >
-              <div className={`${isSidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'} rounded-full bg-gradient-to-tr from-pink-500 via-repix-500 to-accent-blue p-0.5`}>
+              <div className={`rounded-full bg-gradient-to-tr from-pink-500 via-repix-500 to-accent-blue p-0.5 flex-shrink-0 ${isSidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'}`}>
                  <img src="https://picsum.photos/seed/user/100/100" className="w-full h-full rounded-full border-2 border-white dark:border-zinc-900" alt="User" />
               </div>
               {!isSidebarCollapsed && (
@@ -138,6 +196,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
                     onClick={(e) => {
                       e.stopPropagation();
                       onChangeView('settings');
+                      setIsSidebarCollapsed(false);
                     }}
                     className="p-1.5 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
                   >
@@ -148,17 +207,22 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
            </div>
            <div 
              onClick={onSignOut}
-             className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-2'} ${isSidebarCollapsed ? 'p-3' : 'px-3 py-2'} rounded-lg bg-white border border-zinc-200 dark:border-0 dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 cursor-pointer transition-colors group`}
+             className={`flex items-center rounded-lg bg-white border border-zinc-200 dark:border-0 dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 cursor-pointer transition-colors group ${isSidebarCollapsed ? 'justify-center p-3' : 'gap-2 px-3 py-2'}`}
              title={isSidebarCollapsed ? trans.nav.signOut : undefined}
            >
-              <LogOut size={16} className="text-zinc-400 group-hover:text-red-500" />
-              {!isSidebarCollapsed && <span className="text-xs text-zinc-500 dark:text-zinc-400 group-hover:text-red-500">{trans.nav.signOut}</span>}
+              <LogOut size={16} className="text-zinc-400 group-hover:text-red-500 flex-shrink-0" />
+              {!isSidebarCollapsed && (
+                <span className="text-xs text-zinc-500 dark:text-zinc-400 group-hover:text-red-500">{trans.nav.signOut}</span>
+              )}
            </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className={`flex-1 relative overflow-hidden flex flex-col bg-light-bg dark:bg-dark-bg ${isEditor ? 'mb-0' : 'mb-16 md:mb-0'}`}>
+      <main 
+        className={`flex-1 relative overflow-hidden flex flex-col bg-light-bg dark:bg-dark-bg ${isEditor ? 'mb-0' : 'mb-16 md:mb-0'}`}
+        onClick={() => setIsSidebarCollapsed(true)}
+      >
          {children}
       </main>
 

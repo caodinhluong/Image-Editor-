@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { Station, Tool } from '../../../types/stations';
 import { STATIONS } from '../../../data/stations';
@@ -13,6 +13,22 @@ interface StationGridProps {
 export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
   const { language } = useLanguage();
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
+
+  // Listen for selectKitchenStation event from HomeView
+  useEffect(() => {
+    const handleSelectKitchenStation = () => {
+      // Find Kitchen station (id: 'kitchen' or name contains 'Kitchen')
+      const kitchenStation = STATIONS.find(s => s.id === 'kitchen' || s.name.toLowerCase().includes('kitchen'));
+      if (kitchenStation) {
+        setSelectedStation(kitchenStation);
+      }
+    };
+
+    window.addEventListener('selectKitchenStation', handleSelectKitchenStation);
+    return () => {
+      window.removeEventListener('selectKitchenStation', handleSelectKitchenStation);
+    };
+  }, []);
 
   const handleStationSelect = (station: Station) => {
     setSelectedStation(station);
@@ -77,7 +93,7 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
         </div>
 
         {/* Tools grid - larger cards with video previews */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 2xl:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {selectedStation.tools.map((tool) => (
             <ToolCard
               key={tool.id}
