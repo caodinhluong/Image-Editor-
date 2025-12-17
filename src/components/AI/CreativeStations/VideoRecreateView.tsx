@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   X,
   Upload,
@@ -11,6 +11,7 @@ import {
   Wand2,
   ChevronDown,
   Trash2,
+  MoreHorizontal,
 } from 'lucide-react';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
@@ -52,6 +53,8 @@ export const VideoRecreateView: React.FC<VideoRecreateViewProps> = ({
   const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   const trans = {
     vi: {
@@ -157,6 +160,33 @@ export const VideoRecreateView: React.FC<VideoRecreateViewProps> = ({
       }
       setIsPlaying(!isPlaying);
     }
+  };
+
+  const handleTimeUpdate = () => {
+    if (resultVideoRef.current) {
+      setCurrentTime(resultVideoRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (resultVideoRef.current) {
+      setDuration(resultVideoRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (resultVideoRef.current && duration > 0) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percent = x / rect.width;
+      resultVideoRef.current.currentTime = percent * duration;
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const mins = Math.floor(time / 60);
+    const secs = Math.floor(time % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleDownload = () => {
@@ -365,66 +395,60 @@ export const VideoRecreateView: React.FC<VideoRecreateViewProps> = ({
                 </div>
               </div>
             ) : generatedVideo ? (
-              <div className="relative max-w-[420px] w-full">
-                {/* Video container with glow effect */}
-                <div className="relative group">
-                  {/* Glow effect */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-orange-500/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative w-full max-w-[600px] group">
+                {/* Video wrapper */}
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-black">
+                  <video
+                    ref={resultVideoRef}
+                    src={generatedVideo}
+                    className="w-full h-auto max-h-[65vh] object-contain"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    onTimeUpdate={handleTimeUpdate}
+                    onLoadedMetadata={handleLoadedMetadata}
+                  />
                   
-                  {/* Video wrapper */}
-                  <div className="relative bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-zinc-800">
-                    <video
-                      ref={resultVideoRef}
-                      src={generatedVideo}
-                      className="w-full h-auto"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                    />
-                    
-                    {/* Overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    
-                    {/* Video Controls - appears on hover */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="flex items-center justify-between">
-                        <button
-                          onClick={togglePlay}
-                          className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl transition-all border border-white/10"
-                        >
-                          {isPlaying ? (
-                            <Pause size={18} className="text-white" />
-                          ) : (
-                            <Play size={18} className="text-white" />
-                          )}
-                        </button>
-                        
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={handleGenerate}
-                            className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl transition-all border border-white/10"
-                            title={t.regenerate}
-                          >
-                            <RefreshCw size={18} className="text-white" />
-                          </button>
-                          <button
-                            onClick={handleDownload}
-                            className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 rounded-xl transition-all shadow-lg"
-                            title={t.download}
-                          >
-                            <Download size={18} className="text-white" />
-                          </button>
-                        </div>
+                  {/* Video Controls overlay - appears on hover */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {/* Progress bar */}
+                    <div 
+                      className="w-full h-1 bg-zinc-700 rounded-full mb-3 cursor-pointer"
+                      onClick={handleSeek}
+                    >
+                      <div 
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full relative"
+                        style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
+                      >
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg" />
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Video info badge */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <div className="px-4 py-1.5 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 rounded-full shadow-lg">
-                    <span className="text-white text-xs font-semibold">AI Generated</span>
+                    
+                    {/* Controls row */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={togglePlay}
+                          className="p-2 hover:bg-white/10 rounded-lg transition-all"
+                        >
+                          {isPlaying ? (
+                            <Pause size={22} className="text-white" />
+                          ) : (
+                            <Play size={22} className="text-white" />
+                          )}
+                        </button>
+                        <span className="text-zinc-400 text-sm font-mono">
+                          {formatTime(currentTime)} / {formatTime(duration)}
+                        </span>
+                      </div>
+                      
+                      <button
+                        className="p-2 hover:bg-white/10 rounded-lg transition-all"
+                      >
+                        <MoreHorizontal size={20} className="text-white" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -454,6 +478,26 @@ export const VideoRecreateView: React.FC<VideoRecreateViewProps> = ({
               </div>
             )}
           </div>
+
+          {/* Footer with Download & Regenerate - only show when video is generated */}
+          {generatedVideo && !isGenerating && (
+            <div className="p-4 border-t border-zinc-800 bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center gap-3 relative z-10">
+              <button
+                onClick={handleGenerate}
+                className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-medium flex items-center gap-2 transition-colors border border-zinc-700"
+              >
+                <RefreshCw size={16} />
+                {t.regenerate}
+              </button>
+              <button
+                onClick={handleDownload}
+                className="px-5 py-2.5 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 hover:from-purple-500 hover:via-pink-400 hover:to-orange-400 text-white rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg shadow-purple-500/20"
+              >
+                <Download size={16} />
+                {t.download}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
