@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { 
   Home, Edit3, ShoppingBag, Users, Settings, 
   LogOut, Sun, Moon, BarChart3, Award, Palette, FolderOpen,
-  ChevronLeft, ChevronRight, Sparkles, Wand2
+  ChevronLeft, ChevronRight, Sparkles, Wand2, ListTodo
 } from 'lucide-react';
 import { ViewState } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { PlanBadge } from './Subscription/PlanBadge';
+import { TaskSidebarWidget } from './Tasks/TaskSidebarWidget';
+import { useTask } from '../contexts/TaskContext';
 
 interface LayoutProps {
   currentView: ViewState;
@@ -20,13 +22,15 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSignOut, onGoToLanding, children }) => {
   const { trans, language, toggleLanguage } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { stats } = useTask();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const navItems = [
     { id: 'home', icon: Home, label: trans.nav.home },
     // { id: 'editor', icon: Edit3, label: trans.nav.editor }, // Temporarily hidden
     { id: 'photoshoot', icon: Sparkles, label: language === 'vi' ? 'Bộ Ảnh Thông Minh' : 'Smart Photoshoot', isNew: true },
-    { id: 'creative-stations', icon: Wand2, label: language === 'vi' ? 'Quầy Sáng Tạo' : 'Creative Stations', isNew: true },
+    { id: 'creative-stations', icon: Wand2, label: language === 'vi' ? 'AI Studios' : 'AI Studios', isNew: true },
+    { id: 'tasks', icon: ListTodo, label: language === 'vi' ? 'Quản lý tác vụ' : 'My Tasks', badge: stats.processing > 0 ? stats.processing : undefined },
     { id: 'assets', icon: FolderOpen, label: trans.nav.assets },
     // { id: 'brandkit', icon: Palette, label: trans.brandkit.title }, // Temporarily hidden
     { id: 'marketplace', icon: ShoppingBag, label: trans.nav.marketplace },
@@ -144,15 +148,27 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
                }}
              >
                <div className="flex items-center gap-3 min-w-0">
-                 <item.icon 
-                   size={18} 
-                   className={`flex-shrink-0 ${currentView === item.id ? 'text-repix-500' : item.id === 'photoshoot' ? 'text-purple-500' : ''}`}
-                 />
+                 <div className="relative flex-shrink-0">
+                   <item.icon 
+                     size={18} 
+                     className={`${currentView === item.id ? 'text-repix-500' : item.id === 'photoshoot' ? 'text-purple-500' : item.id === 'tasks' && (item as any).badge ? 'text-blue-500' : ''}`}
+                   />
+                   {isSidebarCollapsed && (item as any).badge && (
+                     <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-blue-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center animate-pulse">
+                       {(item as any).badge}
+                     </span>
+                   )}
+                 </div>
                  {!isSidebarCollapsed && (
                    <>
                      <span className="whitespace-nowrap truncate">{item.label}</span>
                      {(item as any).isNew && (
                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full flex-shrink-0">NEW</span>
+                     )}
+                     {(item as any).badge && (
+                       <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500 text-white rounded-full flex-shrink-0 animate-pulse">
+                         {(item as any).badge}
+                       </span>
                      )}
                    </>
                  )}

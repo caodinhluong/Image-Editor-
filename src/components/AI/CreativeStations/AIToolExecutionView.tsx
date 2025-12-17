@@ -2,7 +2,8 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   X, Upload, Sparkles, Download, RefreshCw, FolderOpen, Save,
   Image as ImageIcon, ChevronDown, ZoomIn, ZoomOut, RotateCcw, Heart, Bookmark, Share2,
-  Wand2, RectangleHorizontal, Square, Smartphone, Monitor, RectangleVertical,
+  Wand2, RectangleHorizontal, Square, Smartphone, Monitor, RectangleVertical, Layers,
+  Clock, Info, CheckCircle2, Bell, Zap, ArrowLeft,
   // Station icons
   Coffee, Drama, Bot, Film, ChefHat, ShoppingCart
 } from 'lucide-react';
@@ -11,6 +12,8 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { useSubscription } from '../../../contexts/SubscriptionContext';
 import { SUPPORTED_IMAGE_FORMATS, MAX_FILE_SIZE, STATIONS } from '../../../data/stations';
 import { AssetPickerModal } from '../../Editor/AssetPickerModal';
+import { TaskSidebarPanel } from '../../Tasks/TaskSidebarPanel';
+import { useTask } from '../../../contexts/TaskContext';
 
 // Map station icon names to Lucide components
 const stationIconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -41,6 +44,15 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
 }) => {
   const { language } = useLanguage();
   const { credits, useCredits, triggerUpgradeModal } = useSubscription();
+  const { createTask, tasks } = useTask();
+  
+  // Check if there are any video tasks currently processing or queued
+  const hasActiveVideoTasks = tasks.some(
+    t => t.type === 'video' && (t.status === 'processing' || t.status === 'queued')
+  );
+  
+  // Task sidebar state (for video tools)
+  const [showTaskSidebar, setShowTaskSidebar] = useState(false);
   
   // Tool selection state
   const [selectedTool, setSelectedTool] = useState<Tool>(initialTool);
@@ -83,8 +95,8 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
     estimatedTimeRemaining: initialTool.estimatedTime,
   });
   
-  // Check if this is a video tool (show prompt & aspect ratio)
-  const isVideoTool = selectedTool.id === 'video-kitchen' || selectedTool.id === 'instant-noodle-video';
+  // Check if this is a video tool (show prompt & aspect ratio, task sidebar, etc.)
+  const isVideoTool = selectedTool.id === 'video-kitchen' || selectedTool.id === 'instant-noodle-video' || selectedTool.id === 'long-video-cooking' || selectedTool.id === 'dynamic-polaroid';
   
   // Duration options for Instant Noodle Video
   const durationOptions = ['8', '13', '18', '23'];
@@ -262,6 +274,32 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       return;
     }
 
+    // For video tools, create a task in the sidebar for tracking
+    if (isVideoTool) {
+      createTask({
+        type: 'video',
+        toolId: selectedTool.id,
+        toolName: selectedTool.name,
+        toolNameVi: selectedTool.nameVi,
+        stationId: selectedStation.id,
+        stationName: selectedStation.name,
+        stationIcon: selectedStation.icon,
+        stationColor: selectedStation.color,
+        input: {
+          type: inputImage ? 'image' : 'text',
+          url: inputImage || undefined,
+          thumbnail: inputImage || undefined,
+          text: videoPrompt,
+        },
+        prompt: videoPrompt,
+        creditCost: selectedTool.creditCost,
+        estimatedTime: selectedTool.estimatedTime,
+      });
+      
+      // Show task sidebar
+      setShowTaskSidebar(true);
+    }
+
     setProcessingState({ isProcessing: true, progress: 0, estimatedTimeRemaining: selectedTool.estimatedTime });
 
     try {
@@ -387,8 +425,103 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
     setIsEnhancingPrompt(false);
   };
 
+  // Render video processing info banner (compact version for bottom placement)
+  const renderVideoProcessingBanner = () => {
+    const estimatedMinutes = Math.ceil(selectedTool.estimatedTime / 60);
+    
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-500/10 via-zinc-800/80 to-pink-500/10 border border-purple-500/20 backdrop-blur-sm">
+          <div className="flex items-center gap-4 p-4">
+            {/* Icon */}
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex-shrink-0">
+              <Clock size={20} className="text-purple-400" />
+            </div>
+            
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h4 className="font-semibold text-white text-sm">
+                  {language === 'vi' ? 'Video đang được xử lý' : 'Video is being processed'}
+                </h4>
+                <span className="text-xs text-zinc-500">
+                  ~{estimatedMinutes} {language === 'vi' ? 'phút' : 'min'}
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400">
+                {language === 'vi' 
+                  ? 'Bạn có thể rời màn hình này và theo dõi kết quả trong Quản lý tác vụ'
+                  : 'You can leave this screen and track results in Task Manager'
+                }
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => setShowTaskSidebar(true)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-700/50 hover:bg-zinc-700 text-zinc-300 text-xs font-medium transition-colors border border-zinc-600/50"
+              >
+                <Layers size={14} />
+                {language === 'vi' ? 'Hàng đợi' : 'Queue'}
+              </button>
+              <button
+                onClick={onClose}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                <Sparkles size={14} />
+                {language === 'vi' ? 'Tạo video khác' : 'New video'}
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Tips Row */}
+          <div className="flex items-center justify-center gap-6 px-4 py-2 border-t border-zinc-700/50 bg-zinc-900/30">
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
+              <CheckCircle2 size={11} className="text-green-500" />
+              {language === 'vi' ? 'Tự động lưu' : 'Auto-saved'}
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
+              <Bell size={11} className="text-purple-400" />
+              {language === 'vi' ? 'Thông báo khi xong' : 'Notified when done'}
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
+              <Zap size={11} className="text-yellow-400" />
+              {language === 'vi' ? 'Xử lý nền' : 'Background processing'}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Render output content
   const renderOutputContent = () => {
+    // For video tools - show spinner + banner when processing
+    if (isVideoTool && (processingState.isProcessing || hasActiveVideoTasks) && !outputImage) {
+      return (
+        <div className="flex-1 flex flex-col">
+          {/* Spinner area - centered in top portion */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full border-4 border-zinc-700 border-t-purple-500 animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Sparkles size={24} className="text-purple-500 animate-pulse" />
+              </div>
+            </div>
+            <p className="mt-5 text-zinc-300 font-medium">{trans.processing}</p>
+            <p className="text-zinc-600 text-sm mt-1">{Math.round(processingState.progress)}%</p>
+          </div>
+          
+          {/* Banner fixed at bottom */}
+          <div className="flex-shrink-0 p-4 border-t border-zinc-800 bg-zinc-900/50">
+            {renderVideoProcessingBanner()}
+          </div>
+        </div>
+      );
+    }
+    
+    // Default processing spinner for non-video tools
     if (processingState.isProcessing) {
       return (
         <div className="flex-1 flex flex-col items-center justify-center">
@@ -404,11 +537,11 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       );
     }
 
-    // Video Kitchen - Show video player
+    // Video Generator - Show video player
     if (selectedTool.id === 'video-kitchen') {
       if (!outputImage) {
         return (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex flex-col items-center justify-center p-6">
             <div className="text-center">
               <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-zinc-800 flex items-center justify-center">
                 <span className="text-4xl">🎬</span>
@@ -444,6 +577,47 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       );
     }
 
+    // Dynamic Polaroid (Living Photo) - Bring still photos to life
+    if (selectedTool.id === 'dynamic-polaroid') {
+      if (!outputImage) {
+        return (
+          <div className="flex-1 flex flex-col items-center justify-center p-6">
+            <div className="text-center">
+              <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-zinc-800 flex items-center justify-center">
+                <span className="text-4xl">✨</span>
+              </div>
+              <p className="text-zinc-500">{language === 'vi' ? 'Ảnh sống động sẽ hiển thị ở đây' : 'Living photo will appear here'}</p>
+              <p className="text-zinc-600 text-sm mt-2">{language === 'vi' ? 'Tải lên ảnh để làm sống động' : 'Upload photos to bring them to life'}</p>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-4xl">
+            <video
+              src="https://static.higgsfield.ai/explore/create-video.mp4"
+              controls
+              autoPlay
+              loop
+              className="w-full rounded-2xl shadow-2xl"
+              style={{ maxHeight: '70vh' }}
+            />
+            <div className="mt-4 flex justify-center gap-3">
+              <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white flex items-center gap-2">
+                <Download size={16} />
+                {language === 'vi' ? 'Tải video' : 'Download'}
+              </button>
+              <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white flex items-center gap-2">
+                <Share2 size={16} />
+                {language === 'vi' ? 'Chia sẻ' : 'Share'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     // Instant Noodle Video - Show default placeholder when no output, show video + clips after generation
     if (selectedTool.id === 'instant-noodle-video') {
       const totalClips = Math.ceil(parseInt(selectedDuration) / 8);
@@ -452,7 +626,7 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       // Before generation - show default placeholder like other tools
       if (!outputImage) {
         return (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex flex-col items-center justify-center p-6">
             <div className="text-center">
               <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-zinc-800 flex items-center justify-center">
                 <span className="text-4xl">🍜</span>
@@ -522,6 +696,47 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
                   {language === 'vi' ? 'Chia sẻ' : 'Share'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Long Video Cooking - Extended video up to 60 seconds
+    if (selectedTool.id === 'long-video-cooking') {
+      if (!outputImage) {
+        return (
+          <div className="flex-1 flex flex-col items-center justify-center p-6">
+            <div className="text-center">
+              <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-zinc-800 flex items-center justify-center">
+                <span className="text-4xl">🎥</span>
+              </div>
+              <p className="text-zinc-500">{language === 'vi' ? 'Video dài sẽ hiển thị ở đây' : 'Extended video will appear here'}</p>
+              <p className="text-zinc-600 text-sm mt-2">{language === 'vi' ? 'Lên đến 60 giây' : 'Up to 60 seconds'}</p>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-4xl">
+            <video
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+              controls
+              autoPlay
+              loop
+              className="w-full rounded-2xl shadow-2xl"
+              style={{ maxHeight: '70vh' }}
+            />
+            <div className="mt-4 flex justify-center gap-3">
+              <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white flex items-center gap-2">
+                <Download size={16} />
+                {language === 'vi' ? 'Tải video' : 'Download'}
+              </button>
+              <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white flex items-center gap-2">
+                <Share2 size={16} />
+                {language === 'vi' ? 'Chia sẻ' : 'Share'}
+              </button>
             </div>
           </div>
         </div>
@@ -655,16 +870,31 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
 
   return (
     <div className="fixed inset-0 z-[99999] flex bg-zinc-950">
-      {/* Close button */}
-      <button onClick={onClose} className="absolute top-4 right-4 p-2.5 bg-zinc-800/80 hover:bg-zinc-700 rounded-xl z-20 transition-all">
-        <X size={20} className="text-zinc-400" />
-      </button>
+      {/* Task Queue Toggle Button - Only for video tools (top right) */}
+      {isVideoTool && !showTaskSidebar && (
+        <button
+          onClick={() => setShowTaskSidebar(true)}
+          className="absolute top-4 right-4 p-2.5 bg-zinc-800/80 hover:bg-zinc-700 rounded-xl z-20 transition-all flex items-center gap-2"
+          title={language === 'vi' ? 'Mở hàng đợi' : 'Open queue'}
+        >
+          <Layers size={18} className="text-purple-400" />
+        </button>
+      )}
 
       {/* LEFT PANEL - Input & Options */}
       <div className="w-[480px] flex flex-col bg-zinc-900 border-r border-zinc-800 overflow-hidden">
         <div className="flex-1 overflow-y-auto">
-          {/* Header with Tool Info */}
+          {/* Header with Back Button and Tool Info */}
           <div className="p-4 border-b border-zinc-800 flex items-center gap-3">
+            {/* Back Button */}
+            <button 
+              onClick={onClose}
+              className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors flex-shrink-0"
+              title={language === 'vi' ? 'Quay lại' : 'Go back'}
+            >
+              <ArrowLeft size={20} className="text-zinc-400" />
+            </button>
+            
             <div className={`p-2.5 rounded-xl bg-gradient-to-br ${selectedStation.color}`}>
               {(() => {
                 const IconComponent = stationIconMap[selectedStation.icon];
@@ -923,8 +1153,8 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       <div className="flex-1 flex flex-col bg-zinc-900/30 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 via-transparent to-pink-900/5 pointer-events-none" />
 
-        {/* Output Tabs - Hidden for video tools */}
-        {outputImage && !processingState.isProcessing && selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && (
+        {/* Output Tabs - Hidden for ALL video tools */}
+        {outputImage && !processingState.isProcessing && !isVideoTool && selectedTool.id !== 'dynamic-polaroid' && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
             <div className="flex items-center gap-1 p-1 bg-zinc-800/90 backdrop-blur-sm rounded-full border border-zinc-700/50 shadow-lg">
               {[
@@ -946,8 +1176,8 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
           </div>
         )}
 
-        {/* Zoom Controls - Hidden for video tools */}
-        {outputTab === 'result' && outputImage && !processingState.isProcessing && selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && (
+        {/* Zoom Controls - Hidden for ALL video tools */}
+        {outputTab === 'result' && outputImage && !processingState.isProcessing && !isVideoTool && selectedTool.id !== 'dynamic-polaroid' && (
           <div className="absolute bottom-4 left-4 z-10">
             <div className="flex items-center gap-1 p-1 bg-zinc-800/90 backdrop-blur-sm rounded-xl border border-zinc-700/50">
               <button onClick={() => setZoom(Math.max(50, zoom - 10))} className="p-2 hover:bg-zinc-700 rounded-lg transition-colors">
@@ -970,6 +1200,15 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
           {renderOutputContent()}
         </div>
       </div>
+
+      {/* Task Sidebar Panel - Only for video tools */}
+      {isVideoTool && (
+        <TaskSidebarPanel
+          isOpen={showTaskSidebar}
+          onToggle={() => setShowTaskSidebar(!showTaskSidebar)}
+          filterType={['video']}
+        />
+      )}
 
       {/* Asset Picker Modal */}
       {showAssetPicker && (

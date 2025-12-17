@@ -13,6 +13,8 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { ShareGenerationModal } from './ShareGenerationModal';
 import { RecreateView } from './RecreateView';
+import { TemplateDetailModal } from './TemplateDetailModal';
+import { RecreateSetupView } from './RecreateSetupView';
 
 interface ExtendedTemplate extends Template {
   downloads: string;
@@ -170,373 +172,8 @@ const templates: ExtendedTemplate[] = [
   { id: '32', title: 'Wellness Lifestyle', author: 'VideoKing', price: 30, tags: ['Wellness', 'Health', 'Lifestyle'], thumbnail: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=400&h=711&q=80', trending: true, downloads: '38k', likes: '11k', category: 'Instagram', style: 'Wellness', description: "Lối sống lành mạnh, cân bằng và tích cực" },
 ];
 
-// --- TEMPLATE DETAIL MODAL ---
-const TemplateDetailModal: React.FC<{ template: ExtendedTemplate, onClose: () => void }> = ({ template, onClose }) => {
-   const [viewMode, setViewMode] = useState<'after' | 'before' | 'split'>('after');
-   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-   const [isProcessing, setIsProcessing] = useState(false);
-   const [selectedGalleryIndex, setSelectedGalleryIndex] = useState(0);
-   
-   // Import Mode State
-   const [importTab, setImportTab] = useState<'upload' | 'drive'>('upload');
-   const [driveLink, setDriveLink] = useState('');
-   const [driveImages, setDriveImages] = useState<string[]>([]);
-   const [isFetchingDrive, setIsFetchingDrive] = useState(false);
-   
-   // Get gallery images or fallback to thumbnail
-   const galleryImages = template.gallery && template.gallery.length > 0 
-     ? template.gallery 
-     : [template.thumbnail];
-
-   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-         setIsProcessing(true);
-         const reader = new FileReader();
-         reader.onload = (ev) => {
-            setTimeout(() => { // Simulate processing delay
-               setUploadedImage(ev.target?.result as string);
-               setIsProcessing(false);
-            }, 1500);
-         }
-         reader.readAsDataURL(e.target.files[0]);
-      }
-   }
-
-   const handleDriveFetch = () => {
-      if (!driveLink) return;
-      setIsFetchingDrive(true);
-      // Simulate fetching images from Drive
-      setTimeout(() => {
-         // Mock data returned from "Drive" - Images of people/products/sales context
-         setDriveImages([
-            'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=400&q=80', // Payment/Sales
-            'https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&w=400&q=80', // Selling/POS
-            'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=400&q=80', // Meeting/Product
-            'https://images.unsplash.com/photo-1570222094114-2819cd9ec2e2?auto=format&fit=crop&w=400&q=80', // Holding Appliance
-            'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=400&q=80', // Shopping Fashion
-            'https://images.unsplash.com/photo-1507914372368-b2b003618950?auto=format&fit=crop&w=400&q=80', // Coffee/Product
-         ]);
-         setIsFetchingDrive(false);
-      }, 1500);
-   };
-
-   const selectDriveImage = (img: string) => {
-      setUploadedImage(img);
-   }
-
-   const handleUseTemplate = () => {
-      alert(`Opening Editor with template: ${template.title}`);
-      onClose();
-   }
-
-   return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
-         <div className="bg-white dark:bg-dark-surface w-full max-w-6xl h-full md:h-[85vh] rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in-95 duration-200 ring-1 ring-zinc-800 relative">
-            
-            <button onClick={onClose} className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-zinc-800 text-white rounded-full transition-colors">
-               <X size={20} />
-            </button>
-
-            {/* LEFT: PREVIEW AREA */}
-            <div className="w-full md:w-7/12 bg-zinc-900 relative flex flex-col overflow-hidden h-72 md:h-full shrink-0">
-               {/* Main Image Container */}
-               <div className="relative flex-1 bg-black flex items-center justify-center">
-                  <img 
-                     src={uploadedImage || galleryImages[selectedGalleryIndex]} 
-                     className={`max-w-full max-h-full object-contain transition-all duration-500 ${viewMode === 'before' ? 'grayscale brightness-75 blur-[1px]' : ''}`}
-                     alt="Preview"
-                  />
-                  
-                  {/* Processing Overlay */}
-                  {isProcessing && (
-                     <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white backdrop-blur-sm">
-                        <div className="w-12 h-12 border-4 border-repix-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                        <p className="font-bold animate-pulse">Applying AI Template...</p>
-                     </div>
-                  )}
-
-                  {/* Gallery Navigation Arrows */}
-                  {galleryImages.length > 1 && !uploadedImage && (
-                     <>
-                        <button 
-                           onClick={() => setSelectedGalleryIndex(prev => prev === 0 ? galleryImages.length - 1 : prev - 1)}
-                           className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-black/60 hover:bg-black/80 text-white rounded-full transition-colors"
-                        >
-                           <ArrowRight size={20} className="rotate-180" />
-                        </button>
-                        <button 
-                           onClick={() => setSelectedGalleryIndex(prev => prev === galleryImages.length - 1 ? 0 : prev + 1)}
-                           className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-black/60 hover:bg-black/80 text-white rounded-full transition-colors"
-                        >
-                           <ArrowRight size={20} />
-                        </button>
-                     </>
-                  )}
-
-                  {/* Image Counter */}
-                  {galleryImages.length > 1 && !uploadedImage && (
-                     <div className="absolute top-3 right-3 px-2 py-1 bg-black/60 rounded-full text-white text-xs font-medium">
-                        {selectedGalleryIndex + 1} / {galleryImages.length}
-                     </div>
-                  )}
-
-                  {/* View Controls Overlay */}
-                  <div className="absolute bottom-16 md:bottom-20 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full p-1.5 flex gap-1 border border-white/10 shadow-xl">
-                     <button 
-                        onClick={() => setViewMode('before')}
-                        className={`px-4 py-2 rounded-full text-xs font-bold transition-colors ${viewMode === 'before' ? 'bg-zinc-700 text-white' : 'text-zinc-400 hover:text-white'}`}
-                     >
-                        Original
-                     </button>
-                     <button 
-                        onClick={() => setViewMode('after')}
-                        className={`px-4 py-2 rounded-full text-xs font-bold transition-colors ${viewMode === 'after' ? 'bg-repix-600 text-white' : 'text-zinc-400 hover:text-white'}`}
-                     >
-                        Result
-                     </button>
-                  </div>
-               </div>
-
-               {/* Gallery Thumbnails */}
-               {galleryImages.length > 1 && !uploadedImage && (
-                  <div className="bg-zinc-950 p-3 border-t border-zinc-800">
-                     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                        {galleryImages.map((img, idx) => (
-                           <button
-                              key={idx}
-                              onClick={() => setSelectedGalleryIndex(idx)}
-                              className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                                 selectedGalleryIndex === idx 
-                                    ? 'border-repix-500 ring-2 ring-repix-500/30' 
-                                    : 'border-transparent hover:border-zinc-600'
-                              }`}
-                           >
-                              <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
-                           </button>
-                        ))}
-                     </div>
-                  </div>
-               )}
-            </div>
-
-            {/* RIGHT: INFO & ACTIONS */}
-            <div className="w-full md:w-5/12 bg-white dark:bg-dark-surface flex flex-col h-full overflow-hidden">
-               <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar min-h-0">
-                  
-                  {/* Header */}
-                  <div className="mb-8">
-                     <div className="flex items-start justify-between mb-4">
-                        <div>
-                           <div className="flex items-center gap-2 mb-2">
-                              {typeof template.price === 'number' ? (
-                                 <Badge className="bg-yellow-400 text-black border-0 font-bold px-2">PRO</Badge>
-                              ) : (
-                                 <Badge className="bg-green-500 text-white border-0 font-bold px-2">FREE</Badge>
-                              )}
-                              <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">{template.category}</span>
-                           </div>
-                           <h2 className="text-3xl font-bold text-zinc-900 dark:text-white leading-tight">{template.title}</h2>
-                        </div>
-                        <div className="flex flex-col items-center">
-                           <button className="p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:text-red-500 transition-colors">
-                              <Heart size={20} />
-                           </button>
-                           <span className="text-xs text-zinc-500 mt-1">{template.likes}</span>
-                        </div>
-                     </div>
-
-                     <div className="flex items-center gap-3 pb-6 border-b border-zinc-200 dark:border-zinc-800">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-blue-500 p-[2px]">
-                           <img src={`https://picsum.photos/seed/${template.author}/50/50`} className="w-full h-full rounded-full border border-white dark:border-zinc-900" alt={template.author} />
-                        </div>
-                        <div>
-                           <p className="text-sm font-bold text-zinc-900 dark:text-white">{template.author}</p>
-                           <p className="text-xs text-zinc-500">Verified Creator</p>
-                        </div>
-                        <Button size="sm" variant="outline" className="ml-auto h-8 text-xs">Follow</Button>
-                     </div>
-                  </div>
-
-                  {/* Description & DNA */}
-                  <div className="space-y-6">
-                     <div>
-                        <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-2">Description</h3>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                           {template.description || "Transform your photos with this professional grade AI preset. Designed to enhance lighting, texture, and mood automatically."}
-                        </p>
-                     </div>
-
-                     <div className="pb-6 border-b border-zinc-200 dark:border-zinc-800">
-                        <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-2 flex items-center gap-2">
-                           <Scan size={16} className="text-repix-500"/> Template DNA
-                        </h3>
-                        <div className="grid grid-cols-2 gap-2">
-                           <div className="bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-100 dark:border-zinc-800">
-                              <span className="text-xs text-zinc-500 block mb-1">Model</span>
-                              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">Repix V2 Turbo</span>
-                           </div>
-                           <div className="bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-100 dark:border-zinc-800">
-                              <span className="text-xs text-zinc-500 block mb-1">Style Strength</span>
-                              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">High (0.85)</span>
-                           </div>
-                           <div className="bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-100 dark:border-zinc-800 col-span-2">
-                              <span className="text-xs text-zinc-500 block mb-1">Tags</span>
-                              <div className="flex flex-wrap gap-1">
-                                 {template.tags.map(tag => (
-                                    <span key={tag} className="text-[10px] px-2 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
-                                       #{tag}
-                                    </span>
-                                 ))}
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-
-                     {/* IMPORT SECTION MOVED HERE (SCROLLABLE AREA) */}
-                     <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                           <ImageIcon size={16} className="text-repix-500"/> 1. Choose Source
-                        </h3>
-
-                        {/* IMPORT METHOD TABS */}
-                        <div className="flex p-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg">
-                           <button 
-                              onClick={() => setImportTab('upload')}
-                              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-md transition-all ${importTab === 'upload' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
-                           >
-                              <UploadCloud size={14} /> Upload File
-                           </button>
-                           <button 
-                              onClick={() => setImportTab('drive')}
-                              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-md transition-all ${importTab === 'drive' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
-                           >
-                              <HardDrive size={14} /> Google Drive
-                           </button>
-                        </div>
-
-                        {/* TAB CONTENT: UPLOAD */}
-                        {importTab === 'upload' && !uploadedImage && (
-                           <div className="relative group animate-in fade-in duration-300">
-                              <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-repix-500 rounded-xl opacity-20 group-hover:opacity-100 transition duration-300 blur-sm"></div>
-                              <label className="relative flex items-center justify-center gap-3 w-full p-6 bg-white dark:bg-zinc-900 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl cursor-pointer hover:border-transparent transition-all">
-                                 <UploadCloud size={24} className="text-zinc-400 group-hover:text-white" />
-                                 <div className="text-center">
-                                    <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white block">
-                                       Click or Drag to Upload
-                                    </span>
-                                    <span className="text-xs text-zinc-400 mt-1">JPG, PNG up to 10MB</span>
-                                 </div>
-                                 <input type="file" className="hidden" accept="image/*" onChange={handleUpload} />
-                              </label>
-                           </div>
-                        )}
-
-                        {/* TAB CONTENT: DRIVE */}
-                        {importTab === 'drive' && (
-                           <div className="space-y-3 animate-in fade-in duration-300">
-                              <div className="flex gap-2">
-                                 <div className="relative flex-1">
-                                    <LinkIcon size={16} className="absolute left-3 top-3 text-zinc-400" />
-                                    <Input 
-                                       placeholder="Paste Google Drive Link..." 
-                                       className="pl-9 h-10 text-sm"
-                                       value={driveLink}
-                                       onChange={(e) => setDriveLink(e.target.value)}
-                                    />
-                                 </div>
-                                 <Button 
-                                    onClick={handleDriveFetch} 
-                                    isLoading={isFetchingDrive}
-                                    variant="secondary"
-                                    className="h-10"
-                                    disabled={!driveLink}
-                                 >
-                                    Import
-                                 </Button>
-                              </div>
-                              
-                              {/* Drive Gallery Grid */}
-                              {driveImages.length > 0 && (
-                                 <div className="bg-zinc-100 dark:bg-zinc-800/50 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700">
-                                    <div className="flex justify-between items-center mb-2 px-1">
-                                       <span className="text-xs font-bold text-zinc-500">Found {driveImages.length} images</span>
-                                       <span className="text-xs text-repix-500 cursor-pointer hover:underline">Select All</span>
-                                    </div>
-                                    <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto custom-scrollbar">
-                                       {driveImages.map((img, idx) => (
-                                          <div 
-                                             key={idx} 
-                                             onClick={() => selectDriveImage(img)}
-                                             className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all group ${uploadedImage === img ? 'border-repix-500 ring-2 ring-repix-500/30' : 'border-transparent hover:border-zinc-300 dark:hover:border-zinc-600'}`}
-                                          >
-                                             <img src={img} className="w-full h-full object-cover" />
-                                             {uploadedImage === img && (
-                                                <div className="absolute inset-0 bg-repix-500/20 flex items-center justify-center">
-                                                   <div className="bg-repix-500 text-white rounded-full p-1">
-                                                      <Check size={12} strokeWidth={3} />
-                                                   </div>
-                                                </div>
-                                             )}
-                                          </div>
-                                       ))}
-                                    </div>
-                                 </div>
-                              )}
-                           </div>
-                        )}
-
-                        {/* Selected Image Preview (Small) */}
-                        {uploadedImage && importTab === 'upload' && (
-                           <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
-                              <img src={uploadedImage} className="w-12 h-12 rounded-lg object-cover bg-zinc-200" />
-                              <div className="flex-1 overflow-hidden">
-                                 <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">Image Selected</p>
-                                 <p className="text-xs text-green-500 flex items-center gap-1"><CheckCircle2 size={10}/> Ready to process</p>
-                              </div>
-                              <Button size="sm" variant="ghost" onClick={() => setUploadedImage(null)}>Change</Button>
-                           </div>
-                        )}
-
-                     </div>
-                  </div>
-
-               </div>
-
-               {/* Sticky Bottom Actions - NOW CLEANER */}
-               <div className="p-6 md:p-8 bg-zinc-50 dark:bg-zinc-900/80 border-t border-zinc-200 dark:border-zinc-800 backdrop-blur-md shrink-0 z-10">
-                  <div className="space-y-3">
-                     <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                        <Wand2 size={16} className="text-repix-500"/> 2. Apply & Generate
-                     </h3>
-                     <div className="flex gap-4">
-                        <div className="flex-1">
-                           <Button 
-                              size="lg" 
-                              className="w-full h-12 text-base rounded-xl shadow-xl shadow-repix-500/20"
-                              onClick={handleUseTemplate}
-                              disabled={!uploadedImage}
-                           >
-                              {uploadedImage ? 'Generate Result' : 'Select Image First'}
-                           </Button>
-                        </div>
-                        <Button size="lg" variant="secondary" className="h-12 w-12 rounded-xl px-0 shrink-0">
-                           <Share2 size={20} />
-                        </Button>
-                     </div>
-                     
-                     <p className="text-center text-xs text-zinc-400">
-                        {typeof template.price === 'number' 
-                           ? `This template costs ${template.price} credits per use.` 
-                           : "This template is free for commercial use."}
-                     </p>
-                  </div>
-               </div>
-
-            </div>
-         </div>
-      </div>
-   );
-};
+// NOTE: TemplateDetailModal is now imported from './TemplateDetailModal'
+// It provides Example-like flow: View details → Choose options → Recreate with AI tools
 
 // --- CREATOR STUDIO COMPONENT ---
 const CreatorStudio: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -900,6 +537,11 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
   const [selectedType, setSelectedType] = useState('ecommerce');
   const [selectedPlatform, setSelectedPlatform] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  
+  // New states for Example-like flow
+  const [showTemplateDetail, setShowTemplateDetail] = useState(false);
+  const [showRecreateSetup, setShowRecreateSetup] = useState(false);
+  const [recreateData, setRecreateData] = useState<{ image: string; prompt: string; model: string; style: string; ratio: string } | null>(null);
 
   // Get translated data
   const templateTypes = getTemplateTypes(trans);
@@ -1014,7 +656,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
               {filteredTemplates.map(template => (
                  <div 
                   key={template.id} 
-                  onClick={() => setSelectedTemplate(template)}
+                  onClick={() => { setSelectedTemplate(template); setShowTemplateDetail(true); }}
                   className="group relative break-inside-avoid rounded-xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 cursor-pointer"
                  >
                     <img 
@@ -1051,18 +693,43 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
         </div>
       </div>
       
-      {/* RecreateView - Opens when clicking on template */}
-      {selectedTemplate && (
-         <RecreateView 
-           onClose={() => setSelectedTemplate(null)} 
-           originalImage={selectedTemplate.thumbnail}
-           originalPrompt={selectedTemplate.description || selectedTemplate.title}
-           generationInfo={{
-             model: 'Repix Pro',
-             style: selectedTemplate.style || 'Photograph',
-             ratio: '3:2',
+      {/* Template Detail Modal - Step 1: View template details & options (like Example Modal) */}
+      {selectedTemplate && showTemplateDetail && (
+         <TemplateDetailModal 
+           template={selectedTemplate}
+           onClose={() => { setSelectedTemplate(null); setShowTemplateDetail(false); }}
+           onRecreate={(data) => {
+             setRecreateData(data);
+             setShowTemplateDetail(false);
+             setShowRecreateSetup(true);
            }}
-           autoGenerate={false}
+           onEdit={(image) => {
+             // TODO: Navigate to editor with image
+             alert(`Opening Editor with image: ${image}`);
+             setSelectedTemplate(null);
+             setShowTemplateDetail(false);
+           }}
+         />
+      )}
+
+      {/* RecreateSetupView - Step 2: Choose AI tool to recreate (like RecreateSetupView in HomeView) */}
+      {showRecreateSetup && recreateData && (
+         <RecreateSetupView 
+           onClose={() => { setShowRecreateSetup(false); setRecreateData(null); setSelectedTemplate(null); }}
+           originalImage={recreateData.image}
+           originalPrompt={recreateData.prompt}
+           generationInfo={{
+             model: recreateData.model,
+             style: recreateData.style,
+             ratio: recreateData.ratio,
+           }}
+           onStartGenerate={(toolId) => {
+             // TODO: Navigate to AI Tool Execution View
+             alert(`Starting generation with tool: ${toolId}`);
+             setShowRecreateSetup(false);
+             setRecreateData(null);
+             setSelectedTemplate(null);
+           }}
          />
       )}
 

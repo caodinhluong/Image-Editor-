@@ -28,8 +28,11 @@ import { AssetPickerModal } from './components/Editor/AssetPickerModal';
 import { SmartPhotoshootView } from './components/AI/SmartPhotoshootView';
 import { CreativeStationsView } from './components/AI/CreativeStationsView';
 import { RecreateView } from './components/Marketplace/RecreateView';
+import { RecreateSetupView } from './components/Marketplace/RecreateSetupView';
 import { AIToolExecutionView } from './components/AI/CreativeStations/AIToolExecutionView';
 import { STATIONS, getToolById } from './data/stations';
+import { TaskProvider } from './contexts/TaskContext';
+import { TaskManager } from './components/Tasks/TaskManager';
 
 import { useSubscription } from './contexts/SubscriptionContext';
 
@@ -92,6 +95,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   ];
   
   // Recreate View State
+  const [showRecreateSetup, setShowRecreateSetup] = useState(false);
   const [showRecreateView, setShowRecreateView] = useState(false);
   const [recreateData, setRecreateData] = useState<{ image: string; prompt: string; model: string; style: string; ratio: string } | null>(null);
   
@@ -779,7 +783,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                         promptTextareaRef.current?.focus();
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       } else if (tool.id === 'create-video') {
-                        // Navigate to Kitchen Station in Creative Stations
+                        // Navigate to Video Studio in AI Studios
                         onNavigateToKitchen();
                       } else {
                         onOpenTool(tool.id);
@@ -1268,7 +1272,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                     {/* Primary Action - Recreate with app gradient colors */}
                     <button
                       onClick={() => {
-                        // Open RecreateView with example data
+                        // Open RecreateSetupView first (intermediate step)
                         setRecreateData({
                           image: selectedExample.src,
                           prompt: selectedExample.prompt,
@@ -1276,7 +1280,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                           style: styleOptions.find(s => s.id === selectedStyle)?.label || 'Photograph',
                           ratio: selectedRatio
                         });
-                        setShowRecreateView(true);
+                        setShowRecreateSetup(true);
                         setSelectedExample(null);
                       }}
                       className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:from-purple-500 hover:via-pink-400 hover:to-orange-300 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 hover:scale-[1.02]"
@@ -1697,7 +1701,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                      <div 
                        key={img.id} 
                        className="relative group rounded-2xl overflow-hidden cursor-pointer bg-zinc-100 dark:bg-zinc-800 aspect-[4/5]"
-                       onClick={() => onStartEditing()}
+                       onClick={() => setSelectedExample({ title: img.prompt, src: img.src, prompt: img.prompt })}
                      >
                        <img 
                          src={img.src} 
@@ -1789,7 +1793,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                      <div 
                        key={collection.id}
                        className="group relative bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden hover:border-repix-500/50 hover:shadow-xl hover:shadow-repix-500/10 transition-all duration-300 cursor-pointer"
-                       onClick={() => onStartEditing()}
+                       onClick={() => setSelectedExample({ title: collection.title, src: collection.images[0], prompt: collection.title })}
                      >
                        {/* Image Grid Preview */}
                        <div className="grid grid-cols-4 gap-0.5 p-1">
@@ -1960,7 +1964,29 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
          />
        )}
 
-       {/* Recreate View Modal */}
+       {/* Recreate Setup View Modal - Intermediate step */}
+       {showRecreateSetup && recreateData && (
+         <RecreateSetupView
+           onClose={() => {
+             setShowRecreateSetup(false);
+             setRecreateData(null);
+           }}
+           originalImage={recreateData.image}
+           originalPrompt={recreateData.prompt}
+           generationInfo={{
+             model: recreateData.model,
+             style: recreateData.style,
+             ratio: recreateData.ratio,
+           }}
+           onStartGenerate={(toolId) => {
+             // Close setup view and open result view
+             setShowRecreateSetup(false);
+             setShowRecreateView(true);
+           }}
+         />
+       )}
+
+       {/* Recreate View Modal - Result view */}
        {showRecreateView && recreateData && (
          <RecreateView
            onClose={() => {
@@ -2120,9 +2146,9 @@ const AppContent: React.FC = () => {
   return (
     <Layout currentView={view} onChangeView={setView} onSignOut={handleSignOut} onGoToLanding={handleGoToLanding}>
       {view === 'home' && <HomeView onStartEditing={handleStartEditing} onOpenTool={handleOpenTool} onNavigateToKitchen={() => {
-        // Navigate to Creative Stations and select Kitchen station
+        // Navigate to AI Studios and select Video Studio
         setView('creative-stations');
-        // Dispatch event to select Kitchen station
+        // Dispatch event to select Video Studio
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('selectKitchenStation'));
         }, 100);
@@ -2163,6 +2189,7 @@ const AppContent: React.FC = () => {
       {view === 'analytics' && <AnalyticsView />}
       {view === 'settings' && <SettingsPanel />}
       {view === 'profile' && <ProfileView />}
+      {view === 'tasks' && <TaskManager />}
     </Layout>
   );
 };
@@ -2173,8 +2200,10 @@ const App: React.FC = () => {
       <LanguageProvider>
         <SubscriptionProvider>
           <BrandKitProvider>
-            <AppContent />
-            <UpgradeModal />
+            <TaskProvider>
+              <AppContent />
+              <UpgradeModal />
+            </TaskProvider>
           </BrandKitProvider>
         </SubscriptionProvider>
       </LanguageProvider>

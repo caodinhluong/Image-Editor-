@@ -1,16 +1,16 @@
-// AI Creative Stations Configuration Data
+// AI Creative Studios Configuration Data
 import { Station, Tool, ProcessingError, ProcessingErrorType } from '../types/stations';
 
 // ============================================
-// STATION 1: Smoothie Station (Beauty & Enhancement)
+// STUDIO 1: Enhancement Studio (Image Quality & Beauty)
 // ============================================
-const smoothieTools: Tool[] = [
+const enhancementTools: Tool[] = [
   {
     id: 'hd-enhance',
-    name: 'HD Enhance',
-    nameVi: 'Nâng cấp HD',
-    description: 'Upscale image resolution by 2x-4x with AI sharpening',
-    descriptionVi: 'Nâng cấp độ phân giải 2x-4x với AI làm nét',
+    name: 'AI Upscaler',
+    nameVi: 'Nâng cấp AI',
+    description: 'Upscale image resolution by 2x-4x with AI enhancement',
+    descriptionVi: 'Nâng cấp độ phân giải 2x-4x với AI tăng cường',
     icon: 'wand',
     creditCost: 1,
     tier: 'free',
@@ -30,8 +30,8 @@ const smoothieTools: Tool[] = [
   },
   {
     id: 'makeup',
-    name: 'Makeup',
-    nameVi: 'Trang điểm',
+    name: 'AI Makeup',
+    nameVi: 'Trang điểm AI',
     description: 'Apply virtual makeup effects to portraits',
     descriptionVi: 'Áp dụng hiệu ứng trang điểm ảo cho ảnh chân dung',
     icon: 'palette',
@@ -63,8 +63,8 @@ const smoothieTools: Tool[] = [
   },
   {
     id: 'photorealistic',
-    name: 'To Photorealistic',
-    nameVi: 'Siêu thực',
+    name: 'Photo Realism',
+    nameVi: 'Ảnh siêu thực',
     description: 'Convert stylized images to photorealistic style',
     descriptionVi: 'Chuyển đổi ảnh cách điệu sang phong cách siêu thực',
     icon: 'camera',
@@ -75,8 +75,8 @@ const smoothieTools: Tool[] = [
   },
   {
     id: 'fashion-magazine',
-    name: 'Fashion Magazine',
-    nameVi: 'Tạp chí thời trang',
+    name: 'Magazine Cover',
+    nameVi: 'Bìa tạp chí',
     description: 'Apply magazine cover styling with filters',
     descriptionVi: 'Áp dụng phong cách bìa tạp chí với bộ lọc',
     icon: 'newspaper',
@@ -99,15 +99,15 @@ const smoothieTools: Tool[] = [
 ];
 
 // ============================================
-// STATION 2: Cosplay Station (Anime & Art)
+// STUDIO 2: Illustration Studio (Anime & Digital Art)
 // ============================================
-const cosplayTools: Tool[] = [
+const illustrationTools: Tool[] = [
   {
     id: 'cosplay-character',
-    name: 'Cosplay Character',
-    nameVi: 'Nhân vật Cosplay',
-    description: 'Transform photo into anime/cosplay character style',
-    descriptionVi: 'Biến đổi ảnh thành phong cách nhân vật anime/cosplay',
+    name: 'Anime Transform',
+    nameVi: 'Chuyển đổi Anime',
+    description: 'Transform photo into anime/manga character style',
+    descriptionVi: 'Biến đổi ảnh thành phong cách nhân vật anime/manga',
     icon: 'drama',
     creditCost: 3,
     tier: 'free',
@@ -127,10 +127,10 @@ const cosplayTools: Tool[] = [
   },
   {
     id: 'minimalist-illustration',
-    name: 'Minimalist Illustration',
-    nameVi: 'Minh họa tối giản',
+    name: 'Minimal Vector',
+    nameVi: 'Vector tối giản',
     description: 'Create clean minimalist illustration from photo',
-    descriptionVi: 'Tạo minh họa tối giản từ ảnh',
+    descriptionVi: 'Tạo minh họa vector tối giản từ ảnh',
     icon: 'pencil',
     creditCost: 2,
     tier: 'free',
@@ -140,9 +140,9 @@ const cosplayTools: Tool[] = [
   {
     id: 'pixel-art',
     name: 'Pixel Art',
-    nameVi: 'Pixel Art',
-    description: 'Convert image to 8-bit pixel art style',
-    descriptionVi: 'Chuyển đổi ảnh sang phong cách pixel 8-bit',
+    nameVi: 'Nghệ thuật Pixel',
+    description: 'Convert image to retro 8-bit pixel art style',
+    descriptionVi: 'Chuyển đổi ảnh sang phong cách pixel retro 8-bit',
     icon: 'grid',
     creditCost: 2,
     tier: 'free',
@@ -162,10 +162,10 @@ const cosplayTools: Tool[] = [
   },
   {
     id: 'comic-book',
-    name: 'Comic Book',
-    nameVi: 'Truyện tranh',
-    description: 'Apply Western comic book style with halftone dots',
-    descriptionVi: 'Áp dụng phong cách truyện tranh phương Tây',
+    name: 'Comic Style',
+    nameVi: 'Phong cách Comic',
+    description: 'Apply comic book style with halftone effects',
+    descriptionVi: 'Áp dụng phong cách truyện tranh với hiệu ứng halftone',
     icon: 'zap',
     creditCost: 2,
     tier: 'free',
@@ -174,10 +174,10 @@ const cosplayTools: Tool[] = [
   },
   {
     id: 'line-art',
-    name: 'Line Art',
-    nameVi: 'Nét vẽ',
+    name: 'Line Drawing',
+    nameVi: 'Nét vẽ tay',
     description: 'Extract clean line drawings from photos',
-    descriptionVi: 'Trích xuất nét vẽ sạch từ ảnh',
+    descriptionVi: 'Trích xuất nét vẽ tay sạch từ ảnh',
     icon: 'pen',
     creditCost: 1,
     tier: 'free',
@@ -186,10 +186,10 @@ const cosplayTools: Tool[] = [
   },
   {
     id: 'ukiyo-e',
-    name: 'Ukiyo-e',
-    nameVi: 'Ukiyo-e',
-    description: 'Transform to Japanese woodblock print style',
-    descriptionVi: 'Chuyển đổi sang phong cách tranh khắc gỗ Nhật Bản',
+    name: 'Japanese Woodblock',
+    nameVi: 'Tranh khắc gỗ Nhật',
+    description: 'Transform to traditional Japanese woodblock print style',
+    descriptionVi: 'Chuyển đổi sang phong cách tranh khắc gỗ truyền thống Nhật Bản',
     icon: 'map',
     creditCost: 3,
     tier: 'plus',
@@ -199,15 +199,15 @@ const cosplayTools: Tool[] = [
 ];
 
 // ============================================
-// STATION 3: Toy Station (3D & Models)
+// STUDIO 3: 3D Studio (3D Rendering & Models)
 // ============================================
-const toyTools: Tool[] = [
+const studio3DTools: Tool[] = [
   {
     id: '3d-figurine',
-    name: '3D Figurine',
-    nameVi: 'Mô hình 3D',
-    description: 'Create 3D figurine style from portrait',
-    descriptionVi: 'Tạo phong cách mô hình 3D từ ảnh chân dung',
+    name: '3D Character',
+    nameVi: 'Nhân vật 3D',
+    description: 'Create 3D character model from portrait',
+    descriptionVi: 'Tạo mô hình nhân vật 3D từ ảnh chân dung',
     icon: 'box',
     creditCost: 4,
     tier: 'plus',
@@ -216,10 +216,10 @@ const toyTools: Tool[] = [
   },
   {
     id: 'funko-pop',
-    name: 'Funko Pop',
-    nameVi: 'Funko Pop',
-    description: 'Transform portrait into Funko Pop vinyl figure style',
-    descriptionVi: 'Biến đổi chân dung thành phong cách Funko Pop',
+    name: 'Vinyl Figure',
+    nameVi: 'Mô hình Vinyl',
+    description: 'Transform portrait into collectible vinyl figure style',
+    descriptionVi: 'Biến đổi chân dung thành phong cách mô hình vinyl sưu tầm',
     icon: 'toy',
     creditCost: 3,
     tier: 'free',
@@ -228,10 +228,10 @@ const toyTools: Tool[] = [
   },
   {
     id: 'lego-minifig',
-    name: 'Lego Minifig',
-    nameVi: 'Lego Minifig',
-    description: 'Convert image to Lego minifigure style',
-    descriptionVi: 'Chuyển đổi ảnh sang phong cách Lego',
+    name: 'Block Figure',
+    nameVi: 'Mô hình khối',
+    description: 'Convert image to block-style minifigure',
+    descriptionVi: 'Chuyển đổi ảnh sang phong cách mô hình khối',
     icon: 'blocks',
     creditCost: 3,
     tier: 'free',
@@ -240,10 +240,10 @@ const toyTools: Tool[] = [
   },
   {
     id: 'plushie-toy',
-    name: 'Plushie Toy',
-    nameVi: 'Thú nhồi bông',
-    description: 'Transform subject into plush toy style',
-    descriptionVi: 'Biến đổi đối tượng thành phong cách thú nhồi bông',
+    name: 'Plush Toy',
+    nameVi: 'Thú bông 3D',
+    description: 'Transform subject into 3D plush toy style',
+    descriptionVi: 'Biến đổi đối tượng thành phong cách thú bông 3D',
     icon: 'cat',
     creditCost: 3,
     tier: 'plus',
@@ -252,10 +252,10 @@ const toyTools: Tool[] = [
   },
   {
     id: 'claymation',
-    name: 'Claymation',
-    nameVi: 'Claymation',
-    description: 'Apply clay animation style to images',
-    descriptionVi: 'Áp dụng phong cách hoạt hình đất sét',
+    name: 'Clay Model',
+    nameVi: 'Mô hình đất sét',
+    description: 'Apply clay/stop-motion animation style',
+    descriptionVi: 'Áp dụng phong cách hoạt hình đất sét stop-motion',
     icon: 'clapperboard',
     creditCost: 3,
     tier: 'plus',
@@ -264,8 +264,8 @@ const toyTools: Tool[] = [
   },
   {
     id: 'product-render',
-    name: 'Product Render',
-    nameVi: 'Render sản phẩm',
+    name: 'Product 3D',
+    nameVi: 'Sản phẩm 3D',
     description: 'Generate professional 3D product visualization',
     descriptionVi: 'Tạo hình ảnh 3D sản phẩm chuyên nghiệp',
     icon: 'package',
@@ -287,9 +287,9 @@ const toyTools: Tool[] = [
   },
   {
     id: 'architecture-model',
-    name: 'Architecture Model',
-    nameVi: 'Mô hình kiến trúc',
-    description: 'Create architectural model/miniature style rendering',
+    name: 'Architectural 3D',
+    nameVi: 'Kiến trúc 3D',
+    description: 'Create architectural miniature style rendering',
     descriptionVi: 'Tạo phong cách mô hình kiến trúc thu nhỏ',
     icon: 'building',
     creditCost: 4,
@@ -300,15 +300,15 @@ const toyTools: Tool[] = [
 ];
 
 // ============================================
-// STATION 4: Film & Art Station
+// STUDIO 4: Artistic Studio (Film & Fine Art Effects)
 // ============================================
-const filmArtTools: Tool[] = [
+const artisticTools: Tool[] = [
   {
     id: 'party-polaroid',
-    name: 'Party Polaroid',
-    nameVi: 'Polaroid tiệc tùng',
-    description: 'Apply instant camera effect with party atmosphere',
-    descriptionVi: 'Áp dụng hiệu ứng máy ảnh lấy liền với không khí tiệc tùng',
+    name: 'Instant Film',
+    nameVi: 'Phim lấy liền',
+    description: 'Apply instant camera effect with retro atmosphere',
+    descriptionVi: 'Áp dụng hiệu ứng máy ảnh lấy liền với không khí retro',
     icon: 'image',
     creditCost: 1,
     tier: 'free',
@@ -317,8 +317,8 @@ const filmArtTools: Tool[] = [
   },
   {
     id: 'vintage-photo',
-    name: 'Vintage Photo',
-    nameVi: 'Ảnh cổ điển',
+    name: 'Vintage Film',
+    nameVi: 'Phim cổ điển',
     description: 'Apply vintage film photography effects',
     descriptionVi: 'Áp dụng hiệu ứng ảnh phim cổ điển',
     icon: 'film',
@@ -340,8 +340,8 @@ const filmArtTools: Tool[] = [
   },
   {
     id: 'glitch-art',
-    name: 'Glitch Art',
-    nameVi: 'Nghệ thuật Glitch',
+    name: 'Digital Glitch',
+    nameVi: 'Hiệu ứng Glitch',
     description: 'Apply digital distortion and RGB shift effects',
     descriptionVi: 'Áp dụng hiệu ứng méo kỹ thuật số và dịch chuyển RGB',
     icon: 'tv',
@@ -376,10 +376,10 @@ const filmArtTools: Tool[] = [
   },
   {
     id: 'hyper-realistic',
-    name: 'Hyper-realistic',
-    nameVi: 'Siêu thực',
+    name: 'Ultra Realism',
+    nameVi: 'Siêu chi tiết',
     description: 'Enhance photos to hyper-realistic quality',
-    descriptionVi: 'Nâng cao ảnh lên chất lượng siêu thực',
+    descriptionVi: 'Nâng cao ảnh lên chất lượng siêu chi tiết',
     icon: 'search',
     creditCost: 4,
     tier: 'pro',
@@ -388,10 +388,10 @@ const filmArtTools: Tool[] = [
   },
   {
     id: 'van-gogh',
-    name: 'Van Gogh',
-    nameVi: 'Van Gogh',
-    description: 'Apply impressionist painting style like Van Gogh',
-    descriptionVi: 'Áp dụng phong cách hội họa ấn tượng như Van Gogh',
+    name: 'Impressionist',
+    nameVi: 'Ấn tượng',
+    description: 'Apply impressionist painting style',
+    descriptionVi: 'Áp dụng phong cách hội họa ấn tượng',
     icon: 'flower',
     creditCost: 3,
     tier: 'plus',
@@ -413,15 +413,15 @@ const filmArtTools: Tool[] = [
 ];
 
 // ============================================
-// STATION 5: Kitchen Station (Video)
+// STUDIO 5: Video Studio (AI Video Generation)
 // ============================================
-const kitchenTools: Tool[] = [
+const videoTools: Tool[] = [
   {
     id: 'video-kitchen',
-    name: 'Video Kitchen',
-    nameVi: 'Bếp Video',
-    description: 'General video creation interface',
-    descriptionVi: 'Giao diện tạo video tổng hợp',
+    name: 'Video Generator',
+    nameVi: 'Tạo Video AI',
+    description: 'AI-powered video creation from images',
+    descriptionVi: 'Tạo video bằng AI từ hình ảnh',
     icon: 'video',
     creditCost: 5,
     tier: 'plus',
@@ -430,10 +430,10 @@ const kitchenTools: Tool[] = [
   },
   {
     id: 'dynamic-polaroid',
-    name: 'Dynamic Polaroid',
-    nameVi: 'Polaroid động',
-    description: 'Bring the polaroid memory to life.',
-    descriptionVi: 'Mang ký ức polaroid trở nên sống động.',
+    name: 'Living Photo',
+    nameVi: 'Ảnh sống động',
+    description: 'Bring still photos to life with subtle motion',
+    descriptionVi: 'Làm sống động ảnh tĩnh với chuyển động tinh tế',
     icon: 'aperture',
     creditCost: 3,
     tier: 'free',
@@ -442,8 +442,8 @@ const kitchenTools: Tool[] = [
   },
   {
     id: 'instant-noodle-video',
-    name: 'Instant Noodle Video',
-    nameVi: 'Video mì ăn liền',
+    name: 'Quick Clip',
+    nameVi: 'Video nhanh',
     description: 'Generate quick short-form videos (15s)',
     descriptionVi: 'Tạo video ngắn nhanh chóng (15 giây)',
     icon: 'timer',
@@ -454,10 +454,10 @@ const kitchenTools: Tool[] = [
   },
   {
     id: 'long-video-cooking',
-    name: 'Long Video Cooking',
-    nameVi: 'Nấu video dài',
-    description: 'Support video creation up to 60 seconds',
-    descriptionVi: 'Hỗ trợ tạo video lên đến 60 giây',
+    name: 'Extended Video',
+    nameVi: 'Video dài',
+    description: 'Create extended videos up to 60 seconds',
+    descriptionVi: 'Tạo video dài lên đến 60 giây',
     icon: 'chef',
     creditCost: 8,
     tier: 'pro',
@@ -479,13 +479,13 @@ const kitchenTools: Tool[] = [
 
 
 // ============================================
-// STATION 6: Self-Service Station (Tools)
+// STUDIO 6: Pro Tools Studio (Advanced Editing)
 // ============================================
-const selfServiceTools: Tool[] = [
+const proTools: Tool[] = [
   {
     id: 'custom-recipe',
-    name: 'Custom Recipe',
-    nameVi: 'Công thức tùy chỉnh',
+    name: 'Custom Prompt',
+    nameVi: 'Prompt tùy chỉnh',
     description: 'Text prompt input for custom AI generation',
     descriptionVi: 'Nhập prompt văn bản để tạo AI tùy chỉnh',
     icon: 'file',
@@ -505,8 +505,8 @@ const selfServiceTools: Tool[] = [
   },
   {
     id: 'pose-copy',
-    name: 'Pose Copy',
-    nameVi: 'Sao chép tư thế',
+    name: 'Pose Transfer',
+    nameVi: 'Chuyển tư thế',
     description: 'Transfer pose from reference image to target',
     descriptionVi: 'Chuyển tư thế từ ảnh tham chiếu sang ảnh đích',
     icon: 'person',
@@ -517,8 +517,8 @@ const selfServiceTools: Tool[] = [
   },
   {
     id: 'expression-copy',
-    name: 'Expression Copy',
-    nameVi: 'Sao chép biểu cảm',
+    name: 'Face Expression',
+    nameVi: 'Biểu cảm khuôn mặt',
     description: 'Transfer facial expression from reference to target',
     descriptionVi: 'Chuyển biểu cảm khuôn mặt từ ảnh tham chiếu sang đích',
     icon: 'smile',
@@ -529,10 +529,10 @@ const selfServiceTools: Tool[] = [
   },
   {
     id: 'color-swap',
-    name: 'Color Swap',
-    nameVi: 'Đổi màu',
-    description: 'Swap colors in specific regions of the image',
-    descriptionVi: 'Đổi màu trong các vùng cụ thể của ảnh',
+    name: 'Color Replace',
+    nameVi: 'Thay đổi màu',
+    description: 'Replace colors in specific regions of the image',
+    descriptionVi: 'Thay đổi màu trong các vùng cụ thể của ảnh',
     icon: 'paintbrush',
     creditCost: 2,
     tier: 'free',
@@ -541,8 +541,8 @@ const selfServiceTools: Tool[] = [
   },
   {
     id: 'isolate-subject',
-    name: 'Isolate Subject',
-    nameVi: 'Tách đối tượng',
+    name: 'Background Remove',
+    nameVi: 'Xóa nền',
     description: 'Remove background and isolate main subject',
     descriptionVi: 'Xóa nền và tách đối tượng chính',
     icon: 'scissors',
@@ -553,10 +553,10 @@ const selfServiceTools: Tool[] = [
   },
   {
     id: 'y2k-background',
-    name: 'Y2K Background',
-    nameVi: 'Nền Y2K',
-    description: 'Generate Y2K aesthetic backgrounds (2000s style)',
-    descriptionVi: 'Tạo nền phong cách Y2K (thập niên 2000)',
+    name: 'Retro Background',
+    nameVi: 'Nền Retro',
+    description: 'Generate retro aesthetic backgrounds (Y2K style)',
+    descriptionVi: 'Tạo nền phong cách retro (kiểu Y2K)',
     icon: 'disc',
     creditCost: 2,
     tier: 'free',
@@ -565,8 +565,8 @@ const selfServiceTools: Tool[] = [
     options: [
       {
         id: 'style',
-        label: 'Y2K Style',
-        labelVi: 'Phong cách Y2K',
+        label: 'Retro Style',
+        labelVi: 'Phong cách Retro',
         type: 'select',
         values: ['Cyber', 'Bubblegum', 'Chrome', 'Holographic'],
         valuesVi: ['Cyber', 'Kẹo cao su', 'Chrome', 'Holographic'],
@@ -578,74 +578,74 @@ const selfServiceTools: Tool[] = [
 
 
 // ============================================
-// STATIONS CONFIGURATION
+// STUDIOS CONFIGURATION
 // ============================================
 export const STATIONS: Station[] = [
   {
     id: 'smoothie',
-    name: 'Smoothie Station',
-    nameVi: 'Quầy Smoothie',
+    name: 'Enhancement Studio',
+    nameVi: 'Studio Nâng cấp',
     icon: 'coffee',
-    description: 'Beauty & Enhancement',
-    descriptionVi: 'Làm đẹp & Nâng cấp',
+    description: 'Image Quality & Beauty',
+    descriptionVi: 'Chất lượng ảnh & Làm đẹp',
     color: 'from-pink-500 to-purple-500',
     bgColor: 'bg-pink-50 dark:bg-pink-900/20',
-    tools: smoothieTools
+    tools: enhancementTools
   },
   {
     id: 'cosplay',
-    name: 'Cosplay Station',
-    nameVi: 'Quầy Cosplay',
+    name: 'Illustration Studio',
+    nameVi: 'Studio Minh họa',
     icon: 'drama',
-    description: 'Anime & Art',
-    descriptionVi: 'Anime & Nghệ thuật',
+    description: 'Anime & Digital Art',
+    descriptionVi: 'Anime & Nghệ thuật số',
     color: 'from-purple-500 to-pink-500',
     bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-    tools: cosplayTools
+    tools: illustrationTools
   },
   {
     id: 'toy',
-    name: 'Toy Station',
-    nameVi: 'Quầy Đồ chơi',
+    name: '3D Studio',
+    nameVi: 'Studio 3D',
     icon: 'bot',
-    description: '3D & Models',
-    descriptionVi: '3D & Mô hình',
+    description: '3D Rendering & Models',
+    descriptionVi: 'Render 3D & Mô hình',
     color: 'from-emerald-500 to-purple-500',
     bgColor: 'bg-green-50 dark:bg-green-900/20',
-    tools: toyTools
+    tools: studio3DTools
   },
   {
     id: 'film-art',
-    name: 'Film & Art Station',
-    nameVi: 'Phim & Nghệ thuật',
+    name: 'Artistic Studio',
+    nameVi: 'Studio Nghệ thuật',
     icon: 'film',
-    description: 'Cinematic & Artistic',
-    descriptionVi: 'Điện ảnh & Nghệ thuật',
+    description: 'Film & Fine Art Effects',
+    descriptionVi: 'Hiệu ứng phim & Mỹ thuật',
     color: 'from-pink-500 to-orange-500',
     bgColor: 'bg-red-50 dark:bg-red-900/20',
-    tools: filmArtTools
+    tools: artisticTools
   },
   {
     id: 'kitchen',
-    name: 'Kitchen Station',
-    nameVi: 'Nhà bếp',
+    name: 'Video Studio',
+    nameVi: 'Studio Video',
     icon: 'chef',
-    description: 'Video Kitchen',
-    descriptionVi: 'Bếp Video',
+    description: 'AI Video Generation',
+    descriptionVi: 'Tạo Video AI',
     color: 'from-orange-500 to-pink-500',
     bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
-    tools: kitchenTools
+    tools: videoTools
   },
   {
     id: 'self-service',
-    name: 'Self-Service Station',
-    nameVi: 'Tự phục vụ',
+    name: 'Pro Tools',
+    nameVi: 'Công cụ Pro',
     icon: 'cart',
-    description: 'Custom Tools',
-    descriptionVi: 'Công cụ tùy chỉnh',
+    description: 'Advanced Editing',
+    descriptionVi: 'Chỉnh sửa nâng cao',
     color: 'from-purple-500 to-pink-500',
     bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-    tools: selfServiceTools
+    tools: proTools
   }
 ];
 

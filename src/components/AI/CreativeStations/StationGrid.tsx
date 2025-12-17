@@ -111,7 +111,7 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
   // Listen for selectKitchenStation event from HomeView
   useEffect(() => {
     const handleSelectKitchenStation = () => {
-      // Find Kitchen station (id: 'kitchen' or name contains 'Kitchen')
+      // Find Video Studio (id: 'kitchen' or name contains 'Video')
       const kitchenStation = STATIONS.find(s => s.id === 'kitchen' || s.name.toLowerCase().includes('kitchen'));
       if (kitchenStation) {
         setSelectedStation(kitchenStation);
@@ -200,7 +200,7 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
           </div>
         </div>
 
-        {/* Video Templates Section - Only for Kitchen Station */}
+        {/* Video Templates Section - Only for Video Studio */}
         {selectedStation.id === 'kitchen' && (
           <div className="mt-10">
             <div className="flex items-center justify-between mb-6">
@@ -282,16 +282,16 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/30 mb-4">
             <Sparkles size={16} className="text-purple-400" />
             <span className="text-sm font-medium text-purple-300">
-              {language === 'vi' ? '34 công cụ AI mạnh mẽ' : '34 Powerful AI Tools'}
+              {language === 'vi' ? '34 công cụ AI chuyên nghiệp' : '34 Professional AI Tools'}
             </span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
-            {language === 'vi' ? 'Quầy Sáng Tạo AI' : 'AI Creative Stations'}
+            {language === 'vi' ? 'AI Creative Studios' : 'AI Creative Studios'}
           </h2>
           <p className="text-zinc-400 max-w-xl mx-auto">
             {language === 'vi' 
-              ? 'Khám phá 6 quầy sáng tạo với các công cụ AI tiên tiến. Biến ý tưởng thành hiện thực chỉ với vài cú click.' 
-              : 'Explore 6 creative stations with cutting-edge AI tools. Transform your ideas into reality with just a few clicks.'
+              ? 'Khám phá 6 studio sáng tạo với các công cụ AI tiên tiến. Biến ý tưởng thành hiện thực chỉ với vài cú click.' 
+              : 'Explore 6 creative studios with cutting-edge AI tools. Transform your ideas into reality with just a few clicks.'
             }
           </p>
         </div>

@@ -50,10 +50,10 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
   'sparkles': Sparkles,
 };
 
-// Video tools (Kitchen Station only)
+// Video tools (Video Studio only)
 const VIDEO_TOOL_IDS = ['video-kitchen', 'dynamic-polaroid', 'instant-noodle-video', 'long-video-cooking'];
 
-// Video URLs for Kitchen Station tools only
+// Video URLs for Video Studio tools only
 const toolVideos: Record<string, string> = {
   'video-kitchen': 'https://cdn.higgsfield.ai/kling_video_sample/1308a1ac-d626-4178-b6d5-0e2bb676f194.mp4',
   'dynamic-polaroid': 'https://cdn.higgsfield.ai/kling_video_sample/cf9c9837-4383-4edf-898e-7f85b687eea5.mp4',
@@ -271,7 +271,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, stationColor, onSelect
       {/* Preview Container */}
       <div className="relative h-44 overflow-hidden bg-zinc-800">
         {isVideoTool && videoUrl ? (
-          /* Video Preview for Kitchen Station tools */
+          /* Video Preview for Video Studio tools */
           <video
             src={videoUrl}
             muted
