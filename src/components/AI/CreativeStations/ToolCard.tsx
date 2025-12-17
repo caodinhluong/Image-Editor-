@@ -1,8 +1,54 @@
 import React, { useState } from 'react';
-import { Lock, Crown, Sparkles, Zap, ArrowRight } from 'lucide-react';
+import { 
+  Lock, Crown, Sparkles, Zap, ArrowRight,
+  // Tool icons
+  Wand2, Palette, Camera, Newspaper, Drama, Pencil, Grid3X3, Zap as ZapIcon, 
+  PenTool, MapPin, Box, ToyBrick, Blocks, Cat, Clapperboard, Package, Building2,
+  Image, Film, Tv, Layers, Search, Flower2, Droplets, Video, Aperture, Timer, ChefHat,
+  FileText, PersonStanding, Smile, Paintbrush, Scissors, Disc
+} from 'lucide-react';
 import { Tool, TierType } from '../../../types/stations';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useSubscription } from '../../../contexts/SubscriptionContext';
+
+// Map tool icon names to Lucide components
+const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  'wand': Wand2,
+  'palette': Palette,
+  'camera': Camera,
+  'newspaper': Newspaper,
+  'drama': Drama,
+  'pencil': Pencil,
+  'grid': Grid3X3,
+  'zap': ZapIcon,
+  'pen': PenTool,
+  'map': MapPin,
+  'box': Box,
+  'toy': ToyBrick,
+  'blocks': Blocks,
+  'cat': Cat,
+  'clapperboard': Clapperboard,
+  'package': Package,
+  'building': Building2,
+  'image': Image,
+  'film': Film,
+  'tv': Tv,
+  'layers': Layers,
+  'search': Search,
+  'flower': Flower2,
+  'droplets': Droplets,
+  'video': Video,
+  'aperture': Aperture,
+  'timer': Timer,
+  'chef': ChefHat,
+  'file': FileText,
+  'person': PersonStanding,
+  'smile': Smile,
+  'paintbrush': Paintbrush,
+  'scissors': Scissors,
+  'disc': Disc,
+  'sparkles': Sparkles,
+};
 
 // Video tools (Kitchen Station only)
 const VIDEO_TOOL_IDS = ['video-kitchen', 'dynamic-polaroid', 'instant-noodle-video', 'long-video-cooking'];
@@ -195,6 +241,12 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, stationColor, onSelect
   const isLocked = planLevel(currentPlan) < planLevel(tool.tier);
 
   const renderIcon = () => {
+    // Check if icon is a Lucide icon name
+    const IconComponent = iconMap[tool.icon];
+    if (IconComponent) {
+      return <IconComponent size={24} className="text-white" />;
+    }
+    // Fallback to emoji if it's an emoji
     if (tool.icon.length <= 2 || /^\p{Emoji}/u.test(tool.icon)) {
       return <span className="text-2xl">{tool.icon}</span>;
     }

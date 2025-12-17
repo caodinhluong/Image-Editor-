@@ -1,13 +1,26 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
-  X, Upload, Sparkles, Download, RefreshCw, Clock, FolderOpen, Save,
-  Image as ImageIcon, ChevronDown, ZoomIn, ZoomOut, RotateCcw, Heart, Bookmark, Share2
+  X, Upload, Sparkles, Download, RefreshCw, FolderOpen, Save,
+  Image as ImageIcon, ChevronDown, ZoomIn, ZoomOut, RotateCcw, Heart, Bookmark, Share2,
+  Wand2, RectangleHorizontal, Square, Smartphone, Monitor, RectangleVertical,
+  // Station icons
+  Coffee, Drama, Bot, Film, ChefHat, ShoppingCart
 } from 'lucide-react';
 import { Station, Tool, ProcessingState, ProcessingResult } from '../../../types/stations';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useSubscription } from '../../../contexts/SubscriptionContext';
 import { SUPPORTED_IMAGE_FORMATS, MAX_FILE_SIZE, STATIONS } from '../../../data/stations';
 import { AssetPickerModal } from '../../Editor/AssetPickerModal';
+
+// Map station icon names to Lucide components
+const stationIconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  'coffee': Coffee,
+  'drama': Drama,
+  'bot': Bot,
+  'film': Film,
+  'chef': ChefHat,
+  'cart': ShoppingCart,
+};
 
 interface AIToolExecutionViewProps {
   tool: Tool;
@@ -46,6 +59,15 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
   const [selectedModel, setSelectedModel] = useState<'standard' | 'premium'>('standard');
   const [showImageSourceMenu, setShowImageSourceMenu] = useState(false);
   
+  // Video-specific state
+  const [videoPrompt, setVideoPrompt] = useState('');
+  const [isEnhancingPrompt, setIsEnhancingPrompt] = useState(false);
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState('16:9');
+  
+  // Instant Noodle Video state
+  const [selectedDuration, setSelectedDuration] = useState('8');
+  const [selectedClipIndex, setSelectedClipIndex] = useState(0);
+  
   // View states
   const [outputTab, setOutputTab] = useState<OutputTab>('result');
   const [zoom, setZoom] = useState(100);
@@ -60,6 +82,21 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
     progress: 0,
     estimatedTimeRemaining: initialTool.estimatedTime,
   });
+  
+  // Check if this is a video tool (show prompt & aspect ratio)
+  const isVideoTool = selectedTool.id === 'video-kitchen' || selectedTool.id === 'instant-noodle-video';
+  
+  // Duration options for Instant Noodle Video
+  const durationOptions = ['8', '13', '18', '23'];
+  
+  // Video aspect ratio options
+  const aspectRatioOptions = [
+    { id: '16:9', label: '16:9', icon: RectangleHorizontal, desc: 'Landscape', descVi: 'Ngang' },
+    { id: '9:16', label: '9:16', icon: Smartphone, desc: 'Portrait', descVi: 'Dọc' },
+    { id: '1:1', label: '1:1', icon: Square, desc: 'Square', descVi: 'Vuông' },
+    { id: '4:3', label: '4:3', icon: Monitor, desc: 'Standard', descVi: 'Chuẩn' },
+    { id: '3:4', label: '3:4', icon: RectangleVertical, desc: 'Portrait', descVi: 'Dọc 3:4' },
+  ];
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const multiFileInputRef = useRef<HTMLInputElement>(null);
@@ -96,6 +133,12 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       original: 'Ảnh gốc',
       generated: 'Kết quả',
       selectTool: 'Chọn công cụ',
+      videoDescription: 'Mô tả video',
+      videoPlaceholder: 'Mô tả chi tiết video bạn muốn tạo...',
+      videoTip: 'Mẹo: Mô tả càng chi tiết, video càng chính xác.',
+      aspectRatio: 'Khung hình',
+      aiEnhance: 'AI Enhance',
+      enhancing: 'Đang tối ưu...',
     },
     en: {
       inputImage: 'Input Image',
@@ -119,6 +162,12 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       original: 'Original',
       generated: 'Result',
       selectTool: 'Select tool',
+      videoDescription: 'Video Description',
+      videoPlaceholder: 'Describe the video you want to create...',
+      videoTip: 'Tip: The more detailed your description, the better the result.',
+      aspectRatio: 'Aspect Ratio',
+      aiEnhance: 'AI Enhance',
+      enhancing: 'Enhancing...',
     }
   };
   const trans = t[language] || t.en;
@@ -201,7 +250,9 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
 
   // Handle generate
   const handleGenerate = async () => {
-    if (selectedTool.id === 'dynamic-polaroid') {
+    if (selectedTool.id === 'video-kitchen' || selectedTool.id === 'instant-noodle-video') {
+      if (!videoPrompt.trim()) return;
+    } else if (selectedTool.id === 'dynamic-polaroid') {
       if (!multiImages.some(img => img !== null)) return;
     } else {
       if (!inputImage) return;
@@ -219,9 +270,14 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
         for (let i = 0; i < selectedTool.creditCost; i++) {
           useCredits('textToImage', 1);
         }
-        const outputUrl = selectedTool.id === 'dynamic-polaroid' 
-          ? (multiImages.find(img => img !== null) || '') 
-          : (result.outputUrl || inputImage);
+        let outputUrl: string;
+        if (selectedTool.id === 'video-kitchen') {
+          outputUrl = inputImage || 'https://via.placeholder.com/1920x1080/1a1a2e/ffffff?text=Video+Generated';
+        } else if (selectedTool.id === 'dynamic-polaroid') {
+          outputUrl = multiImages.find(img => img !== null) || '';
+        } else {
+          outputUrl = result.outputUrl || inputImage || '';
+        }
         setOutputImage(outputUrl);
         setOutputTab('result');
         onComplete?.(result);
@@ -321,8 +377,17 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
     document.addEventListener('mouseup', handleUp);
   };
 
- 
- // Render output content
+  // AI Enhance prompt for video
+  const handleEnhancePrompt = async () => {
+    if (!videoPrompt.trim()) return;
+    setIsEnhancingPrompt(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    const enhancements = ['cinematic lighting, smooth camera movement, high quality, 4K resolution'];
+    setVideoPrompt(prev => `${prev}, ${enhancements[0]}`);
+    setIsEnhancingPrompt(false);
+  };
+
+  // Render output content
   const renderOutputContent = () => {
     if (processingState.isProcessing) {
       return (
@@ -335,6 +400,130 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
           </div>
           <p className="mt-5 text-zinc-300 font-medium">{trans.processing}</p>
           <p className="text-zinc-600 text-sm mt-1">{Math.round(processingState.progress)}%</p>
+        </div>
+      );
+    }
+
+    // Video Kitchen - Show video player
+    if (selectedTool.id === 'video-kitchen') {
+      if (!outputImage) {
+        return (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-zinc-800 flex items-center justify-center">
+                <span className="text-4xl">🎬</span>
+              </div>
+              <p className="text-zinc-500">{language === 'vi' ? 'Video sẽ hiển thị ở đây' : 'Video will appear here'}</p>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-4xl">
+            <video
+              src="https://www.w3schools.com/html/mov_bbb.mp4"
+              controls
+              autoPlay
+              loop
+              className="w-full rounded-2xl shadow-2xl"
+              style={{ maxHeight: '70vh' }}
+            />
+            <div className="mt-4 flex justify-center gap-3">
+              <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white flex items-center gap-2">
+                <Download size={16} />
+                {language === 'vi' ? 'Tải video' : 'Download'}
+              </button>
+              <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white flex items-center gap-2">
+                <Share2 size={16} />
+                {language === 'vi' ? 'Chia sẻ' : 'Share'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Instant Noodle Video - Show default placeholder when no output, show video + clips after generation
+    if (selectedTool.id === 'instant-noodle-video') {
+      const totalClips = Math.ceil(parseInt(selectedDuration) / 8);
+      const clips = Array.from({ length: totalClips }, (_, i) => i + 1);
+      
+      // Before generation - show default placeholder like other tools
+      if (!outputImage) {
+        return (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-zinc-800 flex items-center justify-center">
+                <span className="text-4xl">🍜</span>
+              </div>
+              <p className="text-zinc-500">{language === 'vi' ? 'Video sẽ hiển thị ở đây' : 'Video will appear here'}</p>
+              <p className="text-zinc-600 text-sm mt-2">{language === 'vi' ? `${totalClips} clip × 8 giây = ${selectedDuration} giây` : `${totalClips} clips × 8s = ${selectedDuration}s`}</p>
+            </div>
+          </div>
+        );
+      }
+      
+      // After generation - show video player with progress bar on left
+      return (
+        <div className="flex-1 flex">
+          {/* Left side - Progress bar as horizontal segments stacked vertically */}
+          <div className="w-24 border-r border-zinc-800 p-3 flex flex-col">
+            <div className="text-xs text-zinc-500 font-medium mb-3">{language === 'vi' ? 'Tiến độ' : 'Progress'}</div>
+            <div className="flex-1 flex flex-col gap-2">
+              {clips.map((clip) => (
+                <div key={clip} className="flex items-center gap-2">
+                  <div className="flex-1 h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 text-xs text-zinc-400">{selectedAspectRatio}</div>
+            <div className="mt-2 flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="text-xs text-green-400">{language === 'vi' ? 'Xong' : 'Done'}</span>
+            </div>
+          </div>
+          
+          {/* Right side - Video + clips */}
+          <div className="flex-1 flex flex-col">
+            {/* Video player area */}
+            <div className="flex-1 p-4 flex items-center justify-center">
+              <video
+                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                controls
+                autoPlay
+                className="max-w-full max-h-full rounded-xl shadow-2xl"
+                style={{ maxHeight: '55vh' }}
+              />
+            </div>
+            
+            {/* Clips bar */}
+            <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
+              {/* Clips thumbnails */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                {clips.map((clip) => (
+                  <button key={clip} onClick={() => setSelectedClipIndex(clip - 1)}
+                    className={`flex-shrink-0 w-24 h-16 rounded-lg border-2 flex flex-col items-center justify-center text-xs transition-all overflow-hidden ${selectedClipIndex === clip - 1 ? 'border-purple-500 ring-2 ring-purple-500/30' : 'border-zinc-700 bg-zinc-800 hover:border-zinc-600'}`}>
+                    <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center">
+                      <span className="text-zinc-400 text-xs">Clip {clip}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Actions */}
+              <div className="mt-3 flex justify-center gap-3">
+                <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white text-sm flex items-center gap-2">
+                  <Download size={14} />
+                  {language === 'vi' ? 'Tải video' : 'Download'}
+                </button>
+                <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white text-sm flex items-center gap-2">
+                  <Share2 size={14} />
+                  {language === 'vi' ? 'Chia sẻ' : 'Share'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       );
     }
@@ -476,17 +665,71 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
         <div className="flex-1 overflow-y-auto">
           {/* Header with Tool Info */}
           <div className="p-4 border-b border-zinc-800 flex items-center gap-3">
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-zinc-800 transition-colors">
-              <X size={18} className="text-zinc-500 rotate-180" style={{ transform: 'scaleX(-1)' }} />
-            </button>
             <div className={`p-2.5 rounded-xl bg-gradient-to-br ${selectedStation.color}`}>
-              <span className="text-xl">{selectedStation.icon}</span>
+              {(() => {
+                const IconComponent = stationIconMap[selectedStation.icon];
+                if (IconComponent) {
+                  return <IconComponent size={24} className="text-white" />;
+                }
+                return <span className="text-xl">{selectedStation.icon}</span>;
+              })()}
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-white">{toolName}</h3>
               <p className="text-xs text-zinc-500">{toolDescription}</p>
             </div>
           </div>
+
+          {/* Video Prompt Section - Only for video-kitchen */}
+          {isVideoTool && (
+            <div className="p-6 border-b border-zinc-800 space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-white">{trans.videoDescription}</h4>
+                  <button onClick={handleEnhancePrompt} disabled={!videoPrompt.trim() || isEnhancingPrompt}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${!videoPrompt.trim() || isEnhancingPrompt ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90'}`}>
+                    <Wand2 size={14} className={isEnhancingPrompt ? 'animate-spin' : ''} />
+                    {isEnhancingPrompt ? trans.enhancing : trans.aiEnhance}
+                  </button>
+                </div>
+                <textarea value={videoPrompt} onChange={(e) => setVideoPrompt(e.target.value)} placeholder={trans.videoPlaceholder}
+                  className="w-full h-24 px-4 py-3 rounded-xl border border-zinc-700 bg-zinc-800/50 text-white placeholder-zinc-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                <p className="text-xs text-zinc-500">{trans.videoTip}</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-white">{trans.aspectRatio}</h4>
+                <div className="flex flex-wrap gap-2">
+                  {aspectRatioOptions.map((ratio) => {
+                    const IconComponent = ratio.icon;
+                    return (
+                      <button key={ratio.id} onClick={() => setSelectedAspectRatio(ratio.id)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${selectedAspectRatio === ratio.id ? 'border-purple-500 bg-purple-900/30 text-purple-400' : 'border-zinc-700 hover:border-purple-500/50 text-zinc-400'}`}>
+                        <IconComponent size={16} />
+                        <span className="text-sm font-medium">{ratio.label}</span>
+                        <span className="text-xs opacity-70">{language === 'vi' ? ratio.descVi : ratio.desc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Duration selector - Only for instant-noodle-video */}
+              {selectedTool.id === 'instant-noodle-video' && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-white">{language === 'vi' ? 'Thời lượng' : 'Duration'}</h4>
+                  <div className="flex gap-2">
+                    {durationOptions.map((dur) => (
+                      <button key={dur} onClick={() => setSelectedDuration(dur)}
+                        className={`px-4 py-2 rounded-lg border transition-all ${selectedDuration === dur ? 'border-purple-500 bg-purple-900/30 text-purple-400' : 'border-zinc-700 hover:border-purple-500/50 text-zinc-400'}`}>
+                        <span className="text-sm font-medium">{dur}s</span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-zinc-500">{language === 'vi' ? 'Mỗi clip 8 giây' : 'Each clip is 8 seconds'}</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Input Image Section - Dynamic Polaroid or Standard */}
           {selectedTool.id === 'dynamic-polaroid' ? (
@@ -496,7 +739,7 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
                 {multiImages.some(img => img !== null) ? (
                   <div className="absolute inset-4 grid grid-cols-2 gap-2">
                     {multiImages.map((img, index) => (
-                      <div key={index} className={`relative rounded-lg overflow-hidden ${img ? 'bg-zinc-700' : 'bg-zinc-800/50 border border-dashed border-zinc-600'}`}>
+                      <div key={index} className={`relative aspect-square rounded-lg overflow-hidden ${img ? 'bg-zinc-700' : 'bg-zinc-800/50 border border-dashed border-zinc-600'}`}>
                         {img ? (
                           <>
                             <img src={img} alt={`Image ${index + 1}`} className="w-full h-full object-cover" />
@@ -546,8 +789,8 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
           )}
 
  
-         {/* Tool Selector - Hidden for dynamic-polaroid */}
-          {selectedTool.id !== 'dynamic-polaroid' && (
+         {/* Tool Selector - Hidden for video tools */}
+          {selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && selectedTool.id !== 'instant-noodle-video' && (
           <div className="px-6 py-4 border-t border-zinc-800">
             <div className="flex items-center gap-2 text-xs text-zinc-400 font-semibold uppercase tracking-wider mb-3">
               <Sparkles size={12} className="text-purple-400" />
@@ -603,7 +846,6 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
                             </div>
                             <span className="text-xs text-zinc-500">{language === 'vi' ? tool.descriptionVi : tool.description}</span>
                           </div>
-                          <span className="text-xs text-zinc-500">{tool.creditCost}💎</span>
                         </button>
                       ))}
                     </div>
@@ -630,23 +872,6 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
 
         {/* Footer - Action Buttons */}
         <div className="p-4 border-t border-zinc-800 bg-zinc-900/80">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-lg">💎</span>
-                <span className="font-bold text-white">{selectedTool.creditCost}</span>
-                <span className="text-zinc-500">{trans.credits}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-zinc-500">
-                <Clock size={14} />
-                <span>~{selectedTool.estimatedTime}s</span>
-              </div>
-            </div>
-            <div className="text-xs text-zinc-500">
-              {trans.balance}: {credits} {trans.credits}
-            </div>
-          </div>
-
           <div className="flex items-center gap-3">
             <button onClick={onClose} className="flex-1 px-4 py-3 rounded-xl text-sm font-medium text-zinc-400 hover:bg-zinc-800 transition-colors">
               {trans.cancel}
@@ -670,9 +895,17 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
             ) : (
               <button
                 onClick={handleGenerate}
-                disabled={processingState.isProcessing || (selectedTool.id === 'dynamic-polaroid' ? !multiImages.some(img => img !== null) : !inputImage)}
+                disabled={
+                  processingState.isProcessing ||
+                  ((selectedTool.id === 'video-kitchen' || selectedTool.id === 'instant-noodle-video') && !videoPrompt.trim()) ||
+                  (selectedTool.id === 'dynamic-polaroid' && !multiImages.some(img => img !== null)) ||
+                  (selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && selectedTool.id !== 'instant-noodle-video' && !inputImage)
+                }
                 className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all ${
-                  processingState.isProcessing || (selectedTool.id === 'dynamic-polaroid' ? !multiImages.some(img => img !== null) : !inputImage)
+                  processingState.isProcessing ||
+                  ((selectedTool.id === 'video-kitchen' || selectedTool.id === 'instant-noodle-video') && !videoPrompt.trim()) ||
+                  (selectedTool.id === 'dynamic-polaroid' && !multiImages.some(img => img !== null)) ||
+                  (selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && selectedTool.id !== 'instant-noodle-video' && !inputImage)
                     ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
                     : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90'
                 }`}
@@ -690,8 +923,8 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
       <div className="flex-1 flex flex-col bg-zinc-900/30 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 via-transparent to-pink-900/5 pointer-events-none" />
 
-        {/* Output Tabs */}
-        {outputImage && !processingState.isProcessing && (
+        {/* Output Tabs - Hidden for video tools */}
+        {outputImage && !processingState.isProcessing && selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
             <div className="flex items-center gap-1 p-1 bg-zinc-800/90 backdrop-blur-sm rounded-full border border-zinc-700/50 shadow-lg">
               {[
@@ -713,8 +946,8 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
           </div>
         )}
 
-        {/* Zoom Controls */}
-        {outputTab === 'result' && outputImage && !processingState.isProcessing && (
+        {/* Zoom Controls - Hidden for video tools */}
+        {outputTab === 'result' && outputImage && !processingState.isProcessing && selectedTool.id !== 'video-kitchen' && selectedTool.id !== 'dynamic-polaroid' && (
           <div className="absolute bottom-4 left-4 z-10">
             <div className="flex items-center gap-1 p-1 bg-zinc-800/90 backdrop-blur-sm rounded-xl border border-zinc-700/50">
               <button onClick={() => setZoom(Math.max(50, zoom - 10))} className="p-2 hover:bg-zinc-700 rounded-lg transition-colors">

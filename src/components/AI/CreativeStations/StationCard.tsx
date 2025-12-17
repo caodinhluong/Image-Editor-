@@ -1,62 +1,68 @@
-import React from 'react';
-import { ChevronRight, Sparkles, Crown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  ChevronRight, Sparkles, Crown,
+  // Station icons
+  Coffee, Drama, Bot, Film, ChefHat, ShoppingCart
+} from 'lucide-react';
 import { Station } from '../../../types/stations';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
-// Sample images for each station to showcase capabilities
-const stationShowcaseImages: Record<string, { before: string; after: string; samples: string[] }> = {
+// Map station icon names to Lucide components
+const stationIconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  'coffee': Coffee,
+  'drama': Drama,
+  'bot': Bot,
+  'film': Film,
+  'chef': ChefHat,
+  'cart': ShoppingCart,
+};
+
+// Sample images/videos for each station to showcase capabilities
+const stationShowcaseData: Record<string, { 
+  samples: string[]; 
+  isVideo?: boolean;
+}> = {
   smoothie: {
-    before: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop',
-    after: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop',
     samples: [
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/756115e7-19fb-42ab-9cbd-6cc5e368573e.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/13befca3-12d0-42af-a204-88a2c24c9dd7.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/fd775d81-cda8-485d-8b71-8fb703132217.webp',
     ]
   },
   cosplay: {
-    before: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop',
-    after: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=200&h=200&fit=crop',
     samples: [
-      'https://images.unsplash.com/photo-1612178537253-bccd437b730e?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1580477667995-2b94f01c9516?w=100&h=100&fit=crop',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/b3c0baf6-0daa-4335-938d-8e94a8a02859.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/0f17100b-5653-48fa-8a05-c4bd48556e49.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/9b16279d-d27b-47ee-baa8-1a88a085a2dc.webp',
     ]
   },
   toy: {
-    before: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop',
-    after: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop',
     samples: [
-      'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=100&h=100&fit=crop',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/8a53bff0-df10-422c-b86f-25599201df5a.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/aba71caa-2b02-43e2-a033-e2f57b4fdfb9.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/1a498a11-9bb5-4391-9628-6e474590fb6b.webp',
     ]
   },
   'film-art': {
-    before: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=200&fit=crop',
-    after: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=200&h=200&fit=crop',
     samples: [
-      'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1549490349-8643362247b5?w=100&h=100&fit=crop',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/89b4cda5-67e6-4b73-bedd-eef85682a5ba.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/6ae68cf4-9c54-4e19-b667-f1d6465f4285.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/3e5d3afe-03c1-436f-ae86-d0d3aa237b26.webp',
     ]
   },
   kitchen: {
-    before: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&h=200&fit=crop',
-    after: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=200&h=200&fit=crop',
+    isVideo: true,
     samples: [
-      'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=100&h=100&fit=crop',
+      'https://cdn.higgsfield.ai/user_3262uqBpOaCby92z8zqMPv0oYEr/8ca56b11-d7fc-43b1-9098-7272f59956af_min.mp4',
+      'https://cdn.higgsfield.ai/user_2zXu7DqFkwehcyw88RKxU8RZnH2/18127fe7-bae9-4f7a-b52f-c00195b09088_min.mp4',
+      'https://cdn.higgsfield.ai/user_2zXu7DqFkwehcyw88RKxU8RZnH2/1a4f97fd-89d5-4a2f-b3f4-681b448f11e9_min.mp4',
     ]
   },
   'self-service': {
-    before: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop',
-    after: 'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=200&h=200&fit=crop',
     samples: [
-      'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/1c7ca8ad-48fc-4ba2-9810-8c8874ba309c.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/3aaebabb-2044-4267-9290-201912b8a60d.webp',
+      'https://imgcdn.stablediffusionweb.com/2025/12/16/23c2ed77-f95e-40fe-919c-dfb37bd48907.webp',
     ]
   },
 };
@@ -74,14 +80,27 @@ export const StationCard: React.FC<StationCardProps> = ({
   onSelect,
 }) => {
   const { language } = useLanguage();
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const name = language === 'vi' ? station.nameVi : station.name;
   const description = language === 'vi' ? station.descriptionVi : station.description;
   const toolCount = station.tools.length;
-  const showcase = stationShowcaseImages[station.id];
+  const showcase = stationShowcaseData[station.id];
+  const isVideoStation = showcase?.isVideo;
   
   // Count premium tools
   const premiumCount = station.tools.filter(t => t.tier !== 'free').length;
+
+  // Auto-rotate images for non-video stations
+  useEffect(() => {
+    if (isVideoStation || !showcase?.samples.length) return;
+    
+    const interval = setInterval(() => {
+      setActiveImageIndex(prev => (prev + 1) % showcase.samples.length);
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, [isVideoStation, showcase?.samples.length]);
 
   return (
     <button
@@ -96,21 +115,43 @@ export const StationCard: React.FC<StationCardProps> = ({
         bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800
       `}
     >
-      {/* Background Image Collage */}
+      {/* Background Image/Video Collage */}
       <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500">
         <div className="absolute top-0 right-0 w-32 h-32 overflow-hidden">
-          <img 
-            src={showcase?.samples[0]} 
-            alt="" 
-            className="w-full h-full object-cover blur-sm scale-110 group-hover:scale-125 transition-transform duration-700"
-          />
+          {isVideoStation ? (
+            <video 
+              src={showcase?.samples[0]} 
+              className="w-full h-full object-cover blur-sm scale-110 group-hover:scale-125 transition-transform duration-700"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+          ) : (
+            <img 
+              src={showcase?.samples[0]} 
+              alt="" 
+              className="w-full h-full object-cover blur-sm scale-110 group-hover:scale-125 transition-transform duration-700"
+            />
+          )}
         </div>
         <div className="absolute bottom-0 left-0 w-24 h-24 overflow-hidden">
-          <img 
-            src={showcase?.samples[1]} 
-            alt="" 
-            className="w-full h-full object-cover blur-sm scale-110 group-hover:scale-125 transition-transform duration-700"
-          />
+          {isVideoStation ? (
+            <video 
+              src={showcase?.samples[1]} 
+              className="w-full h-full object-cover blur-sm scale-110 group-hover:scale-125 transition-transform duration-700"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+          ) : (
+            <img 
+              src={showcase?.samples[1]} 
+              alt="" 
+              className="w-full h-full object-cover blur-sm scale-110 group-hover:scale-125 transition-transform duration-700"
+            />
+          )}
         </div>
       </div>
 
@@ -130,7 +171,13 @@ export const StationCard: React.FC<StationCardProps> = ({
                 shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-3
               `}
             >
-              <span className="text-2xl filter drop-shadow-lg">{station.icon}</span>
+              {(() => {
+                const IconComponent = stationIconMap[station.icon];
+                if (IconComponent) {
+                  return <IconComponent size={28} className="text-white drop-shadow-lg" />;
+                }
+                return <span className="text-2xl filter drop-shadow-lg">{station.icon}</span>;
+              })()}
             </div>
           </div>
           
@@ -158,16 +205,37 @@ export const StationCard: React.FC<StationCardProps> = ({
           {description}
         </p>
 
-        {/* Sample Images Preview */}
+        {/* Sample Images/Videos Preview */}
         <div className="flex items-center gap-2 mb-4">
           <div className="flex -space-x-2">
-            {showcase?.samples.slice(0, 3).map((img, idx) => (
+            {showcase?.samples.slice(0, 3).map((src, idx) => (
               <div 
                 key={idx}
-                className="w-8 h-8 rounded-lg overflow-hidden border-2 border-zinc-800 group-hover:border-purple-500/50 transition-colors"
-                style={{ zIndex: 3 - idx }}
+                className={`w-8 h-8 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                  !isVideoStation && activeImageIndex === idx 
+                    ? 'border-purple-500 scale-110 z-10' 
+                    : 'border-zinc-800 group-hover:border-purple-500/50'
+                }`}
+                style={{ zIndex: !isVideoStation && activeImageIndex === idx ? 10 : 3 - idx }}
               >
-                <img src={img} alt="" className="w-full h-full object-cover" />
+                {isVideoStation ? (
+                  <video 
+                    src={src} 
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                ) : (
+                  <img 
+                    src={src} 
+                    alt="" 
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${
+                      activeImageIndex === idx ? 'opacity-100' : 'opacity-70'
+                    }`} 
+                  />
+                )}
               </div>
             ))}
           </div>
