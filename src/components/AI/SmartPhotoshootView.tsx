@@ -125,9 +125,23 @@ const demoSets = {
 
 export interface SmartPhotoshootViewProps {
   onNavigateToEditor?: (imageUrl: string) => void;
+  // Initial data from Collection template
+  initialImages?: string[];
+  initialImageCount?: number;
+  templateSettings?: {
+    title: string;
+    style: string;
+    model: string;
+    ratio: string;
+  };
 }
 
-export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavigateToEditor }) => {
+export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ 
+  onNavigateToEditor,
+  initialImages,
+  initialImageCount,
+  templateSettings
+}) => {
   const { language } = useLanguage();
   const { currentPlan } = useSubscription();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -147,7 +161,23 @@ export const SmartPhotoshootView: React.FC<SmartPhotoshootViewProps> = ({ onNavi
   // Get tier limits based on subscription plan
   const tierKey = currentPlan === 'pro' ? 'pro' : currentPlan === 'plus' ? 'plus' : 'free';
   const limits = IMAGE_LIMITS[tierKey];
-  const [imageCount, setImageCount] = useState(limits.default);
+  const [imageCount, setImageCount] = useState(initialImageCount || limits.default);
+  
+  // State for template mode (from Collection)
+  const [isTemplateMode, setIsTemplateMode] = useState(false);
+  const [templateImages, setTemplateImages] = useState<string[]>([]);
+
+  // Handle initial data from Collection template
+  React.useEffect(() => {
+    if (initialImages && initialImages.length > 0 && templateSettings) {
+      setIsTemplateMode(true);
+      setTemplateImages(initialImages);
+      if (initialImageCount) setImageCount(initialImageCount);
+      // Skip to step 2 (or directly generate)
+      setStep(2);
+      setSelectedCategory('ecommerce'); // Default category for template
+    }
+  }, [initialImages, templateSettings, initialImageCount]);
 
   const categories = [
     {

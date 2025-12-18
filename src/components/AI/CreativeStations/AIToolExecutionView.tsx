@@ -430,11 +430,14 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
     const estimatedMinutes = Math.ceil(selectedTool.estimatedTime / 60);
     
     return (
-      <div className="w-full max-w-4xl mx-auto">
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-500/10 via-zinc-800/80 to-pink-500/10 border border-purple-500/20 backdrop-blur-sm">
-          <div className="flex items-center gap-4 p-4">
-            {/* Icon */}
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex-shrink-0">
+      <div className="w-full max-w-4xl mx-auto animate-slide-in-bottom">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-500/10 via-zinc-800/80 to-pink-500/10 border border-purple-500/20 backdrop-blur-sm shadow-xl shadow-purple-500/10 animate-pulse-glow">
+          {/* Animated gradient shimmer */}
+          <div className="absolute inset-0 rounded-xl animate-gradient-shimmer" />
+          
+          <div className="relative flex items-center gap-4 p-4">
+            {/* Icon with bounce animation */}
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex-shrink-0 animate-bounce-soft">
               <Clock size={20} className="text-purple-400" />
             </div>
             
@@ -475,18 +478,18 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
             </div>
           </div>
 
-          {/* Quick Tips Row */}
-          <div className="flex items-center justify-center gap-6 px-4 py-2 border-t border-zinc-700/50 bg-zinc-900/30">
-            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-              <CheckCircle2 size={11} className="text-green-500" />
+          {/* Quick Tips Row with staggered animation */}
+          <div className="relative flex items-center justify-center gap-6 px-4 py-2 border-t border-zinc-700/50 bg-zinc-900/30">
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 animate-fade-in animate-delay-100">
+              <CheckCircle2 size={11} className="text-green-500 animate-bounce-soft" />
               {language === 'vi' ? 'Tự động lưu' : 'Auto-saved'}
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-              <Bell size={11} className="text-purple-400" />
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 animate-fade-in animate-delay-200">
+              <Bell size={11} className="text-purple-400 animate-bounce-soft" />
               {language === 'vi' ? 'Thông báo khi xong' : 'Notified when done'}
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-              <Zap size={11} className="text-yellow-400" />
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 animate-fade-in animate-delay-300">
+              <Zap size={11} className="text-yellow-400 animate-bounce-soft" />
               {language === 'vi' ? 'Xử lý nền' : 'Background processing'}
             </div>
           </div>

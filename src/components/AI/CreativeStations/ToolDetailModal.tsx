@@ -142,6 +142,31 @@ const defaultShowcase = {
   after: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=300&fit=crop',
 };
 
+// Video showcase for video tools - using same videos as ToolCard
+const videoToolShowcase: Record<string, { inputImage: string; outputVideo: string }> = {
+  'video-kitchen': {
+    inputImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=300&fit=crop',
+    outputVideo: 'https://cdn.higgsfield.ai/kling_video_sample/1308a1ac-d626-4178-b6d5-0e2bb676f194.mp4',
+  },
+  'dynamic-polaroid': {
+    inputImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
+    outputVideo: 'https://cdn.higgsfield.ai/kling_video_sample/cf9c9837-4383-4edf-898e-7f85b687eea5.mp4',
+  },
+  'instant-noodle-video': {
+    inputImage: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop',
+    outputVideo: 'https://cdn.higgsfield.ai/kling_video_sample/383a6e99-f88d-41c1-8b62-e2181cae3406.mp4',
+  },
+  'long-video-cooking': {
+    inputImage: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400&h=300&fit=crop',
+    outputVideo: 'https://cdn.higgsfield.ai/kling_video_sample/377e5f89-37b7-4d72-8a22-2802faabf4e5.mp4',
+  },
+};
+
+// Check if tool is a video tool
+const isVideoTool = (toolId: string): boolean => {
+  return ['video-kitchen', 'dynamic-polaroid', 'instant-noodle-video', 'long-video-cooking'].includes(toolId);
+};
+
 type CompareMode = 'side-by-side' | 'slider';
 
 interface ToolDetailModalProps {
@@ -237,35 +262,65 @@ export const ToolDetailModal: React.FC<ToolDetailModalProps> = ({
         <div className="flex flex-col lg:flex-row overflow-y-auto max-h-[calc(90vh-80px)]">
           {/* Left: Image comparison */}
           <div className="lg:w-[55%] p-5 border-b lg:border-b-0 lg:border-r border-zinc-800">
-            {/* Compare mode tabs */}
-            <div className="flex gap-2 mb-4">
-              <button
-                onClick={() => setCompareMode('side-by-side')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  compareMode === 'side-by-side'
-                    ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                    : 'bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700'
-                }`}
-              >
-                <Columns size={14} />
-                {language === 'vi' ? 'Song song' : 'Side by Side'}
-              </button>
-              <button
-                onClick={() => setCompareMode('slider')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  compareMode === 'slider'
-                    ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                    : 'bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700'
-                }`}
-              >
-                <SlidersHorizontal size={14} />
-                {language === 'vi' ? 'So sánh' : 'Compare'}
-              </button>
-            </div>
+            {/* Compare mode tabs - hide for video tools */}
+            {!isVideoTool(tool.id) && (
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={() => setCompareMode('side-by-side')}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    compareMode === 'side-by-side'
+                      ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                      : 'bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700'
+                  }`}
+                >
+                  <Columns size={14} />
+                  {language === 'vi' ? 'Song song' : 'Side by Side'}
+                </button>
+                <button
+                  onClick={() => setCompareMode('slider')}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    compareMode === 'slider'
+                      ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                      : 'bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700'
+                  }`}
+                >
+                  <SlidersHorizontal size={14} />
+                  {language === 'vi' ? 'So sánh' : 'Compare'}
+                </button>
+              </div>
+            )}
 
-            {/* Image comparison area */}
+            {/* Image/Video comparison area */}
             <div className="relative rounded-xl overflow-hidden bg-zinc-800">
-              {compareMode === 'side-by-side' ? (
+              {isVideoTool(tool.id) ? (
+                /* Video tool showcase - Input image + Output video */
+                <div className="flex gap-2 p-2">
+                  <div className="flex-1 relative">
+                    <img 
+                      src={videoToolShowcase[tool.id]?.inputImage || showcase.before} 
+                      alt="Input" 
+                      className="w-full aspect-[4/3] object-cover rounded-lg" 
+                    />
+                    <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-md text-[11px] font-bold bg-black/70 text-white/90 backdrop-blur-sm">
+                      {language === 'vi' ? 'Đầu vào' : 'Input'}
+                    </div>
+                  </div>
+                  <div className="flex-1 relative">
+                    <video 
+                      src={videoToolShowcase[tool.id]?.outputVideo || 'https://static.higgsfield.ai/explore/create-video.mp4'} 
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline
+                      className="w-full aspect-[4/3] object-cover rounded-lg"
+                    />
+                    <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-md text-[11px] font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white backdrop-blur-sm flex items-center gap-1">
+                      <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      {language === 'vi' ? 'Đầu ra' : 'Output'}
+                    </div>
+                  </div>
+                </div>
+              ) : compareMode === 'side-by-side' ? (
                 <div className="flex gap-2 p-2">
                   <div className="flex-1 relative">
                     <img src={showcase.before} alt="Before" className="w-full aspect-[4/3] object-cover rounded-lg" />

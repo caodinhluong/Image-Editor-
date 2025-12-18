@@ -138,7 +138,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
                title={isSidebarCollapsed ? item.label : undefined}
                className={`w-full flex items-center rounded-lg text-sm font-medium overflow-hidden ${
                  currentView === item.id 
-                   ? 'animated-border bg-zinc-100 dark:bg-zinc-800 text-repix-600 dark:text-white' 
+                   ? 'animated-border animated-border-active bg-zinc-100 dark:bg-zinc-800 text-repix-600 dark:text-white' 
                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-200'
                }`}
                style={{
@@ -250,7 +250,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
               key={item.id}
               onClick={() => onChangeView(item.id as ViewState)}
               className={`flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform rounded-lg ${
-                currentView === item.id ? 'animated-border text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
+                currentView === item.id ? 'animated-border animated-border-active text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
               }`}
             >
               <item.icon size={22} className={currentView === item.id ? 'fill-current opacity-20' : ''} strokeWidth={currentView === item.id ? 2.5 : 2} />
@@ -260,7 +260,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
           <button 
              onClick={() => onChangeView('profile')}
              className={`flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform rounded-lg ${
-                currentView === 'profile' ? 'animated-border text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
+                currentView === 'profile' ? 'animated-border animated-border-active text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
               }`}
           >
              <div className="w-6 h-6 rounded-full overflow-hidden border border-current">

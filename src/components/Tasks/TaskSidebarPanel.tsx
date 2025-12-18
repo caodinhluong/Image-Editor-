@@ -115,8 +115,8 @@ export const TaskSidebarPanel: React.FC<TaskSidebarPanelProps> = ({
     return (
       <div
         key={task.id}
-        className={`group rounded-xl border transition-all duration-200 overflow-hidden ${statusInfo.borderColor} ${
-          task.status === 'processing' ? 'bg-blue-500/5' : 'bg-zinc-800/30 hover:bg-zinc-800/50'
+        className={`group rounded-xl border transition-all duration-300 overflow-hidden animate-slide-in-right ${statusInfo.borderColor} ${
+          task.status === 'processing' ? 'bg-blue-500/5 animate-glow-pulse' : 'bg-zinc-800/30 hover:bg-zinc-800/50 hover-scale'
         }`}
       >
         {/* Main Row */}
@@ -300,9 +300,9 @@ export const TaskSidebarPanel: React.FC<TaskSidebarPanelProps> = ({
   }
 
   return (
-    <div className="w-80 flex flex-col bg-zinc-900/95 backdrop-blur-sm border-l border-zinc-800 h-full">
+    <div className="w-80 flex flex-col bg-zinc-900/95 backdrop-blur-sm border-l border-zinc-800 h-full animate-slide-in-right">
       {/* Header */}
-      <div className="flex-shrink-0 p-4 border-b border-zinc-800">
+      <div className="flex-shrink-0 p-4 border-b border-zinc-800 animate-fade-in animate-delay-100">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30">
@@ -328,15 +328,15 @@ export const TaskSidebarPanel: React.FC<TaskSidebarPanelProps> = ({
 
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-2">
-          <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-center">
+          <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-center animate-zoom-in animate-delay-150 hover-scale cursor-default">
             <p className="text-lg font-bold text-blue-400">{processingCount}</p>
             <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{trans.processing}</p>
           </div>
-          <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-center">
+          <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-center animate-zoom-in animate-delay-200 hover-scale cursor-default">
             <p className="text-lg font-bold text-yellow-400">{queuedCount}</p>
             <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{trans.queued}</p>
           </div>
-          <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
+          <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-center animate-zoom-in animate-delay-250 hover-scale cursor-default">
             <p className="text-lg font-bold text-green-400">{filteredTasks.filter(t => t.status === 'completed').length}</p>
             <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{trans.completed}</p>
           </div>

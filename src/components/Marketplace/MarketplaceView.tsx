@@ -5,7 +5,7 @@ import {
   Download, Star, SlidersHorizontal, Check, ArrowUpRight, X,
   Image as ImageIcon, UploadCloud, DollarSign, Tag, Sparkles, AlertCircle,
   Beaker, Play, Save, Settings2, Plus, RefreshCw, Wand2, Layers,
-  Share2, Copy, Scan, SplitSquareHorizontal, ArrowRight, HardDrive, Link as LinkIcon, CheckCircle2, Lock
+  Share2, Copy, Scan, SplitSquareHorizontal, ArrowRight, HardDrive, Link as LinkIcon, CheckCircle2, Lock, ChevronDown
 } from 'lucide-react';
 import { Button, Input, Badge, Card, Slider } from '../ui/UIComponents';
 import { Template } from '../../types';
@@ -15,6 +15,7 @@ import { ShareGenerationModal } from './ShareGenerationModal';
 import { RecreateView } from './RecreateView';
 import { TemplateDetailModal } from './TemplateDetailModal';
 import { RecreateSetupView } from './RecreateSetupView';
+import { CollectionDetailModal } from './CollectionDetailModal';
 import { getToolById } from '../../data/stations';
 
 interface ExtendedTemplate extends Template {
@@ -528,16 +529,29 @@ const TrendTracker: React.FC<{
 
 interface MarketplaceViewProps {
   onNavigateToPublish?: () => void;
+  initialContentType?: 'single' | 'collection';
+  onNavigateToPhotoshoot?: (data: {
+    images: string[];
+    imageCount: number;
+    templateSettings: {
+      title: string;
+      style: string;
+      model: string;
+      ratio: string;
+    };
+  }) => void;
 }
 
-export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPublish }) => {
-  const { trans } = useLanguage();
+export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPublish, initialContentType, onNavigateToPhotoshoot }) => {
+  const { trans, language } = useLanguage();
   const [showFilters, setShowFilters] = useState(false);
   const [showCreatorStudio, setShowCreatorStudio] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ExtendedTemplate | null>(null);
   const [selectedType, setSelectedType] = useState('ecommerce');
   const [selectedPlatform, setSelectedPlatform] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [contentType, setContentType] = useState<'all' | 'single' | 'collection'>(initialContentType || 'all');
+  const [showContentTypeDropdown, setShowContentTypeDropdown] = useState(false);
   
   // New states for Example-like flow
   const [showTemplateDetail, setShowTemplateDetail] = useState(false);
@@ -547,6 +561,18 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
   // State for RecreateView (Step 3: Auto generate with selected tool)
   const [showToolExecution, setShowToolExecution] = useState(false);
   const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
+  
+  // State for Collection Detail Modal
+  const [selectedCollection, setSelectedCollection] = useState<{
+    id: number;
+    title: string;
+    author: string;
+    count: number;
+    images: string[];
+    likes: string;
+    description?: string;
+    tags?: string[];
+  } | null>(null);
 
   // Get translated data
   const templateTypes = getTemplateTypes(trans);
@@ -602,17 +628,63 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
                  />
               </div>
               <div className="flex items-center gap-2">
+                 {/* Content Type Selector - Custom Dropdown */}
+                 <div className="relative">
+                   <button
+                     onClick={() => setShowContentTypeDropdown(!showContentTypeDropdown)}
+                     className="h-10 px-4 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white text-sm font-medium flex items-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/20"
+                   >
+                     {contentType === 'all' && <Layers size={16} />}
+                     {contentType === 'single' && <ImageIcon size={16} />}
+                     {contentType === 'collection' && <Layers size={16} />}
+                     <span>
+                       {contentType === 'all' && (language === 'vi' ? 'Tất cả' : 'All')}
+                       {contentType === 'single' && (language === 'vi' ? 'Ảnh đơn' : 'Single Images')}
+                       {contentType === 'collection' && (language === 'vi' ? 'Bộ sưu tập' : 'Collections')}
+                     </span>
+                     <ChevronDown size={16} className={`transition-transform ${showContentTypeDropdown ? 'rotate-180' : ''}`} />
+                   </button>
+                   
+                   {showContentTypeDropdown && (
+                     <>
+                       <div className="fixed inset-0 z-40" onClick={() => setShowContentTypeDropdown(false)} />
+                       <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden z-50">
+                         {[
+                           { id: 'all', label: language === 'vi' ? 'Tất cả' : 'All', icon: Layers },
+                           { id: 'single', label: language === 'vi' ? 'Ảnh đơn' : 'Single Images', icon: ImageIcon },
+                           { id: 'collection', label: language === 'vi' ? 'Bộ sưu tập' : 'Collections', icon: Layers },
+                         ].map((option) => (
+                           <button
+                             key={option.id}
+                             onClick={() => {
+                               setContentType(option.id as 'all' | 'single' | 'collection');
+                               setShowContentTypeDropdown(false);
+                             }}
+                             className={`w-full px-4 py-3 flex items-center gap-3 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${
+                               contentType === option.id ? 'bg-gradient-to-r from-pink-500/10 to-blue-500/10 text-repix-500' : 'text-zinc-700 dark:text-zinc-300'
+                             }`}
+                           >
+                             <option.icon size={16} />
+                             <span>{option.label}</span>
+                             {contentType === option.id && <Check size={14} className="ml-auto text-repix-500" />}
+                           </button>
+                         ))}
+                       </div>
+                     </>
+                   )}
+                 </div>
+                 
                  {/* Template Type Selector */}
                  <select 
                    value={selectedType}
                    onChange={(e) => { setSelectedType(e.target.value); setSelectedPlatform('all'); }}
-                   className="h-10 px-4 rounded-lg bg-zinc-900 dark:bg-zinc-800 text-white text-sm border-none outline-none cursor-pointer font-medium"
+                   className="h-10 px-4 rounded-xl bg-zinc-900 dark:bg-zinc-800 text-white text-sm border-none outline-none cursor-pointer font-medium"
                  >
                     {templateTypes.map(type => (
                        <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                  </select>
-                 <select className="h-10 px-4 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-sm border-none outline-none cursor-pointer hidden md:block">
+                 <select className="h-10 px-4 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-sm border-none outline-none cursor-pointer hidden md:block">
                     <option>{trans.marketplace.trending}</option>
                     <option>{trans.marketplace.newest}</option>
                     <option>{trans.marketplace.popular}</option>
@@ -656,7 +728,163 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
               </div>
            </div>
 
+           {/* Collections Section */}
+           {(contentType === 'all' || contentType === 'collection') && (
+             <div className="space-y-6">
+               <div className="flex items-center justify-between">
+                 <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                     <Layers size={18} className="text-white" />
+                   </div>
+                   <div>
+                     <h3 className="text-lg font-bold">{language === 'vi' ? 'Bộ sưu tập' : 'Collections'}</h3>
+                     <p className="text-sm text-zinc-500">{language === 'vi' ? 'Bộ ảnh theo chủ đề từ creators' : 'Themed photo sets from creators'}</p>
+                   </div>
+                 </div>
+               </div>
+               
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                 {[
+                   { 
+                     id: 1, 
+                     title: language === 'vi' ? 'Thời trang mùa hè' : 'Summer Fashion',
+                     author: '@fashion_studio',
+                     count: 12,
+                     images: [
+                       'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=300&h=400&q=80',
+                     ],
+                     likes: '5.2k'
+                   },
+                   { 
+                     id: 2, 
+                     title: language === 'vi' ? 'Sản phẩm công nghệ' : 'Tech Products',
+                     author: '@tech_shots',
+                     count: 8,
+                     images: [
+                       'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&h=400&q=80',
+                     ],
+                     likes: '3.8k'
+                   },
+                   { 
+                     id: 3, 
+                     title: language === 'vi' ? 'Ẩm thực Việt Nam' : 'Vietnamese Cuisine',
+                     author: '@food_vn',
+                     count: 15,
+                     images: [
+                       'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=300&h=400&q=80',
+                     ],
+                     likes: '4.1k'
+                   },
+                   { 
+                     id: 4, 
+                     title: language === 'vi' ? 'Chân dung nghệ thuật' : 'Artistic Portraits',
+                     author: '@portrait_master',
+                     count: 20,
+                     images: [
+                       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&h=400&q=80',
+                     ],
+                     likes: '8.5k'
+                   },
+                   { 
+                     id: 5, 
+                     title: language === 'vi' ? 'Mỹ phẩm & Làm đẹp' : 'Beauty & Cosmetics',
+                     author: '@beauty_studio',
+                     count: 10,
+                     images: [
+                       'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=300&h=400&q=80',
+                     ],
+                     likes: '6.2k'
+                   },
+                   { 
+                     id: 6, 
+                     title: language === 'vi' ? 'Phong cách đường phố' : 'Street Style',
+                     author: '@street_fashion',
+                     count: 18,
+                     images: [
+                       'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=300&h=400&q=80',
+                       'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=300&h=400&q=80',
+                     ],
+                     likes: '7.3k'
+                   },
+                 ].map((collection) => (
+                   <div 
+                     key={collection.id}
+                     onClick={() => setSelectedCollection(collection)}
+                     className="group relative bg-zinc-100 dark:bg-zinc-800 rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
+                   >
+                     {/* Stacked Images Preview */}
+                     <div className="relative h-48 overflow-hidden">
+                       <div className="absolute inset-0 flex">
+                         {collection.images.map((img, idx) => (
+                           <div 
+                             key={idx} 
+                             className="flex-1 relative overflow-hidden"
+                             style={{ 
+                               transform: `translateX(${idx * -10}px)`,
+                               zIndex: collection.images.length - idx 
+                             }}
+                           >
+                             <img 
+                               src={img} 
+                               alt="" 
+                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                             />
+                           </div>
+                         ))}
+                       </div>
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                       
+                       {/* Count Badge */}
+                       <div className="absolute top-3 right-3 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-white text-xs font-medium">
+                         {collection.count} {language === 'vi' ? 'ảnh' : 'images'}
+                       </div>
+                     </div>
+                     
+                     {/* Info */}
+                     <div className="p-4">
+                       <h4 className="font-semibold text-zinc-900 dark:text-white mb-1 group-hover:text-repix-500 transition-colors">
+                         {collection.title}
+                       </h4>
+                       <div className="flex items-center justify-between">
+                         <span className="text-sm text-zinc-500">{collection.author}</span>
+                         <div className="flex items-center gap-1 text-zinc-400">
+                           <Heart size={14} />
+                           <span className="text-xs">{collection.likes}</span>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+             </div>
+           )}
+
+           {/* Single Images Section Header */}
+           {(contentType === 'all' || contentType === 'single') && (
+             <div className="flex items-center gap-3 mb-4">
+               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                 <ImageIcon size={18} className="text-white" />
+               </div>
+               <div>
+                 <h3 className="text-lg font-bold">{language === 'vi' ? 'Ảnh đơn' : 'Single Images'}</h3>
+                 <p className="text-sm text-zinc-500">{language === 'vi' ? 'Tác phẩm nổi bật từ cộng đồng' : 'Featured works from community'}</p>
+               </div>
+             </div>
+           )}
+
            {/* Masonry Grid - Image Only */}
+           {(contentType === 'all' || contentType === 'single') && (
            <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-3 2xl:gap-4 space-y-3 2xl:space-y-4">
               {filteredTemplates.map(template => (
                  <div 
@@ -695,6 +923,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
                  </div>
               ))}
            </div>
+           )}
         </div>
       </div>
       
@@ -765,6 +994,19 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
       {/* Share Generation Modal */}
       {showCreatorStudio && (
         <ShareGenerationModal onClose={() => setShowCreatorStudio(false)} />
+      )}
+      
+      {/* Collection Detail Modal */}
+      {selectedCollection && (
+        <CollectionDetailModal
+          collection={selectedCollection}
+          onClose={() => setSelectedCollection(null)}
+          onSelectImage={(image) => {
+            // Handle selecting an image from collection
+            console.log('Selected image:', image);
+          }}
+          onNavigateToPhotoshoot={onNavigateToPhotoshoot}
+        />
       )}
     </div>
   );

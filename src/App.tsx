@@ -37,7 +37,7 @@ import { TaskManager } from './components/Tasks/TaskManager';
 import { useSubscription } from './contexts/SubscriptionContext';
 
 // --- Modern Home Dashboard View ---
-const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => void; onOpenTool: (toolId: string) => void; onNavigateToKitchen: () => void }> = ({ onStartEditing, onOpenTool, onNavigateToKitchen }) => {
+const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => void; onOpenTool: (toolId: string) => void; onNavigateToKitchen: () => void; onNavigateToMarketplace: (contentType?: 'single' | 'collection') => void; onUseAsInput: (imageUrl: string) => void }> = ({ onStartEditing, onOpenTool, onNavigateToKitchen, onNavigateToMarketplace, onUseAsInput }) => {
   const { trans, language } = useLanguage();
   const { currentPlan, triggerUpgradeModal } = useSubscription();
   const [activeTab, setActiveTab] = useState<'trending' | 'recent'>('trending');
@@ -147,6 +147,23 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
   
   const countOptions = [1, 2, 4];
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Check if click is outside any dropdown
+      if (!target.closest('.dropdown-container')) {
+        setShowModelDropdown(false);
+        setShowStyleDropdown(false);
+        setShowRatioDropdown(false);
+        setShowRefImageDropdown(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -250,14 +267,14 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
     }, 3000);
   };
 
-  const handleApplyAndEdit = () => {
+  const handleUseAsInput = () => {
     if (selectedImage === null) return;
     setShowEditConfirm(true);
   };
 
-  const handleConfirmEdit = () => {
+  const handleConfirmUseAsInput = () => {
     if (selectedImage === null) return;
-    onStartEditing(generatedImages[selectedImage], selectedRatio);
+    onUseAsInput(generatedImages[selectedImage]);
     setShowGenerateModal(false);
     setShowEditConfirm(false);
     setGeneratedImages([]);
@@ -513,7 +530,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                        />
                        
                        {/* Reference Image Button with Dropdown */}
-                       <div className="relative">
+                       <div className="relative dropdown-container">
                          <button
                            onClick={() => { setShowRefImageDropdown(!showRefImageDropdown); setShowModelDropdown(false); setShowStyleDropdown(false); setShowRatioDropdown(false); }}
                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-repix-500 hover:bg-repix-50 dark:hover:bg-repix-900/20 transition-colors"
@@ -523,7 +540,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                          </button>
                          {/* Dropdown Menu */}
                          {showRefImageDropdown && (
-                           <div className="absolute top-full left-0 mt-1 py-1 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[180px]">
+                           <div className="absolute bottom-full left-0 mb-2 py-1 bg-white dark:bg-zinc-800 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 z-[999] min-w-[180px]">
                              <button
                                onClick={() => { fileInputRef.current?.click(); setShowRefImageDropdown(false); }}
                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
@@ -543,7 +560,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                        </div>
 
                        {/* Model Dropdown */}
-                       <div className="relative">
+                       <div className="relative dropdown-container">
                          <button 
                            onClick={() => { setShowModelDropdown(!showModelDropdown); setShowStyleDropdown(false); setShowRatioDropdown(false); setShowRefImageDropdown(false); }}
                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -558,7 +575,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                          </button>
                          {showModelDropdown && (
-                           <div className="absolute top-full left-0 mt-1 py-2 bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-700 z-20 w-[320px] max-h-[400px] overflow-y-auto">
+                           <div className="absolute bottom-full left-0 mb-2 py-2 bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-700 z-[999] w-[320px] max-h-[400px] overflow-y-auto">
                              <p className="px-4 py-2 text-xs font-medium text-zinc-500">
                                {language === 'vi' ? 'Chọn model' : 'Select model'}
                              </p>
@@ -625,7 +642,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                        </div>
 
                        {/* Style Dropdown */}
-                       <div className="relative">
+                       <div className="relative dropdown-container">
                          <button 
                            onClick={() => { setShowStyleDropdown(!showStyleDropdown); setShowModelDropdown(false); setShowRatioDropdown(false); setShowRefImageDropdown(false); }}
                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -634,7 +651,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                          </button>
                          {showStyleDropdown && (
-                           <div className="absolute top-full left-0 mt-1 py-1 bg-white dark:bg-zinc-800 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[140px]">
+                           <div className="absolute bottom-full left-0 mb-2 py-1 bg-white dark:bg-zinc-800 rounded-lg shadow-2xl border border-zinc-200 dark:border-zinc-700 z-[999] min-w-[140px]">
                              {styleOptions.map(opt => (
                                <button
                                  key={opt.id}
@@ -649,7 +666,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                        </div>
 
                        {/* Ratio & Count Dropdown */}
-                       <div className="relative">
+                       <div className="relative dropdown-container">
                          <button 
                            onClick={() => { setShowRatioDropdown(!showRatioDropdown); setShowModelDropdown(false); setShowStyleDropdown(false); setShowRefImageDropdown(false); }}
                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
@@ -658,7 +675,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                          </button>
                          {showRatioDropdown && (
-                           <div className="absolute top-full right-0 mt-1 p-4 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 min-w-[280px]">
+                           <div className="absolute bottom-full right-0 mb-2 p-4 bg-white dark:bg-zinc-800 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 z-[999] min-w-[280px]">
                              {/* Aspect Ratio */}
                              <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">
                                {language === 'vi' ? 'Tỷ lệ khung hình' : 'Aspect Ratio'}
@@ -1516,33 +1533,33 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                         </Button>
                         <Button 
                           disabled={selectedImage === null}
-                          onClick={handleApplyAndEdit}
+                          onClick={handleUseAsInput}
                           size="sm"
                           className="bg-gradient-to-r from-pink-500 to-repix-600 flex-1 sm:flex-none min-w-[120px]"
                         >
                           <Wand2 size={14} className="mr-1.5" /> 
-                          {language === 'vi' ? 'Chỉnh sửa' : 'Edit in Studio'}
+                          {language === 'vi' ? 'Dùng làm nguyên liệu' : 'Use as Input'}
                         </Button>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Edit Confirm Dialog */}
+                {/* Use as Input Confirm Dialog */}
                 {showEditConfirm && (
                   <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
                     <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
                       <div className="text-center mb-6">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-500/20 to-repix-600/20 flex items-center justify-center">
-                          <Wand2 size={28} className="text-repix-500" />
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                          <Sparkles size={28} className="text-purple-500" />
                         </div>
                         <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
-                          {language === 'vi' ? 'Chỉnh sửa nâng cao?' : 'Advanced Editing?'}
+                          {language === 'vi' ? 'Dùng làm nguyên liệu?' : 'Use as Input?'}
                         </h3>
                         <p className="text-zinc-500 dark:text-zinc-400 text-sm">
                           {language === 'vi' 
-                            ? 'Bạn có muốn mở ảnh này trong Studio để chỉnh sửa nâng cao với đầy đủ công cụ AI?' 
-                            : 'Do you want to open this image in Studio for advanced editing with full AI tools?'}
+                            ? 'Ảnh này sẽ được dùng làm đầu vào cho các công cụ AI khác trong AI Studio. Bạn có thể áp dụng các hiệu ứng như upscale, remove background, face swap...' 
+                            : 'This image will be used as input for other AI tools in AI Studio. You can apply effects like upscale, remove background, face swap...'}
                         </p>
                       </div>
                       <div className="flex gap-3">
@@ -1554,11 +1571,11 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                           {language === 'vi' ? 'Hủy' : 'Cancel'}
                         </Button>
                         <Button 
-                          className="flex-1 bg-gradient-to-r from-pink-500 to-repix-600"
-                          onClick={handleConfirmEdit}
+                          className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500"
+                          onClick={handleConfirmUseAsInput}
                         >
-                          <Wand2 size={16} className="mr-2" />
-                          {language === 'vi' ? 'Vào Studio' : 'Open Studio'}
+                          <Sparkles size={16} className="mr-2" />
+                          {language === 'vi' ? 'Vào AI Studio' : 'Go to AI Studio'}
                         </Button>
                       </div>
                     </div>
@@ -1684,7 +1701,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                        <p className="text-sm text-zinc-500">{language === 'vi' ? 'Tác phẩm nổi bật từ cộng đồng' : 'Featured works from community'}</p>
                      </div>
                    </div>
-                   <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+                   <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white" onClick={() => onNavigateToMarketplace('single')}>
                      {language === 'vi' ? 'Xem tất cả' : 'View all'} <ArrowRight size={14} className="ml-1" />
                    </Button>
                  </div>
@@ -1743,7 +1760,7 @@ const HomeView: React.FC<{ onStartEditing: (image?: string, ratio?: string) => v
                        <p className="text-sm text-zinc-500">{language === 'vi' ? 'Bộ ảnh theo chủ đề từ creators' : 'Themed photo sets from creators'}</p>
                      </div>
                    </div>
-                   <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+                   <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white" onClick={() => onNavigateToMarketplace('collection')}>
                      {language === 'vi' ? 'Xem tất cả' : 'View all'} <ArrowRight size={14} className="ml-1" />
                    </Button>
                  </div>
@@ -2016,9 +2033,25 @@ const AppContent: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [initialEditorImage, setInitialEditorImage] = useState<string | undefined>(undefined);
   const [initialEditorRatio, setInitialEditorRatio] = useState<string | undefined>(undefined);
+  const [marketplaceContentType, setMarketplaceContentType] = useState<'single' | 'collection' | undefined>(undefined);
+  
+  // State for photoshoot from Collection template
+  const [photoshootTemplateData, setPhotoshootTemplateData] = useState<{
+    images: string[];
+    imageCount: number;
+    templateSettings: {
+      title: string;
+      style: string;
+      model: string;
+      ratio: string;
+    };
+  } | null>(null);
   
   // State for direct tool opening from HomeView
   const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
+  
+  // State for AI Studio input image (from text-to-image generation)
+  const [aiStudioInputImage, setAiStudioInputImage] = useState<string | undefined>(undefined);
 
   // Save authentication state to localStorage
   useEffect(() => {
@@ -2152,6 +2185,12 @@ const AppContent: React.FC = () => {
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('selectKitchenStation'));
         }, 100);
+      }} onNavigateToMarketplace={(contentType) => {
+        setMarketplaceContentType(contentType);
+        setView('marketplace');
+      }} onUseAsInput={(imageUrl) => {
+        setAiStudioInputImage(imageUrl);
+        setView('creative-stations');
       }} />}
       
       {/* Direct Tool Execution Modal from HomeView */}
@@ -2170,21 +2209,37 @@ const AppContent: React.FC = () => {
         );
       })()}
       {view === 'editor' && <EditorView initialImage={initialEditorImage} initialRatio={initialEditorRatio} />}
-      {view === 'photoshoot' && <SmartPhotoshootView onNavigateToEditor={(imageUrl: string) => {
-        setInitialEditorImage(imageUrl);
-        setView('editor');
-      }} />}
-      {view === 'creative-stations' && <CreativeStationsView onNavigateToEditor={(imageUrl: string) => {
-        setInitialEditorImage(imageUrl);
-        setView('editor');
-      }} />}
+      {view === 'photoshoot' && <SmartPhotoshootView 
+        onNavigateToEditor={(imageUrl: string) => {
+          setInitialEditorImage(imageUrl);
+          setView('editor');
+        }}
+        initialImages={photoshootTemplateData?.images}
+        initialImageCount={photoshootTemplateData?.imageCount}
+        templateSettings={photoshootTemplateData?.templateSettings}
+      />}
+      {view === 'creative-stations' && <CreativeStationsView 
+        onNavigateToEditor={(imageUrl: string) => {
+          setInitialEditorImage(imageUrl);
+          setView('editor');
+        }}
+        initialImage={aiStudioInputImage}
+        onClearInitialImage={() => setAiStudioInputImage(undefined)}
+      />}
       {view === 'assets' && <AssetLibrary />}
       {view === 'brandkit' && <BrandKitView />}
-      {view === 'marketplace' && <MarketplaceView onNavigateToPublish={() => {
-        setView('profile');
-        // Set a flag to open published tab
-        localStorage.setItem('repix_open_published', 'true');
-      }} />}
+      {view === 'marketplace' && <MarketplaceView 
+        initialContentType={marketplaceContentType}
+        onNavigateToPublish={() => {
+          setView('profile');
+          // Set a flag to open published tab
+          localStorage.setItem('repix_open_published', 'true');
+        }}
+        onNavigateToPhotoshoot={(data) => {
+          setPhotoshootTemplateData(data);
+          setView('photoshoot');
+        }}
+      />}
       {view === 'team' && <TeamView />}
       {view === 'analytics' && <AnalyticsView />}
       {view === 'settings' && <SettingsPanel />}

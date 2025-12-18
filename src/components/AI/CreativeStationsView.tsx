@@ -6,9 +6,15 @@ import { ProcessingResult } from '../../types/stations';
 
 export interface CreativeStationsViewProps {
   onNavigateToEditor?: (imageUrl: string) => void;
+  initialImage?: string;
+  onClearInitialImage?: () => void;
 }
 
-export const CreativeStationsView: React.FC<CreativeStationsViewProps> = ({ onNavigateToEditor }) => {
+export const CreativeStationsView: React.FC<CreativeStationsViewProps> = ({ 
+  onNavigateToEditor,
+  initialImage,
+  onClearInitialImage,
+}) => {
   const { language } = useLanguage();
 
   // Handle save to assets
@@ -24,6 +30,8 @@ export const CreativeStationsView: React.FC<CreativeStationsViewProps> = ({ onNa
         <CreativeStations
           onSaveToAssets={handleSaveToAssets}
           onNavigateToEditor={onNavigateToEditor}
+          initialImage={initialImage}
+          onClearInitialImage={onClearInitialImage}
         />
       </div>
     </div>
