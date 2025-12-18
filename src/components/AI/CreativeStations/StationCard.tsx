@@ -130,7 +130,7 @@ export const StationCard: React.FC<StationCardProps> = ({
           ) : (
             <img 
               src={showcase?.samples[0]} 
-              alt="" 
+              alt=""  
               className="w-full h-full object-cover blur-sm scale-110 group-hover:scale-125 transition-transform duration-700"
             />
           )}

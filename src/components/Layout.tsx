@@ -30,10 +30,10 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
     // { id: 'editor', icon: Edit3, label: trans.nav.editor }, // Temporarily hidden
     { id: 'photoshoot', icon: Sparkles, label: language === 'vi' ? 'Bộ Ảnh Thông Minh' : 'Smart Photoshoot', isNew: true },
     { id: 'creative-stations', icon: Wand2, label: language === 'vi' ? 'AI Studios' : 'AI Studios', isNew: true },
+    { id: 'marketplace', icon: ShoppingBag, label: trans.nav.marketplace },
     { id: 'tasks', icon: ListTodo, label: language === 'vi' ? 'Quản lý tác vụ' : 'My Tasks', badge: stats.processing > 0 ? stats.processing : undefined },
     { id: 'assets', icon: FolderOpen, label: trans.nav.assets },
     // { id: 'brandkit', icon: Palette, label: trans.brandkit.title }, // Temporarily hidden
-    { id: 'marketplace', icon: ShoppingBag, label: trans.nav.marketplace },
     // { id: 'team', icon: Users, label: trans.nav.team }, // Temporarily hidden
     { id: 'analytics', icon: BarChart3, label: trans.nav.analytics },
   ];

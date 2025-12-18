@@ -438,6 +438,9 @@ const TrendTracker: React.FC<{
   currentPlatforms: Array<{id: string; name: string}>;
   productCategories: Array<{id: string; name: string}>;
 }> = ({trans, selectedType, selectedPlatform, setSelectedPlatform, selectedCategory, setSelectedCategory, currentPlatforms, productCategories}) => {
+  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  
   // Get trending keywords based on type
   const getTrendingKeywords = () => {
     switch (selectedType) {
@@ -481,34 +484,82 @@ const TrendTracker: React.FC<{
 
               {/* Right: Filter Dropdowns */}
               <div className="flex items-center gap-3 flex-wrap">
-                 {/* Platform Filter Dropdown - Dynamic based on type */}
+                 {/* Platform Filter Dropdown - Custom */}
                  <div className="relative">
-                    <select
-                       value={selectedPlatform}
-                       onChange={(e) => setSelectedPlatform(e.target.value)}
-                       className="h-9 pl-3 pr-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-medium outline-none cursor-pointer appearance-none"
+                    <button
+                       onClick={() => { setShowPlatformDropdown(!showPlatformDropdown); setShowCategoryDropdown(false); }}
+                       className="h-9 px-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-medium flex items-center gap-2 hover:border-purple-500/50 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
                     >
-                       {currentPlatforms.map(platform => (
-                          <option key={platform.id} value={platform.id}>
-                             {platform.name}
-                          </option>
-                       ))}
-                    </select>
-                    <Filter size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                       <Filter size={14} className="text-purple-500" />
+                       <span className="text-zinc-700 dark:text-zinc-300">
+                         {currentPlatforms.find(p => p.id === selectedPlatform)?.name}
+                       </span>
+                       <ChevronDown size={14} className={`text-zinc-400 transition-transform duration-200 ${showPlatformDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {showPlatformDropdown && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowPlatformDropdown(false)} />
+                        <div className="absolute top-full left-0 mt-2 w-52 bg-white dark:bg-zinc-800 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden z-50 py-1 max-h-72 overflow-y-auto">
+                          {currentPlatforms.map((platform) => (
+                            <button
+                              key={platform.id}
+                              onClick={() => {
+                                setSelectedPlatform(platform.id);
+                                setShowPlatformDropdown(false);
+                              }}
+                              className={`w-full px-4 py-2.5 flex items-center justify-between text-sm transition-all ${
+                                selectedPlatform === platform.id 
+                                  ? 'bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-500 font-medium' 
+                                  : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                              }`}
+                            >
+                              <span>{platform.name}</span>
+                              {selectedPlatform === platform.id && <Check size={16} className="text-purple-500" />}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                  </div>
 
-                 {/* Category Filter Dropdown */}
+                 {/* Category Filter Dropdown - Custom */}
                  <div className="relative">
-                    <select
-                       value={selectedCategory}
-                       onChange={(e) => setSelectedCategory(e.target.value)}
-                       className="h-9 pl-3 pr-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-medium outline-none cursor-pointer appearance-none"
+                    <button
+                       onClick={() => { setShowCategoryDropdown(!showCategoryDropdown); setShowPlatformDropdown(false); }}
+                       className="h-9 px-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-medium flex items-center gap-2 hover:border-purple-500/50 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
                     >
-                       {productCategories.map(cat => (
-                          <option key={cat.id} value={cat.id}>{cat.name}</option>
-                       ))}
-                    </select>
-                    <Tag size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                       <Tag size={14} className="text-purple-500" />
+                       <span className="text-zinc-700 dark:text-zinc-300">
+                         {productCategories.find(c => c.id === selectedCategory)?.name}
+                       </span>
+                       <ChevronDown size={14} className={`text-zinc-400 transition-transform duration-200 ${showCategoryDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {showCategoryDropdown && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowCategoryDropdown(false)} />
+                        <div className="absolute top-full right-0 mt-2 w-52 bg-white dark:bg-zinc-800 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden z-50 py-1">
+                          {productCategories.map((cat) => (
+                            <button
+                              key={cat.id}
+                              onClick={() => {
+                                setSelectedCategory(cat.id);
+                                setShowCategoryDropdown(false);
+                              }}
+                              className={`w-full px-4 py-2.5 flex items-center justify-between text-sm transition-all ${
+                                selectedCategory === cat.id 
+                                  ? 'bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-500 font-medium' 
+                                  : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                              }`}
+                            >
+                              <span>{cat.name}</span>
+                              {selectedCategory === cat.id && <Check size={16} className="text-purple-500" />}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                  </div>
 
                  {/* Active Filters Display */}
@@ -552,6 +603,9 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [contentType, setContentType] = useState<'all' | 'single' | 'collection'>(initialContentType || 'all');
   const [showContentTypeDropdown, setShowContentTypeDropdown] = useState(false);
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [sortBy, setSortBy] = useState('trending');
   
   // New states for Example-like flow
   const [showTemplateDetail, setShowTemplateDetail] = useState(false);
@@ -674,21 +728,83 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
                    )}
                  </div>
                  
-                 {/* Template Type Selector */}
-                 <select 
-                   value={selectedType}
-                   onChange={(e) => { setSelectedType(e.target.value); setSelectedPlatform('all'); }}
-                   className="h-10 px-4 rounded-xl bg-zinc-900 dark:bg-zinc-800 text-white text-sm border-none outline-none cursor-pointer font-medium"
-                 >
-                    {templateTypes.map(type => (
-                       <option key={type.id} value={type.id}>{type.name}</option>
-                    ))}
-                 </select>
-                 <select className="h-10 px-4 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-sm border-none outline-none cursor-pointer hidden md:block">
-                    <option>{trans.marketplace.trending}</option>
-                    <option>{trans.marketplace.newest}</option>
-                    <option>{trans.marketplace.popular}</option>
-                 </select>
+                 {/* Template Type Selector - Custom Dropdown */}
+                 <div className="relative">
+                   <button
+                     onClick={() => { setShowTypeDropdown(!showTypeDropdown); setShowSortDropdown(false); setShowContentTypeDropdown(false); }}
+                     className="h-10 px-4 rounded-xl bg-zinc-900 dark:bg-zinc-800 text-white text-sm font-medium flex items-center gap-2 hover:bg-zinc-800 dark:hover:bg-zinc-700 transition-colors"
+                   >
+                     <span>{templateTypes.find(t => t.id === selectedType)?.name}</span>
+                     <ChevronDown size={16} className={`transition-transform ${showTypeDropdown ? 'rotate-180' : ''}`} />
+                   </button>
+                   
+                   {showTypeDropdown && (
+                     <>
+                       <div className="fixed inset-0 z-40" onClick={() => setShowTypeDropdown(false)} />
+                       <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                         {templateTypes.map((type) => (
+                           <button
+                             key={type.id}
+                             onClick={() => {
+                               setSelectedType(type.id);
+                               setSelectedPlatform('all');
+                               setShowTypeDropdown(false);
+                             }}
+                             className={`w-full px-4 py-3 flex items-center gap-3 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${
+                               selectedType === type.id ? 'bg-zinc-100 dark:bg-zinc-700 text-repix-500' : 'text-zinc-700 dark:text-zinc-300'
+                             }`}
+                           >
+                             <span>{type.name}</span>
+                             {selectedType === type.id && <Check size={14} className="ml-auto text-repix-500" />}
+                           </button>
+                         ))}
+                       </div>
+                     </>
+                   )}
+                 </div>
+                 
+                 {/* Sort Selector - Custom Dropdown */}
+                 <div className="relative hidden md:block">
+                   <button
+                     onClick={() => { setShowSortDropdown(!showSortDropdown); setShowTypeDropdown(false); setShowContentTypeDropdown(false); }}
+                     className="h-10 px-4 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 text-sm font-medium flex items-center gap-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+                   >
+                     <span>
+                       {sortBy === 'trending' && trans.marketplace.trending}
+                       {sortBy === 'newest' && trans.marketplace.newest}
+                       {sortBy === 'popular' && trans.marketplace.popular}
+                     </span>
+                     <ChevronDown size={16} className={`transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
+                   </button>
+                   
+                   {showSortDropdown && (
+                     <>
+                       <div className="fixed inset-0 z-40" onClick={() => setShowSortDropdown(false)} />
+                       <div className="absolute top-full right-0 mt-2 w-44 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                         {[
+                           { id: 'trending', label: trans.marketplace.trending, icon: TrendingUp },
+                           { id: 'newest', label: trans.marketplace.newest, icon: Sparkles },
+                           { id: 'popular', label: trans.marketplace.popular, icon: Heart },
+                         ].map((option) => (
+                           <button
+                             key={option.id}
+                             onClick={() => {
+                               setSortBy(option.id);
+                               setShowSortDropdown(false);
+                             }}
+                             className={`w-full px-4 py-3 flex items-center gap-3 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors ${
+                               sortBy === option.id ? 'bg-zinc-100 dark:bg-zinc-700 text-repix-500' : 'text-zinc-700 dark:text-zinc-300'
+                             }`}
+                           >
+                             <option.icon size={16} />
+                             <span>{option.label}</span>
+                             {sortBy === option.id && <Check size={14} className="ml-auto text-repix-500" />}
+                           </button>
+                         ))}
+                       </div>
+                     </>
+                   )}
+                 </div>
               </div>
            </div>
         </div>
