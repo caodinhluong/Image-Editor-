@@ -281,12 +281,14 @@ export const VideoRecreateView: React.FC<VideoRecreateViewProps> = ({
                 </span>
               </div>
               <div className="p-3">
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="w-full h-32 bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3 text-sm text-zinc-300 resize-none focus:outline-none focus:border-purple-500/50 transition-colors"
-                  placeholder="Enter your prompt..."
-                />
+                <div className="animated-border rounded-xl">
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="w-full h-32 bg-zinc-900/80 border-0 rounded-xl p-3 text-sm text-zinc-300 resize-none focus:outline-none focus:ring-0 relative z-10"
+                    placeholder="Enter your prompt..."
+                  />
+                </div>
               </div>
             </div>
 

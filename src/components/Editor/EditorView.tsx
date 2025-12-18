@@ -993,7 +993,7 @@ export const EditorView: React.FC<EditorViewProps> = ({ initialImage, initialRat
 
         {/* Floating Prompt Bar (Responsive Fixed) - Enhanced with Image Upload */}
         <div className={`absolute bottom-4 md:bottom-8 left-0 right-0 px-3 md:px-4 flex justify-center z-20 pointer-events-none transition-all duration-300 ${showGeneratePreview ? 'opacity-0' : 'opacity-100'}`}>
-          <div className={`w-full max-w-2xl bg-white/95 dark:bg-dark-surface/95 backdrop-blur-xl border border-repix-500/30 rounded-2xl shadow-2xl ring-1 ring-repix-500/10 dark:ring-white/5 pointer-events-auto transition-all duration-300 ${isPromptExpanded || uploadedImages.length > 0 ? 'p-3' : 'p-1.5 md:p-2'}`}>
+          <div className={`animated-border w-full max-w-2xl bg-white/95 dark:bg-dark-surface/95 backdrop-blur-xl border-0 rounded-2xl shadow-2xl ring-1 ring-repix-500/10 dark:ring-white/5 pointer-events-auto transition-all duration-300 ${isPromptExpanded || uploadedImages.length > 0 ? 'p-3' : 'p-1.5 md:p-2'}`}>
             
             {/* Uploaded Images Preview */}
             {uploadedImages.length > 0 && (

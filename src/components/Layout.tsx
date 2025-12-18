@@ -136,7 +136,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
                  setIsSidebarCollapsed(false);
                }}
                title={isSidebarCollapsed ? item.label : undefined}
-               className={`w-full flex items-center rounded-lg text-sm font-medium overflow-hidden ${
+               className={`w-full flex items-center rounded-lg text-sm font-medium ${
                  currentView === item.id 
                    ? 'animated-border animated-border-active bg-zinc-100 dark:bg-zinc-800 text-repix-600 dark:text-white' 
                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-200'
@@ -151,7 +151,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
                  <div className="relative flex-shrink-0">
                    <item.icon 
                      size={18} 
-                     className={`${currentView === item.id ? 'text-repix-500' : item.id === 'photoshoot' ? 'text-purple-500' : item.id === 'tasks' && (item as any).badge ? 'text-blue-500' : ''}`}
+                     className={`${currentView === item.id ? 'text-white' : item.id === 'photoshoot' ? 'text-purple-500' : item.id === 'tasks' && (item as any).badge ? 'text-blue-500' : ''}`}
                    />
                    {isSidebarCollapsed && (item as any).badge && (
                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-blue-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center animate-pulse">
@@ -250,20 +250,20 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, onSig
               key={item.id}
               onClick={() => onChangeView(item.id as ViewState)}
               className={`flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform rounded-lg ${
-                currentView === item.id ? 'animated-border animated-border-active text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
+                currentView === item.id ? 'animated-border animated-border-active text-white' : 'text-zinc-400 dark:text-zinc-500'
               }`}
             >
-              <item.icon size={22} className={currentView === item.id ? 'fill-current opacity-20' : ''} strokeWidth={currentView === item.id ? 2.5 : 2} />
+              <item.icon size={22} className={currentView === item.id ? 'text-white' : ''} strokeWidth={currentView === item.id ? 2.5 : 2} />
               <span className="text-[10px] font-medium">{item.label}</span>
             </button>
           ))}
           <button 
              onClick={() => onChangeView('profile')}
              className={`flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform rounded-lg ${
-                currentView === 'profile' ? 'animated-border animated-border-active text-repix-500' : 'text-zinc-400 dark:text-zinc-500'
+                currentView === 'profile' ? 'animated-border animated-border-active text-white' : 'text-zinc-400 dark:text-zinc-500'
               }`}
           >
-             <div className="w-6 h-6 rounded-full overflow-hidden border border-current">
+             <div className={`w-6 h-6 rounded-full overflow-hidden border ${currentView === 'profile' ? 'border-white' : 'border-current'}`}>
                 <img src="https://picsum.photos/seed/user/100/100" className="w-full h-full object-cover" />
              </div>
              <span className="text-[10px] font-medium">Me</span>

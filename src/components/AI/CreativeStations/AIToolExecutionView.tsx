@@ -886,32 +886,34 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
 
       {/* LEFT PANEL - Input & Options */}
       <div className="w-[480px] flex flex-col bg-zinc-900 border-r border-zinc-800 overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
-          {/* Header with Back Button and Tool Info */}
-          <div className="p-4 border-b border-zinc-800 flex items-center gap-3">
-            {/* Back Button */}
-            <button 
-              onClick={onClose}
-              className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors flex-shrink-0"
-              title={language === 'vi' ? 'Quay lại' : 'Go back'}
-            >
-              <ArrowLeft size={20} className="text-zinc-400" />
-            </button>
-            
-            <div className={`p-2.5 rounded-xl bg-gradient-to-br ${selectedStation.color}`}>
-              {(() => {
-                const IconComponent = stationIconMap[selectedStation.icon];
-                if (IconComponent) {
-                  return <IconComponent size={24} className="text-white" />;
-                }
-                return <span className="text-xl">{selectedStation.icon}</span>;
-              })()}
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-white">{toolName}</h3>
-              <p className="text-xs text-zinc-500">{toolDescription}</p>
-            </div>
+        {/* Fixed Header with Back Button and Tool Info */}
+        <div className="flex-shrink-0 p-4 border-b border-zinc-800 flex items-center gap-3 bg-zinc-900 sticky top-0 z-10">
+          {/* Back Button */}
+          <button 
+            onClick={onClose}
+            className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors flex-shrink-0"
+            title={language === 'vi' ? 'Quay lại' : 'Go back'}
+          >
+            <ArrowLeft size={20} className="text-zinc-400" />
+          </button>
+          
+          <div className={`p-2.5 rounded-xl bg-gradient-to-br ${selectedStation.color}`}>
+            {(() => {
+              const IconComponent = stationIconMap[selectedStation.icon];
+              if (IconComponent) {
+                return <IconComponent size={24} className="text-white" />;
+              }
+              return <span className="text-xl">{selectedStation.icon}</span>;
+            })()}
           </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-white">{toolName}</h3>
+            <p className="text-xs text-zinc-500">{toolDescription}</p>
+          </div>
+        </div>
+        
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto">
 
           {/* Video Prompt Section - Only for video-kitchen */}
           {isVideoTool && (
@@ -925,8 +927,10 @@ export const AIToolExecutionView: React.FC<AIToolExecutionViewProps> = ({
                     {isEnhancingPrompt ? trans.enhancing : trans.aiEnhance}
                   </button>
                 </div>
-                <textarea value={videoPrompt} onChange={(e) => setVideoPrompt(e.target.value)} placeholder={trans.videoPlaceholder}
-                  className="w-full h-24 px-4 py-3 rounded-xl border border-zinc-700 bg-zinc-800/50 text-white placeholder-zinc-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                <div className="animated-border rounded-xl">
+                  <textarea value={videoPrompt} onChange={(e) => setVideoPrompt(e.target.value)} placeholder={trans.videoPlaceholder}
+                    className="w-full h-24 px-4 py-3 rounded-xl border-0 bg-zinc-800/80 text-white placeholder-zinc-500 resize-none focus:outline-none focus:ring-0 relative z-10" />
+                </div>
                 <p className="text-xs text-zinc-500">{trans.videoTip}</p>
               </div>
               <div className="space-y-2">

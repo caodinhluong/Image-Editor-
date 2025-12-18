@@ -158,8 +158,8 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
   if (selectedStation) {
     return (
       <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-        {/* Simple Header - Back button + Station name */}
-        <div className="mb-6">
+        {/* Fixed Header - Back button + Station name */}
+        <div className="sticky top-0 z-20 bg-light-bg dark:bg-dark-bg pb-4 mb-2 -mx-4 px-4 pt-1">
           <button
             onClick={handleBackToStations}
             className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors mb-4 group"
@@ -171,7 +171,7 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
           </button>
 
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-white">
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
               {language === 'vi' ? selectedStation.nameVi : selectedStation.name}
             </h2>
             <span className="text-zinc-500">•</span>

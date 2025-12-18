@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X, Sparkles, ChevronRight, ArrowRight, Info,
   Wand2, Camera, Palette, Film, Users, ShoppingCart,
@@ -271,6 +271,23 @@ export const RecreateSetupView: React.FC<RecreateSetupViewProps> = ({
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [tooltipData, setTooltipData] = useState<Tool | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [toolsKey, setToolsKey] = useState(0);
+  const prevStationRef = useRef(activeStation);
+
+  // Initial load animation
+  useEffect(() => {
+    const timer = setTimeout(() => setIsInitialLoad(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Trigger tools re-animation when station changes
+  useEffect(() => {
+    if (prevStationRef.current !== activeStation) {
+      setToolsKey(prev => prev + 1);
+      prevStationRef.current = activeStation;
+    }
+  }, [activeStation]);
 
   const handleMouseMove = (e: React.MouseEvent, tool: Tool) => {
     setTooltipPos({ x: e.clientX + 15, y: e.clientY + 15 });
@@ -363,7 +380,7 @@ export const RecreateSetupView: React.FC<RecreateSetupViewProps> = ({
       )}
 
       {/* LEFT - Original Image & Prompt */}
-      <div className="w-[340px] flex flex-col bg-zinc-900 border-r border-zinc-800">
+      <div className="flex-1 flex flex-col bg-zinc-900 border-r border-zinc-800 min-w-0">
         {/* Back Button */}
         <div className="p-3 border-b border-zinc-800">
           <button 
@@ -424,31 +441,67 @@ export const RecreateSetupView: React.FC<RecreateSetupViewProps> = ({
       </div>
 
       {/* CENTER - Station Selection */}
-      <div className="w-[550px] flex flex-col bg-zinc-900/30 overflow-hidden border-r border-zinc-800">
-        <div className="p-5 border-b border-zinc-800/50">
+      <div className="flex-1 flex flex-col bg-zinc-900/30 overflow-hidden border-r border-zinc-800 min-w-0">
+        <div 
+          className="p-5 border-b border-zinc-800/50"
+          style={{
+            opacity: isInitialLoad ? 0 : 1,
+            transform: isInitialLoad ? 'translateY(-10px)' : 'translateY(0)',
+            transition: 'opacity 0.5s ease-out, transform 0.5s ease-out'
+          }}
+        >
           <h1 className="text-lg font-bold text-white mb-1">{t.title}</h1>
           <p className="text-sm text-zinc-500">{t.subtitle}</p>
         </div>
         <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
-          {stations.map((station) => {
+          {stations.map((station, index) => {
             const Icon = station.icon;
             const isActive = activeStation === station.id;
             return (
-              <div key={station.id} onClick={() => { setActiveStation(station.id); setSelectedTool(null); }}
-                className={`relative p-3 rounded-xl border transition-all duration-200 cursor-pointer ${isActive ? 'bg-gradient-to-r from-purple-500/15 via-pink-500/10 to-orange-500/15 border-purple-500/40' : 'bg-zinc-800/20 border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-800/40'}`}>
+              <div 
+                key={station.id} 
+                onClick={() => { setActiveStation(station.id); setSelectedTool(null); }}
+                className={`relative p-3 rounded-xl border cursor-pointer group
+                  ${isActive 
+                    ? 'bg-gradient-to-r from-purple-500/15 via-pink-500/10 to-orange-500/15 border-purple-500/40 shadow-lg shadow-purple-500/10' 
+                    : 'bg-zinc-800/20 border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-800/40'
+                  }`}
+                style={{
+                  opacity: isInitialLoad ? 0 : 1,
+                  transform: isInitialLoad ? 'translateX(-20px)' : 'translateX(0)',
+                  transition: `opacity 0.4s ease-out ${index * 0.08}s, transform 0.4s ease-out ${index * 0.08}s, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease`
+                }}
+              >
                 <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${isActive ? `bg-gradient-to-br ${station.gradient}` : 'bg-zinc-800'}`}>
-                    <Icon size={16} className="text-white" />
+                  <div 
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300 ${isActive ? `bg-gradient-to-br ${station.gradient} scale-110` : 'bg-zinc-800 group-hover:scale-105'}`}
+                  >
+                    <Icon size={16} className={`text-white transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className={`font-semibold text-sm ${isActive ? 'text-white' : 'text-zinc-300'}`}>{language === 'vi' ? station.nameVi : station.name}</h3>
-                      {station.isNew && <span className="px-1.5 py-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white text-[8px] font-bold rounded">MỚI</span>}
+                      <h3 className={`font-semibold text-sm transition-colors duration-200 ${isActive ? 'text-white' : 'text-zinc-300 group-hover:text-white'}`}>
+                        {language === 'vi' ? station.nameVi : station.name}
+                      </h3>
+                      {station.isNew && (
+                        <span className="px-1.5 py-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white text-[8px] font-bold rounded animate-pulse">
+                          MỚI
+                        </span>
+                      )}
                     </div>
-                    <p className={`text-[10px] ${isActive ? 'text-zinc-400' : 'text-zinc-500'}`}>{language === 'vi' ? station.descriptionVi : station.description}</p>
+                    <p className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                      {language === 'vi' ? station.descriptionVi : station.description}
+                    </p>
                   </div>
-                  {isActive && <ChevronRight size={14} className="text-purple-400 flex-shrink-0" />}
+                  <ChevronRight 
+                    size={14} 
+                    className={`flex-shrink-0 transition-all duration-300 ${isActive ? 'text-purple-400 opacity-100 translate-x-0' : 'text-zinc-600 opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0'}`} 
+                  />
                 </div>
+                {/* Active indicator line */}
+                <div 
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 rounded-r-full bg-gradient-to-b from-purple-500 to-pink-500 transition-all duration-300 ${isActive ? 'h-8 opacity-100' : 'h-0 opacity-0'}`}
+                />
               </div>
             );
           })}
@@ -456,74 +509,143 @@ export const RecreateSetupView: React.FC<RecreateSetupViewProps> = ({
       </div>
 
       {/* RIGHT - Tools Grid + Action Button */}
-      <div className="flex-1 bg-zinc-900 flex flex-col">
+      <div className="flex-1 bg-zinc-900 flex flex-col min-w-0">
         {/* Action Button Header */}
-        <div className="p-4 border-b border-zinc-800">
+        <div 
+          className="p-4 border-b border-zinc-800"
+          style={{
+            opacity: isInitialLoad ? 0 : 1,
+            transform: isInitialLoad ? 'translateY(-10px)' : 'translateY(0)',
+            transition: 'opacity 0.5s ease-out 0.3s, transform 0.5s ease-out 0.3s'
+          }}
+        >
           <button
             onClick={() => selectedTool && onStartGenerate(selectedTool)}
             disabled={!selectedTool}
-            className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
+            className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
               selectedTool
-                ? 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 hover:from-purple-500 hover:via-pink-400 hover:to-orange-400 text-white shadow-lg shadow-purple-500/25'
+                ? 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 hover:from-purple-500 hover:via-pink-400 hover:to-orange-400 text-white shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:scale-[1.02] active:scale-[0.98]'
                 : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
             }`}
           >
-            <ArrowRight size={16} />
+            <ArrowRight size={16} className={`transition-transform duration-300 ${selectedTool ? 'group-hover:translate-x-1' : ''}`} />
             {selectedTool ? t.startUsing : t.selectTool}
           </button>
         </div>
 
         {/* Tools Grid */}
         <div className="flex-1 overflow-y-auto p-3">
-          <div className="grid grid-cols-2 gap-3">
-            {activeStationData?.tools.map((tool) => {
+          <div key={toolsKey} className="grid grid-cols-2 gap-3">
+            {activeStationData?.tools.map((tool, index) => {
               const ToolIcon = tool.icon;
               const isHovered = hoveredTool === tool.id;
               const isSelected = selectedTool === tool.id;
               const showcase = toolShowcaseImages[tool.id] || defaultShowcase;
               return (
-                <div key={tool.id} 
+                <div 
+                  key={tool.id} 
                   onClick={() => setSelectedTool(tool.id)}
                   onMouseEnter={() => setHoveredTool(tool.id)} 
                   onMouseMove={(e) => handleMouseMove(e, tool)}
                   onMouseLeave={handleMouseLeave}
-                  className={`group relative overflow-hidden rounded-xl border transition-all cursor-pointer ${
-                    isSelected 
-                      ? 'border-purple-500 bg-purple-500/10 ring-2 ring-purple-500/30' 
+                  className={`group relative overflow-hidden rounded-xl border cursor-pointer
+                    ${isSelected 
+                      ? 'border-purple-500 bg-purple-500/10 ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/20' 
                       : 'border-zinc-800 hover:border-purple-500/40 bg-zinc-800/30 hover:bg-zinc-800/50'
-                  }`}>
+                    }`}
+                  style={{
+                    opacity: isInitialLoad ? 0 : 1,
+                    transform: isInitialLoad ? 'translateY(20px) scale(0.95)' : 'translateY(0) scale(1)',
+                    transition: `opacity 0.4s ease-out ${0.1 + index * 0.06}s, transform 0.4s ease-out ${0.1 + index * 0.06}s, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.3s ease`,
+                    animation: toolsKey > 0 ? `toolFadeIn 0.4s ease-out ${index * 0.05}s both` : undefined
+                  }}
+                >
                   <div className="relative h-36 overflow-hidden">
                     {/* Before Image */}
-                    <img src={showcase.before} alt="Before" className="absolute inset-0 w-full h-full object-cover" />
+                    <img 
+                      src={showcase.before} 
+                      alt="Before" 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                    />
                     {/* After Image with wipe effect */}
-                    <div className="absolute inset-0 transition-all duration-700 ease-in-out" style={{ clipPath: isHovered ? 'inset(0 0 0 0)' : 'inset(0 100% 0 0)' }}>
-                      <img src={showcase.after} alt="After" className="absolute inset-0 w-full h-full object-cover" />
+                    <div 
+                      className="absolute inset-0 transition-all duration-700 ease-out" 
+                      style={{ clipPath: isHovered ? 'inset(0 0 0 0)' : 'inset(0 100% 0 0)' }}
+                    >
+                      <img 
+                        src={showcase.after} 
+                        alt="After" 
+                        className="absolute inset-0 w-full h-full object-cover" 
+                      />
                     </div>
                     
                     {/* Gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/30 to-transparent" />
                     
+                    {/* Shine effect on hover */}
+                    <div 
+                      className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ${isHovered ? 'translate-x-full' : '-translate-x-full'}`}
+                      style={{ transform: isHovered ? 'translateX(100%)' : 'translateX(-100%)' }}
+                    />
+                    
                     {/* Before/After Label */}
-                    <div className={`absolute top-2 left-2 px-2 py-1 rounded-md text-[10px] font-semibold transition-all duration-300 ${isHovered ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : 'bg-zinc-900/80 text-zinc-300'}`}>
+                    <div 
+                      className={`absolute top-2 left-2 px-2 py-1 rounded-md text-[10px] font-semibold transition-all duration-300 ${
+                        isHovered 
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white scale-105' 
+                          : 'bg-zinc-900/80 text-zinc-300'
+                      }`}
+                    >
                       {isHovered ? t.after : t.before}
                     </div>
                     
                     {/* Selected indicator */}
-                    {isSelected && <div className="absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center"><Sparkles size={10} className="text-white" /></div>}
+                    <div 
+                      className={`absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center transition-all duration-300 ${
+                        isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                      }`}
+                    >
+                      <Sparkles size={10} className="text-white animate-pulse" />
+                    </div>
                     
                     {/* Tool Icon */}
-                    <div className={`absolute bottom-2 left-2 w-8 h-8 rounded-xl bg-gradient-to-br ${activeStationData?.gradient} flex items-center justify-center shadow-lg`}>
-                      <ToolIcon size={14} className="text-white" />
+                    <div 
+                      className={`absolute bottom-2 left-2 w-8 h-8 rounded-xl bg-gradient-to-br ${activeStationData?.gradient} flex items-center justify-center shadow-lg transition-all duration-300 ${
+                        isHovered ? 'scale-110 shadow-xl' : 'scale-100'
+                      }`}
+                    >
+                      <ToolIcon size={14} className={`text-white transition-transform duration-300 ${isHovered ? 'scale-110' : ''}`} />
                     </div>
+                    
+                    {/* New badge animation */}
+                    {tool.isNew && (
+                      <div className="absolute top-2 right-2">
+                        <span className="px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[8px] font-bold rounded animate-pulse shadow-lg shadow-amber-500/30">
+                          NEW
+                        </span>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Tool Info */}
                   <div className="p-2.5">
                     <div className="flex items-center justify-between gap-1">
-                      <h5 className="font-semibold text-white text-xs truncate">{language === 'vi' ? tool.nameVi : tool.name}</h5>
+                      <h5 className={`font-semibold text-xs truncate transition-colors duration-200 ${isSelected ? 'text-purple-300' : 'text-white'}`}>
+                        {language === 'vi' ? tool.nameVi : tool.name}
+                      </h5>
                       {getTierBadge(tool.tier)}
                     </div>
                   </div>
+                  
+                  {/* Selection ring animation */}
+                  <div 
+                    className={`absolute inset-0 rounded-xl border-2 border-purple-500 pointer-events-none transition-opacity duration-300 ${
+                      isSelected ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    style={{
+                      boxShadow: isSelected ? '0 0 20px rgba(168, 85, 247, 0.3), inset 0 0 20px rgba(168, 85, 247, 0.1)' : 'none'
+                    }}
+                  />
                 </div>
               );
             })}
