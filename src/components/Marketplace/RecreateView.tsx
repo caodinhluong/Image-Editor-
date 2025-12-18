@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   X, Sparkles, RefreshCw, Wand2, ChevronDown,
   Download, Share2, Heart, Bookmark,
-  ZoomIn, ZoomOut, RotateCcw, Copy, Check,
-  Smile, Brush, Maximize2, Users, UserCircle, PenTool, Camera, Image as ImageIcon, Shirt, Layers
+  ZoomIn, ZoomOut, RotateCcw, Copy, Check
 } from 'lucide-react';
 import { Button } from '../ui/UIComponents';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -18,22 +17,10 @@ interface RecreateViewProps {
     ratio: string;
   };
   autoGenerate?: boolean;
+  selectedToolName?: string; // Tool name passed from RecreateSetupView
 }
 
 type OutputTab = 'result' | 'sideBySide' | 'compare';
-
-// Tools data
-const tools = [
-  { id: 'soul-character', name: 'Soul ID Character', desc: 'Create unique character', icon: Smile, isNew: false },
-  { id: 'inpaint', name: 'Inpaint', desc: 'Select an area, describe the change', icon: Brush, isNew: true },
-  { id: 'upscale', name: 'Image Upscale', desc: 'Enhance image quality', icon: Maximize2, isNew: false },
-  { id: 'face-swap', name: 'Face Swap', desc: 'Create Realistic Face Swaps', icon: Users, isNew: false },
-  { id: 'character-swap', name: 'Character Swap', desc: 'Create Realistic Character Swaps', icon: UserCircle, isNew: false },
-  { id: 'draw-to-edit', name: 'Draw to Edit', desc: 'From sketch to picture', icon: PenTool, isNew: false },
-  { id: 'instadump', name: 'Instadump', desc: 'Turn a selfie into a full content library', icon: Camera, isNew: false },
-  { id: 'photodump', name: 'Photodump Studio', desc: 'Generate Your Aesthetic', icon: ImageIcon, isNew: false },
-  { id: 'fashion', name: 'Fashion Factory', desc: 'Create fashion sets', icon: Shirt, isNew: false },
-];
 
 // Models data
 const models = [
@@ -75,7 +62,8 @@ export const RecreateView: React.FC<RecreateViewProps> = ({
   originalImage,
   originalPrompt,
   generationInfo = { model: 'Higgsfield Soul', style: 'Photograph', ratio: '3:2' },
-  autoGenerate = true
+  autoGenerate = true,
+  selectedToolName = 'AI Upscaler'
 }) => {
   const { language } = useLanguage();
   const [outputTab, setOutputTab] = useState<OutputTab>('result');
@@ -88,13 +76,11 @@ export const RecreateView: React.FC<RecreateViewProps> = ({
   const compareRef = useRef<HTMLDivElement>(null);
 
   // Selectable states
-  const [selectedTool, setSelectedTool] = useState(tools[0]);
   const [selectedModel, setSelectedModel] = useState(generationInfo.model);
   const [selectedStyle, setSelectedStyle] = useState(generationInfo.style);
   const [selectedRatio, setSelectedRatio] = useState(generationInfo.ratio);
 
   // Dropdown states
-  const [showToolDropdown, setShowToolDropdown] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [showStyleDropdown, setShowStyleDropdown] = useState(false);
   const [showRatioDropdown, setShowRatioDropdown] = useState(false);
@@ -115,8 +101,7 @@ export const RecreateView: React.FC<RecreateViewProps> = ({
       style: 'Style',
       ratio: 'Tỷ lệ',
       regenerate: 'Tạo lại',
-      tool: 'CÔNG CỤ',
-      selectTool: 'Chọn công cụ',
+      usingTool: 'Đang sử dụng',
     },
     en: {
       result: 'Result',
@@ -133,8 +118,7 @@ export const RecreateView: React.FC<RecreateViewProps> = ({
       style: 'Style',
       ratio: 'Ratio',
       regenerate: 'Regenerate',
-      tool: 'TOOL',
-      selectTool: 'Select tool',
+      usingTool: 'Using',
     }
   };
   const t = trans[language] || trans.en;
@@ -168,7 +152,6 @@ export const RecreateView: React.FC<RecreateViewProps> = ({
   };
 
   const closeAllDropdowns = () => {
-    setShowToolDropdown(false);
     setShowModelDropdown(false);
     setShowStyleDropdown(false);
     setShowRatioDropdown(false);
@@ -202,7 +185,7 @@ export const RecreateView: React.FC<RecreateViewProps> = ({
             </div>
           </div>
           <p className="mt-5 text-zinc-300 font-medium">{t.generating}</p>
-          <p className="text-zinc-600 text-sm mt-1">Using {selectedTool.name}...</p>
+          <p className="text-zinc-600 text-sm mt-1">{t.usingTool} {selectedToolName}...</p>
         </div>
       );
     }
@@ -308,55 +291,6 @@ export const RecreateView: React.FC<RecreateViewProps> = ({
               <div className="absolute top-3 left-3 px-3 py-1.5 bg-zinc-900/90 backdrop-blur-sm rounded-lg text-xs text-white font-semibold border border-zinc-700/50">
                 {t.original}
               </div>
-            </div>
-          </div>
-
-          {/* Tool Selector */}
-          <div className="px-6 py-4 border-t border-zinc-800">
-            <div className="flex items-center gap-2 text-xs text-zinc-400 font-semibold uppercase tracking-wider mb-3">
-              <Layers size={12} className="text-green-400" />
-              {t.tool}
-            </div>
-            <div className="relative">
-              <button
-                onClick={() => { closeAllDropdowns(); setShowToolDropdown(!showToolDropdown); }}
-                className="w-full flex items-center gap-3 p-3 bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 rounded-xl transition-colors"
-              >
-                <div className="w-10 h-10 rounded-xl bg-zinc-700 flex items-center justify-center">
-                  <selectedTool.icon size={20} className="text-zinc-300" />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-white">{selectedTool.name}</span>
-                    {selectedTool.isNew && <span className="px-1.5 py-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white text-[9px] font-bold rounded">NEW</span>}
-                  </div>
-                  <span className="text-xs text-zinc-500">{selectedTool.desc}</span>
-                </div>
-                <ChevronDown size={16} className={`text-zinc-500 transition-transform ${showToolDropdown ? 'rotate-180' : ''}`} />
-              </button>
-
-              {showToolDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-zinc-800 border border-zinc-700 rounded-xl overflow-hidden z-20 shadow-2xl max-h-[300px] overflow-y-auto">
-                  {tools.map(tool => (
-                    <button
-                      key={tool.id}
-                      onClick={() => { setSelectedTool(tool); setShowToolDropdown(false); }}
-                      className={`w-full flex items-center gap-3 p-3 hover:bg-zinc-700 transition-colors ${selectedTool.id === tool.id ? 'bg-zinc-700' : ''}`}
-                    >
-                      <div className="w-9 h-9 rounded-lg bg-zinc-600 flex items-center justify-center">
-                        <tool.icon size={18} className="text-zinc-300" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-white">{tool.name}</span>
-                          {tool.isNew && <span className="px-1.5 py-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white text-[9px] font-bold rounded">NEW</span>}
-                        </div>
-                        <span className="text-xs text-zinc-500">{tool.desc}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 

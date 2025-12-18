@@ -15,6 +15,7 @@ import { ShareGenerationModal } from './ShareGenerationModal';
 import { RecreateView } from './RecreateView';
 import { TemplateDetailModal } from './TemplateDetailModal';
 import { RecreateSetupView } from './RecreateSetupView';
+import { getToolById } from '../../data/stations';
 
 interface ExtendedTemplate extends Template {
   downloads: string;
@@ -542,6 +543,10 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
   const [showTemplateDetail, setShowTemplateDetail] = useState(false);
   const [showRecreateSetup, setShowRecreateSetup] = useState(false);
   const [recreateData, setRecreateData] = useState<{ image: string; prompt: string; model: string; style: string; ratio: string } | null>(null);
+  
+  // State for RecreateView (Step 3: Auto generate with selected tool)
+  const [showToolExecution, setShowToolExecution] = useState(false);
+  const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
 
   // Get translated data
   const templateTypes = getTemplateTypes(trans);
@@ -712,7 +717,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
          />
       )}
 
-      {/* RecreateSetupView - Step 2: Choose AI tool to recreate (like RecreateSetupView in HomeView) */}
+      {/* RecreateSetupView - Step 2: Choose AI tool to recreate */}
       {showRecreateSetup && recreateData && (
          <RecreateSetupView 
            onClose={() => { setShowRecreateSetup(false); setRecreateData(null); setSelectedTemplate(null); }}
@@ -724,21 +729,43 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onNavigateToPu
              ratio: recreateData.ratio,
            }}
            onStartGenerate={(toolId) => {
-             // TODO: Navigate to AI Tool Execution View
-             alert(`Starting generation with tool: ${toolId}`);
+             // Get tool name and open RecreateView with autoGenerate
+             const toolData = getToolById(toolId);
+             setSelectedToolId(toolId);
              setShowRecreateSetup(false);
-             setRecreateData(null);
-             setSelectedTemplate(null);
+             setShowToolExecution(true);
            }}
          />
       )}
-
+      
+      {/* RecreateView - Step 3: Auto generate with selected tool */}
+      {showToolExecution && selectedToolId && recreateData && (() => {
+        const toolData = getToolById(selectedToolId);
+        const toolName = toolData ? (toolData.tool.name || selectedToolId) : selectedToolId;
+        return (
+          <RecreateView
+            onClose={() => {
+              setShowToolExecution(false);
+              setSelectedToolId(null);
+              setRecreateData(null);
+              setSelectedTemplate(null);
+            }}
+            originalImage={recreateData.image}
+            originalPrompt={recreateData.prompt}
+            generationInfo={{
+              model: recreateData.model,
+              style: recreateData.style,
+              ratio: recreateData.ratio,
+            }}
+            autoGenerate={true}
+            selectedToolName={toolName}
+          />
+        );
+      })()}
       {/* Share Generation Modal */}
       {showCreatorStudio && (
         <ShareGenerationModal onClose={() => setShowCreatorStudio(false)} />
       )}
-
-
     </div>
   );
 };

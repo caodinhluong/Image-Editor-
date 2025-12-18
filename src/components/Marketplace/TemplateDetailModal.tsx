@@ -413,13 +413,13 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
 
           {/* Actions - Fixed Bottom */}
           <div className="p-5 border-t border-zinc-800/50 space-y-3 bg-zinc-900/50">
-            {/* Primary Action - Recreate */}
+            {/* Primary Action - Start Using (like Try Example flow) */}
             <button
               onClick={handleRecreate}
               className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:from-purple-500 hover:via-pink-400 hover:to-orange-300 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 hover:scale-[1.02]"
             >
-              <RefreshCw size={16} />
-              {language === 'vi' ? 'Tạo lại' : 'Recreate'}
+              <Sparkles size={16} />
+              {language === 'vi' ? 'Bắt đầu sử dụng' : 'Start Using'}
             </button>
 
             {/* Secondary Actions */}

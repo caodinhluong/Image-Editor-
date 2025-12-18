@@ -123,12 +123,12 @@ const toolShowcaseImages: Record<string, { before: string; after: string }> = {
     after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/3aaebabb-2044-4267-9290-201912b8a60d.webp',
   },
   'expression-copy': {
-    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/1d129630-4876-4a3a-8999-6edf1f54f1d8.webp',
-    after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/1c7ca8ad-48fc-4ba2-9810-8c8874ba309c.webp',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/18/d2a76b63-b6af-4041-b669-4dad4a8d472c.webp',
+    after: 'https://imgcdn.stablediffusionweb.com/2025/12/18/8718731d-73c2-4ce1-a21e-847ade6d452f.webp',
   },
   'color-swap': {
-    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/2573f7f8-9e66-491d-a6a1-a3b9a562c6df.webp',
-    after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/1c7ca8ad-48fc-4ba2-9810-8c8874ba309c.webp',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/18/0fc1024b-103b-46a1-b5b4-c3aef958ba4e.webp',
+    after: 'https://imgcdn.stablediffusionweb.com/2025/12/18/4ad5e65a-1183-4971-86ab-7380d64032a1.webp',
   },
   'isolate-subject': {
     before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/b9590a7d-130f-4d6e-88b7-ef1793aa2c04.webp',
@@ -141,8 +141,8 @@ const toolShowcaseImages: Record<string, { before: string; after: string }> = {
 };
 
 const defaultShowcase = {
-  before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/8e01375d-fb78-4fa1-a86b-8b76e0611bd6.webp',
-  after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/756115e7-19fb-42ab-9cbd-6cc5e368573e.webp',
+  before: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=300&fit=crop',
+  after: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=300&fit=crop',
 };
 
 interface Tool {

@@ -168,12 +168,12 @@ const toolShowcaseImages: Record<string, { before: string; after: string }> = {
     after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/3aaebabb-2044-4267-9290-201912b8a60d.webp',
   },
   'expression-copy': {
-    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/1d129630-4876-4a3a-8999-6edf1f54f1d8.webp',
-    after: 'https://lh3.googleusercontent.com/rd-gg-dl/ABS2GSlso3VvcZyNieqi538p1dvJUWUgi1a-ytx8627MIBZRTsoB9AkidsPQVE56-ztqTeAUl0Cm1b0QYaLntEJuDZ58u3UlFCBK7JGiIcNrEd2corD1H1Jpg8Lola0e-A5QBftYJZ0XuFTx9Dqt0bG-fZEX6maydez19UoCjywxeErY3n2TYlx_eDz-vb0zDv1_txNZh9-ap0w1_s5j0N-ampb7cQAwm2znGuIPP7esLimpz1ReWgPZjzwLUGxKho5mZpzhAbRmp4xvu-6WEQ50RTPIjI4l6TBqZxp4wOZwdFH13GTlEg8lx9o2aLwUExd8pMa0Z3xZovV5grmF3uEBXGgRPBeQ17VChWRtbo6r9dh-s7FWld5o2mef-mtnH1AHJzicxEod5ANWcZntyRuWrEC0CVedVctiyxlScOfSbuXlFPfLzmtruiTDiKF6VUQZtgjepBkhzShfzkZWCHhaz6zO845hKaSxU9ypx010-j-Tm322Omd4U5p5xtwbPeRvAj1M8Fq_RyMuzU0Ddckb4Ra9iLuw2QJLys1PZJk-VDw2U1ZI53clrKrMBlGU9jL60_OMysbrFxkJcGxTEH4Hmt8a0Sab4vC-J4MC1UWxDITOdrrqlJ3bwyZTzVSI3MF4u3VMvA-A47wOMCSwvsXDc3sUWLZBjoSiSYc0CcUdC5gVYPZILGTrkr3a8w_vYAWEp9N_E5Vsz56FMU0Erbn2uMlhEnZsxbyH06Xx4xe3ZllHdCNMwcNz2dPpGGbpSXvRU3Pltt8roTPQHsI4EBB1CLaBwYYvlERXWZwlQSOUCkOn3V64TdlGAX7XJLlBRnxxomhCSOo2PHcS0ic0DQc0S3QNXigeepp9McG7T23JYzdewNmFj-B4WbGhj2_P7_ReSU5SdqImm-HlYQpWvX9EQHpq0tupMINOYiVRGif9NBOynPvdlF9_jBUWs6UIzWr4RcqV-KRl7Jm3y7EHKPc_AZGs3YMW9Em5NFm6rJ1w1avKNKOol4IVFr92eaArArt3GnpWSroY8M63h27s2V4EA8ahwhJOEKgvFkvxOWNy405GZla_HP3nNZgnNi7_CX-KZVvJ03dAZmgzoDHF-NWOqk8hol8EbKPU2oP-f5mvRQYjEKX2hhJERbU_aqfR0HVHsFbhzMgonxmdx5gqFBAgg9Mq0RVGLbZyX6W2M3G25W2LxdGn6q6iDZfCeD7VhVKvipbOqf87SQ9nvhMbel88p6r8S4IJw7eppP6v4n8ll21cJMr_ecQiV0OOZKoD6eP11yz2ceLZRc5ovIq5vDvN_R90sZFapa_aHwfIMX4N7kRfGqAf7j7PBUrD74pooNF3hZJqFra5zt_P3mF5iRfTvHdlwiYk89KTThh4Gg=s1024-rj',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/18/d2a76b63-b6af-4041-b669-4dad4a8d472c.webp',
+    after: 'https://imgcdn.stablediffusionweb.com/2025/12/18/8718731d-73c2-4ce1-a21e-847ade6d452f.webp',
   },
   'color-swap': {
-    before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/2573f7f8-9e66-491d-a6a1-a3b9a562c6df.webp',
-    after: 'https://imgcdn.stablediffusionweb.com/2025/12/16/1c7ca8ad-48fc-4ba2-9810-8c8874ba309c.webp',
+    before: 'https://imgcdn.stablediffusionweb.com/2025/12/18/0fc1024b-103b-46a1-b5b4-c3aef958ba4e.webp',
+    after: 'https://imgcdn.stablediffusionweb.com/2025/12/18/4ad5e65a-1183-4971-86ab-7380d64032a1.webp',
   },
   'isolate-subject': {
     before: 'https://imgcdn.stablediffusionweb.com/2025/12/16/b9590a7d-130f-4d6e-88b7-ef1793aa2c04.webp',

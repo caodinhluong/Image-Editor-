@@ -5,6 +5,7 @@ import { STATIONS } from '../../../data/stations';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { StationCard } from './StationCard';
 import { ToolCard } from './ToolCard';
+import { ToolDetailModal } from './ToolDetailModal';
 import { VideoDetailModal } from './VideoDetailModal';
 import { VideoRecreateView } from './VideoRecreateView';
 
@@ -88,6 +89,7 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
   const [selectedVideo, setSelectedVideo] = useState<VideoTemplate | null>(null);
   const [showRecreateView, setShowRecreateView] = useState(false);
   const [recreateVideo, setRecreateVideo] = useState<VideoTemplate | null>(null);
+  const [selectedToolForDetail, setSelectedToolForDetail] = useState<Tool | null>(null);
 
   const handleVideoClick = (template: VideoTemplate) => {
     setSelectedVideo(template);
@@ -106,6 +108,21 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
   const handleCloseRecreateView = () => {
     setShowRecreateView(false);
     setRecreateVideo(null);
+  };
+
+  const handleToolCardClick = (tool: Tool) => {
+    setSelectedToolForDetail(tool);
+  };
+
+  const handleCloseToolDetail = () => {
+    setSelectedToolForDetail(null);
+  };
+
+  const handleStartUsingTool = () => {
+    if (selectedStation && selectedToolForDetail) {
+      setSelectedToolForDetail(null);
+      onToolSelect(selectedStation, selectedToolForDetail);
+    }
   };
 
   // Listen for selectKitchenStation event from HomeView
@@ -133,9 +150,8 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
   };
 
   const handleToolClick = (tool: Tool) => {
-    if (selectedStation) {
-      onToolSelect(selectedStation, tool);
-    }
+    // Show tool detail modal first
+    handleToolCardClick(tool);
   };
 
   // Expanded station view - show tools
@@ -263,6 +279,16 @@ export const StationGrid: React.FC<StationGridProps> = ({ onToolSelect }) => {
             video={recreateVideo}
             templatePrompt={getVideoPrompt()}
             onClose={handleCloseRecreateView}
+          />
+        )}
+
+        {/* Tool Detail Modal */}
+        {selectedToolForDetail && selectedStation && (
+          <ToolDetailModal
+            tool={selectedToolForDetail}
+            stationColor={selectedStation.color}
+            onClose={handleCloseToolDetail}
+            onStartUsing={handleStartUsingTool}
           />
         )}
       </div>
